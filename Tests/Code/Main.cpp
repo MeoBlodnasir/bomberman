@@ -3,8 +3,9 @@
 #	include <crtdbg.h>
 #endif
 
-#include "TestsSmartPtr.hpp"
+#include "TestsSPtr.hpp"
 #include "TestsPath.hpp"
+#include "TestsHierarchyNode.hpp"
 
 int main()
 {
@@ -15,8 +16,9 @@ int main()
 	using namespace ft;
 	
 	uint32 iRet = 0;
-	iRet += Tests::SmartPtr::All();
+	iRet += Tests::StrongPointer::All();
 	iRet += Tests::Path::All();
+	iRet += Tests::Hierarchy::All();
 
 	return 0;
 }
