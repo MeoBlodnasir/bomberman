@@ -9,14 +9,16 @@ function LinkExternalLib_SFML()
 	configuration {}
 		libdirs		{ExternalDir.."SFML"}
 	configuration {"Debug"}
-		links		{"sfml-system-d", "sfml-window-d", "sfml-graphics-d"}
 		if (IS_WIN_BUILD) then
-			table.insert(links, "sfml-main-d"}
+			links		{"sfml-system-d", "sfml-window-d", "sfml-graphics-d", "sfml-main-d"}
+		else
+			links		{"sfml-system-d", "sfml-window-d", "sfml-graphics-d"}
 		end
 	configuration {"Release"}
-		links		{"sfml-system", "sfml-window", "sfml-graphics"}
 		if (IS_WIN_BUILD) then
-			table.insert(links, "sfml-main"}
+			links		{"sfml-system", "sfml-window", "sfml-graphics", "sfml-main"}
+		else
+			links		{"sfml-system", "sfml-window", "sfml-graphics"}
 		end
 	configuration {}
 end
