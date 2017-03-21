@@ -9,7 +9,7 @@ function DefineGameProject(ProjectName, ProjectDir)
 			kind		"WindowedApp"
 			language	"C++"
 			
-			targetdir	(ProjectDir..BinDir)
+			targetdir	(RootDir..BinDir)
 			debugdir	(ProjectDir)
 			
 			includedirs	{EngineDir..CodeDir, ProjectDir..CodeDir}

@@ -9,7 +9,7 @@ function DefineTestsProject(ProjectName, ProjectDir, ProjectToTestName, ProjectT
 			kind		"WindowedApp"
 			language	"C++"
 			
-			targetdir	(ProjectDir..BinDir)
+			targetdir	(RootDir..BinDir)
 			debugdir	(ProjectDir)
 			
 			includedirs	{EngineDir..CodeDir, ProjectToTestDir..CodeDir, ProjectDir..CodeDir}
