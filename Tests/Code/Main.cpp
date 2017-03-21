@@ -3,7 +3,7 @@
 #	include <crtdbg.h>
 #endif
 
-#include "TestsSPtr.hpp"
+#include "TestsSmartPtr.hpp"
 
 int main()
 {
@@ -14,7 +14,7 @@ int main()
 	using namespace ft;
 	
 	uint32 iRet = 0;
-	iRet += Tests::StrongPtr::All();
+	iRet += Tests::SmartPtr::All();
 
 	return 0;
 }

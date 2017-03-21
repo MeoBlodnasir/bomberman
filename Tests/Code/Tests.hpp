@@ -5,8 +5,8 @@
 
 // Configuration //////////////////////////////////////////////////////////////
 
-//#define FT_ENABLE_BREAK_AT_ASSERT
-#if defined(FT_ENABLE_BREAK_AT_ASSERT)
+#define FT_ENABLE_BREAK_AT_FAILED_ASSERT
+#if defined(FT_ENABLE_BREAK_AT_FAILED_ASSERT)
 #	define FT_UTEST_ASSERT		FT_ASSERT
 #else
 #	define FT_UTEST_ASSERT

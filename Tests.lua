@@ -25,6 +25,8 @@ function DefineTestsProject(ProjectName, ProjectDir, ProjectToTestName, ProjectT
 			libdirs		{RootDir..BinDir}
 			excludes	{ProjectDir..CodeDir.."**/*.bak"}
 			
+			buildoptions {"-std=c++0x"}
+			
 			LinkEngineLib()
 			
 		configuration {"Debug"}
