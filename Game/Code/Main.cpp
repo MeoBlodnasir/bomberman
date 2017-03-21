@@ -1,18 +1,21 @@
 
+#if defined(_WIN32)
+#	include <crtdbg.h>
+#endif
+
 #include <Output.hpp>
-#include <MathStructOutput.hpp>
+#include <OpenGL.hpp>
 
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Event.hpp>
 
 int		main()
 {
-	using namespace ft;
-
-	ft::Matrix33 m33(1);
+#if defined(_WIN32)
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
 
 	FT_COUT << "Binvenu sur GAME!" << std::endl;
-	FT_COUT << m33 << std::endl;
 
 	sf::ContextSettings oOpenGLContext;
 	oOpenGLContext.depthBits		 = 24;
@@ -24,6 +27,23 @@ int		main()
 	sf::Window* pWindow = new sf::Window(sf::VideoMode(1080, 720), "Bomberman", sf::Style::Default, oOpenGLContext);
 	pWindow->setFramerateLimit(60);
 
+#if defined(_WIN32)
+	// Après l'initialisation d'un contexte OpenGL
+	{
+		glewExperimental = GL_TRUE; // core profile
+		const GLenum eGlewError = glewInit();
+		if (eGlewError != GLEW_OK)
+		{
+			FT_CERR << "Erreur dans l'initialisation de GLEW: " << glewGetErrorString(eGlewError) << std::endl;
+			return -1;
+		}
+	}
+#endif
+
+	glViewport(0, 0, (GLsizei)pWindow->getSize().x, (GLsizei)pWindow->getSize().y);
+	glEnable(GL_DEPTH_TEST);
+	glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
+	
 	bool bRunning = true;
 	while (bRunning)
 	{
@@ -33,6 +53,11 @@ int		main()
 			if (oEvent.type == sf::Event::Closed || (oEvent.type == sf::Event::KeyPressed && oEvent.key.code == sf::Keyboard::Escape))
 				bRunning = false;
 		}
+		
+		
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		pWindow->display();
 	}
 
 	delete pWindow;
