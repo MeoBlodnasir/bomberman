@@ -25,7 +25,8 @@ function DefineEngineProject(ProjectName, ProjectDir, ProjectKind)
 			libdirs		{}
 			excludes	{ProjectDir..CodeDir.."**/*.bak"}
 			
-			LinkExternalLib("SFML", "GLM", "OpenGL")
+			LinkExternalLib("GLM")
+			--LinkExternalLib("SFML", "GLM", "OpenGL")
 			
 		configuration {"Debug"}
 			targetname	(ProjectName.."_d")

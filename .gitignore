@@ -27,3 +27,19 @@
 *.exe
 *.out
 *.app
+
+# Projects
+Makefile
+*.sln
+*.vcxproj*
+*.suo
+
+# Others
+*.sdf
+*.log
+*.tlog
+*.lastbuildstate
+*.pdb
+*.idb
+*.ipdb
+*.ilk

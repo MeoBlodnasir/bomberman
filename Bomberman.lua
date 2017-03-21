@@ -9,8 +9,8 @@ RootName				= "."
 RootDir					= "./"..RootName.."/"
 	EngineName			= "Engine"
 	EngineDir			= RootDir..EngineName.."/"
-	GamesName			= "Games"
-	GamesDir			= RootDir..GamesName.."/"
+	GameName			= "Game"
+	GameDir				= RootDir..GameName.."/"
 	ExternalName		= "External"
 	ExternalDir			= RootDir..ExternalName.."/"
 	TestsName			= "Tests"
@@ -21,7 +21,7 @@ dofile("Engine.lua")
 dofile("Game.lua")
 dofile("Tests.lua")
 
-solution (RootName)
+solution ("Bomberman")
 	location (RootDir)
 	configurations {"Debug", "Release"}
 	platforms "x32"
@@ -35,9 +35,11 @@ solution (RootName)
 	
 	DefineEngineProject(EngineName, EngineDir, "StaticLib")
 	
-	--DefineTestsProject("TestsEngine", TestsDir.."TestsEngine/", EngineName, EngineDir)
+	DefineTestsProject("Tests", TestsDir, EngineName, EngineDir)
+		LinkExternalLib("GLM")
 	--	LinkExternalLib("SFML", "GLM", "OpenGL")
 	
-	DefineGameProject("Game", GamesDir.."Game/")
-		LinkExternalLib("SFML", "GLM", "OpenGL")
+	DefineGameProject("Game", GameDir)
+		LinkExternalLib("GLM")
+	--	LinkExternalLib("SFML", "GLM", "OpenGL")
 		
