@@ -39,6 +39,7 @@ Makefile
 *.log
 *.tlog
 *.lastbuildstate
+*.unsuccessfulbuild
 *.pdb
 *.idb
 *.ipdb
