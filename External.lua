@@ -34,7 +34,7 @@ end
 
 ---------------------------------------------------
 
-bGlewStatic = true;
+bGlewStatic = false;
 
 function LinkExternalLib_OpenGL()
 
