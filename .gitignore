@@ -44,6 +44,8 @@ Makefile
 *.idb
 *.ipdb
 *.ilk
+*.VC.db
+*.VC.opendb
 
 # External Folder
 External
