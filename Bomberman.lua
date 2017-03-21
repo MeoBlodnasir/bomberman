@@ -1,5 +1,8 @@
 #!lua
 
+IS_WIN_BUILD = (_ACTION == "vs2012" or _ACTION == "vs2015")
+IS_UNIX_BUILD = not IS_WIN_BUILD
+
 CodeName				= "Code"
 CodeDir 				= CodeName.."/"
 BinName					= "Bin"
@@ -24,9 +27,6 @@ dofile("Tests.lua")
 solution ("Bomberman")
 	location (RootDir)
 	configurations {"Debug", "Release"}
-	platforms "x32"
-	configuration {"x32"}
-		defines	{"__FT_WIN32__=1"}
 	configuration {"Debug"}
 		defines	{"__FT_DEBUG__=1"}
 	configuration {"Release"}

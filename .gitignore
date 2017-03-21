@@ -36,6 +36,7 @@ Makefile
 
 # Others
 *.sdf
+*.opensdf
 *.log
 *.tlog
 *.lastbuildstate

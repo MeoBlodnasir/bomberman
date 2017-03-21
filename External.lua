@@ -9,9 +9,15 @@ function LinkExternalLib_SFML()
 	configuration {}
 		libdirs		{ExternalDir.."SFML"}
 	configuration {"Debug"}
-		links		{"sfml-main-d", "sfml-system-d", "sfml-window-d", "sfml-graphics-d"}
+		links		{"sfml-system-d", "sfml-window-d", "sfml-graphics-d"}
+		if (IS_WIN_BUILD) then
+			table.insert(links, "sfml-main-d"}
+		end
 	configuration {"Release"}
-		links		{"sfml-main", "sfml-system", "sfml-window", "sfml-graphics"}
+		links		{"sfml-system", "sfml-window", "sfml-graphics"}
+		if (IS_WIN_BUILD) then
+			table.insert(links, "sfml-main"}
+		end
 	configuration {}
 end
 
@@ -30,7 +36,7 @@ bGlewStatic = true;
 
 function LinkExternalLib_OpenGL()
 
-	configuration {"x32"}
+	if (IS_WIN_BUILD) then
 		includedirs	{ExternalDir.."OpenGL/glew/include"}
 		libdirs		{ExternalDir.."OpenGL", ExternalDir.."OpenGL/glew/lib"}
 		links		{"OpenGL32"}
@@ -46,6 +52,7 @@ function LinkExternalLib_OpenGL()
 			configuration {"Release"}
 				links		{"glew32"}
 		end
+	end
 	configuration {}
 end
 
