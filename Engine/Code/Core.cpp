@@ -3,7 +3,7 @@
 
 #include "Output.hpp"
 
-namespace Djo
+namespace ft
 {
 	void	PrintAssertInfos(const char* csExpression, const char* csFilePath, const int iLine, const char* csFunction)
 	{

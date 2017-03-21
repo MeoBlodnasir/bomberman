@@ -8,7 +8,7 @@ namespace ft
 #if defined(SPtr)
 #	undef	SPtr
 #endif
-#define		SPtr	StrongPtr
+#define		SPtr	ft::StrongPtr
 
 	// A mettre autre part...
 	template <typename T>
@@ -89,13 +89,13 @@ namespace ft
 	};
 }
 
-template <class T, class U> inline bool operator == (const ft::SPtr<T>& a, const ft::SPtr<U>& b )	{ return a.Ptr() == b.Ptr(); }
-template <class T, class U> inline bool operator != (const ft::SPtr<T>& a, const ft::SPtr<U>& b )	{ return a.Ptr() != b.Ptr(); }
+template <class T, class U> inline bool operator == (const SPtr<T>& a, const SPtr<U>& b )		{ return a.Ptr() == b.Ptr(); }
+template <class T, class U> inline bool operator != (const SPtr<T>& a, const SPtr<U>& b )		{ return a.Ptr() != b.Ptr(); }
 
-template <class T, class U> inline bool operator == (const ft::SPtr<T>& a, U* b )					{ return a.Ptr() == b; }
-template <class T, class U> inline bool operator != (const ft::SPtr<T>& a, U* b )					{ return a.Ptr() != b; }
+template <class T, class U> inline bool operator == (const SPtr<T>& a, U* b )					{ return a.Ptr() == b; }
+template <class T, class U> inline bool operator != (const SPtr<T>& a, U* b )					{ return a.Ptr() != b; }
 
-template <class T, class U> inline bool operator == (T* a, const ft::SPtr<U>& b )					{ return a == b.Ptr(); }
-template <class T, class U> inline bool operator != (T* a, const ft::SPtr<U>& b )					{ return a != b.Ptr(); }
+template <class T, class U> inline bool operator == (T* a, const SPtr<U>& b )					{ return a == b.Ptr(); }
+template <class T, class U> inline bool operator != (T* a, const SPtr<U>& b )					{ return a != b.Ptr(); }
 
-template <class T>			inline bool operator <  (const ft::SPtr<T>& a, const ft::SPtr<T>& b)	{ return a.Ptr() < b.Ptr(); }
+template <class T>			inline bool operator <  (const SPtr<T>& a, const SPtr<T>& b)		{ return a.Ptr() < b.Ptr(); }

@@ -1,15 +1,20 @@
 
-#include <Output.hpp>
-#include <MathStructOutput.hpp>
+#if defined(_WIN32)
+#	include <crtdbg.h>
+#endif
 
-int		main()
+#include "TestsSPtr.hpp"
+
+int main()
 {
+#if defined(_WIN32)
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+	
 	using namespace ft;
+	
+	uint32 iRet = 0;
+	iRet += Tests::StrongPtr::All();
 
-	ft::Matrix33 m33(1);
-	
-	FT_COUT << "Binvenu sur TESTS!" << std::endl;
-	FT_COUT << m33 << std::endl;
-	
 	return 0;
 }
