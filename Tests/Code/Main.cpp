@@ -4,6 +4,7 @@
 #endif
 
 #include "TestsSmartPtr.hpp"
+#include "TestsPath.hpp"
 
 int main()
 {
@@ -15,6 +16,7 @@ int main()
 	
 	uint32 iRet = 0;
 	iRet += Tests::SmartPtr::All();
+	iRet += Tests::Path::All();
 
 	return 0;
 }
