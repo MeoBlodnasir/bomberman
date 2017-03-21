@@ -30,11 +30,9 @@ bGlewStatic = true;
 
 function LinkExternalLib_OpenGL()
 
-	configuration {}
-		includedirs	{ExternalDir.."OpenGL/glew/include"}
 	configuration {"x32"}
+		includedirs	{ExternalDir.."OpenGL/glew/include"}
 		libdirs		{ExternalDir.."OpenGL", ExternalDir.."OpenGL/glew/lib"}
-	configuration {}
 		links		{"OpenGL32"}
 		if (bGlewStatic) then
 			defines	{"GLEW_STATIC=1"}

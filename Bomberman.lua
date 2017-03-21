@@ -36,10 +36,10 @@ solution ("Bomberman")
 	DefineEngineProject(EngineName, EngineDir, "StaticLib")
 	
 	DefineTestsProject("Tests", TestsDir, EngineName, EngineDir)
-		LinkExternalLib("GLM")
+		LinkExternalLib("SFML", "GLM")
 	--	LinkExternalLib("SFML", "GLM", "OpenGL")
 	
 	DefineGameProject("Game", GameDir)
-		LinkExternalLib("GLM")
+		LinkExternalLib("SFML", "GLM")
 	--	LinkExternalLib("SFML", "GLM", "OpenGL")
 		

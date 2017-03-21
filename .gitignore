@@ -44,3 +44,6 @@ Makefile
 *.idb
 *.ipdb
 *.ilk
+
+# External Folder
+External
