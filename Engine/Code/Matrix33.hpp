@@ -4,6 +4,7 @@
 #include "Math.hpp"
 
 #include <glm/mat3x3.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace ft
 {
