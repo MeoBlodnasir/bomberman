@@ -5,6 +5,10 @@
 
 #if defined(_WIN32)
 #	include <windows.h>
+#else
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#   include <unistd.h>
 #endif
 
 FT_TODO("Faire tout ça pour le systeme de fichiers UNIX")
@@ -123,8 +127,11 @@ namespace ft
 #if defined(_WIN32)
 		const DWORD iFileAttr = GetFileAttributes(m_sFullPath.c_str());
 		return (iFileAttr != INVALID_FILE_ATTRIBUTES) && (iFileAttr & FILE_ATTRIBUTE_DIRECTORY);
+#else
+        struct stat buf;
+        stat(m_sFullPath.c_str(), &buf);
+        return (S_ISDIR(buf.st_mode));
 #endif
-        return true;
 	}
 
 	bool	Path::DoesExist() const
@@ -138,8 +145,10 @@ namespace ft
 #if defined(_WIN32)
 		const DWORD iFileAttr = GetFileAttributes(m_sFullPath.c_str());
 		return iFileAttr != INVALID_FILE_ATTRIBUTES;
+#else
+        struct stat buf;
+        return (stat(m_sFullPath.c_str(), &buf) < 0) ? false : true;
 #endif
-        return true;
 	}
 
 	bool	Path::IsEmpty() const
