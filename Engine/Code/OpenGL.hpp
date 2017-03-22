@@ -7,7 +7,7 @@
 
 #else
 
-#	include <OpenGL/gl3.h>
+#	include <GL/gl.h>
 
 #endif
 

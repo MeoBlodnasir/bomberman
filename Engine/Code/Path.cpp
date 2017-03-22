@@ -124,6 +124,7 @@ namespace ft
 		const DWORD iFileAttr = GetFileAttributes(m_sFullPath.c_str());
 		return (iFileAttr != INVALID_FILE_ATTRIBUTES) && (iFileAttr & FILE_ATTRIBUTE_DIRECTORY);
 #endif
+        return true;
 	}
 
 	bool	Path::DoesExist() const
@@ -138,6 +139,7 @@ namespace ft
 		const DWORD iFileAttr = GetFileAttributes(m_sFullPath.c_str());
 		return iFileAttr != INVALID_FILE_ATTRIBUTES;
 #endif
+        return true;
 	}
 
 	bool	Path::IsEmpty() const
