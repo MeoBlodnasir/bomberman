@@ -3,7 +3,7 @@
 
 #include <Output.hpp>
 
-#define FT_TESTS_LOCAL_VERBOSE
+//#define FT_TESTS_LOCAL_VERBOSE
 
 namespace ft
 {
