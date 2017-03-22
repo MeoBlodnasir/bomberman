@@ -55,7 +55,7 @@ function LinkExternalLib_OpenGL()
 				links		{"glew32"}
 		end
     else
-		links		{"GL"}
+		links		{"GL", "GLEW"}
 	end
 	configuration {}
 end

@@ -1,13 +1,12 @@
 #pragma once
 
+#   include <GL/glew.h>
 #if defined(_WIN32)
 
-#	include <GL/glew.h>
 #	include <GL/wglew.h>
 
 #else
 
-#	include <GL/gl.h>
 
 #endif
 

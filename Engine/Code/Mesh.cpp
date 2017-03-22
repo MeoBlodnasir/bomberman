@@ -49,7 +49,7 @@ namespace ft
 		uint32 iProperties = xMeshResource->oVertexDescription.GetProperties();
 		uint32 iVertexSize = xMeshResource->oVertexDescription.GetVertexSize();
 		uint32 iPropertyElementCount = 0;
-		uint32 iCurrentStride = 0;
+		uint64 iCurrentStride = 0;
 		for (uint32 i = 0; i < FT_VERTEX_LOCATION_COUNT; ++i)
 		{
 			if (iProperties & (1 << i))

@@ -37,7 +37,6 @@ int		main()
 	{
 		pWindow->setFramerateLimit(60);
 
-#if defined(_WIN32)
 		// Après l'initialisation d'un contexte OpenGL
 		{
 			glewExperimental = GL_TRUE; // core profile
@@ -48,7 +47,6 @@ int		main()
 				return -1;
 			}
 		}
-#endif
 
 		glViewport(0, 0, (GLsizei)pWindow->getSize().x, (GLsizei)pWindow->getSize().y);
 		glEnable(GL_DEPTH_TEST);
