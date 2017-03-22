@@ -9,6 +9,10 @@
 #   include <sys/types.h>
 #   include <sys/stat.h>
 #   include <unistd.h>
+#   include <stdlib.h> 
+#   include <linux/limits.h>
+#   include <errno.h>
+#   include <string.h>
 #endif
 
 FT_TODO("Faire tout ça pour le systeme de fichiers UNIX")
@@ -173,24 +177,30 @@ namespace ft
 #if defined(_WIN32)
 		iFullPathLength = GetFullPathName(m_sFullPath.c_str(), FT_BUFFERSIZE, csFullPathBuffer, 0);
 		FT_ASSERT(iFullPathLength < FT_BUFFERSIZE);
-		m_sFullPath = std::string(csFullPathBuffer);
+        m_sFullPath = std::string(csFullPathBuffer);
+#else
+      char *ptr;
+      ptr = realpath(m_sFullPath.c_str(), NULL); 
+      if (ptr != nullptr)
+        m_sFullPath = ptr;
+
 #endif
 
-		// Ajouter un '/' en fin de dossier
-		if (IsDirectory() && m_sFullPath.back() != s_iSeparator)
-			m_sFullPath += s_iSeparator;
+      // Ajouter un '/' en fin de dossier
+      if (IsDirectory() && m_sFullPath.back() != s_iSeparator)
+        m_sFullPath += s_iSeparator;
 
-		return IsValid();
-	}
+      return IsValid();
+    }
 
-	bool	Path::Add(const std::string& sName)
-	{
-		return Set(m_sFullPath + sName);
-	}
+    bool	Path::Add(const std::string& sName)
+    {
+      return Set(m_sFullPath + sName);
+    }
 }
 
 std::ostream& operator << (std::ostream& oOs, const ft::Path& oPath)
 {
-	oOs << oPath.GetFullPath();
-	return oOs;
+  oOs << oPath.GetFullPath();
+  return oOs;
 }

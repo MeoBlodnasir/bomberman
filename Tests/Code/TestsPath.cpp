@@ -64,12 +64,13 @@ namespace ft
 				FT_UTEST(oPath0.IsEmpty() == true);
 				FT_UTEST(oPath1.IsEmpty() == false);
 				FT_UTEST(oPath2.IsEmpty() == false);
-
 				oPath0.Set("Tests/Assets/TestsPath/Fichier.txt");
 				oPath1.Set("Tests/Assets/TestsPath/Dossier/");
 				oPath2.Set("Tests/Assets/TestsPath/Dossier/Fichier.txt");
+				
 
 				//FT_UTEST(oPath0.GetFullPath() == "Tests\\Assets\\Core\\Fichier.txt");
+				//FT_UTEST(oPath0.GetFullPath() == "/home/gonzo/projects/bomberman/Tests/Assets/TestsPath/Fichier.txt");
 				//FT_UTEST(oPath1.GetFullPath() == "Tests\\Assets\\Core\\Dossier\\");
 				//FT_UTEST(oPath2.GetFullPath() == "Tests\\Assets\\Core\\Dossier\\Fichier.txt");
 
@@ -104,11 +105,9 @@ namespace ft
 				FT_UTEST(oPath0.IsEmpty() == false);
 				FT_UTEST(oPath1.IsEmpty() == false);
 				FT_UTEST(oPath2.IsEmpty() == false);
-				
 				// tester: 
 				//void				Normalize();
 				//void				Add(const std::string& s);
-
 				FT_UTEST_END;
 			}
 		}
