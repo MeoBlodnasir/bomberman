@@ -10,7 +10,7 @@ function DefineTestsProject(ProjectName, ProjectDir, ProjectToTestName, ProjectT
 			language	"C++"
 			
 			targetdir	(RootDir..BinDir)
-			debugdir	(ProjectDir)
+			debugdir	(RootDir)
 			
 			includedirs	{EngineDir..CodeDir, ProjectToTestDir..CodeDir, ProjectDir..CodeDir}
 

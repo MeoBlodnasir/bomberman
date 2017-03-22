@@ -10,7 +10,7 @@ function DefineGameProject(ProjectName, ProjectDir)
 			language	"C++"
 			
 			targetdir	(RootDir..BinDir)
-			debugdir	(ProjectDir)
+			debugdir	(RootDir)
 			
 			includedirs	{EngineDir..CodeDir, ProjectDir..CodeDir}
 

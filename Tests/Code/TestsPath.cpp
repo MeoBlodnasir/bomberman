@@ -65,21 +65,21 @@ namespace ft
 				FT_UTEST(oPath1.IsEmpty() == false);
 				FT_UTEST(oPath2.IsEmpty() == false);
 
-				oPath0.Set("Assets/TestsPath/Fichier.txt");
-				oPath1.Set("Assets/TestsPath/Dossier/");
-				oPath2.Set("Assets/TestsPath/Dossier/Fichier.txt");
+				oPath0.Set("Tests/Assets/TestsPath/Fichier.txt");
+				oPath1.Set("Tests/Assets/TestsPath/Dossier/");
+				oPath2.Set("Tests/Assets/TestsPath/Dossier/Fichier.txt");
 
-				//FT_UTEST(oPath0.GetFullPath() == "Assets\\Core\\Fichier.txt");
-				//FT_UTEST(oPath1.GetFullPath() == "Assets\\Core\\Dossier\\");
-				//FT_UTEST(oPath2.GetFullPath() == "Assets\\Core\\Dossier\\Fichier.txt");
+				//FT_UTEST(oPath0.GetFullPath() == "Tests\\Assets\\Core\\Fichier.txt");
+				//FT_UTEST(oPath1.GetFullPath() == "Tests\\Assets\\Core\\Dossier\\");
+				//FT_UTEST(oPath2.GetFullPath() == "Tests\\Assets\\Core\\Dossier\\Fichier.txt");
 
 				FT_UTEST(oPath0.GetFullName() == "Fichier.txt");
 				FT_UTEST(oPath1.GetFullName() == "Dossier");
 				FT_UTEST(oPath2.GetFullName() == "Fichier.txt");
 
-				//FT_UTEST(oPath0.GetDirPath() == "Assets\\Core\\");
-				//FT_UTEST(oPath1.GetDirPath() == "Assets\\Core\\");
-				//FT_UTEST(oPath2.GetDirPath() == "Assets\\Core\\Dossier\\");
+				//FT_UTEST(oPath0.GetDirPath() == "Tests\\Assets\\Core\\");
+				//FT_UTEST(oPath1.GetDirPath() == "Tests\\Assets\\Core\\");
+				//FT_UTEST(oPath2.GetDirPath() == "Tests\\Assets\\Core\\Dossier\\");
 
 				FT_UTEST(oPath0.GetName() == "Fichier");
 				FT_UTEST(oPath1.GetName() == "Dossier");
