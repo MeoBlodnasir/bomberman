@@ -180,9 +180,11 @@ namespace ft
         m_sFullPath = std::string(csFullPathBuffer);
 #else
       char *ptr;
-      ptr = realpath(m_sFullPath.c_str(), NULL); 
+      char buf[PATH_MAX];
+      ptr = realpath(m_sFullPath.c_str(), buf); 
+      FT_ASSERT(ptr == nullptr);
       if (ptr != nullptr)
-        m_sFullPath = ptr;
+        m_sFullPath = std::string(ptr);
 
 #endif
 
