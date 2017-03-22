@@ -69,18 +69,25 @@ namespace ft
 				oPath2.Set("Tests/Assets/TestsPath/Dossier/Fichier.txt");
 				
 
-				//FT_UTEST(oPath0.GetFullPath() == "Tests\\Assets\\Core\\Fichier.txt");
 				//FT_UTEST(oPath0.GetFullPath() == "/home/gonzo/projects/bomberman/Tests/Assets/TestsPath/Fichier.txt");
-				//FT_UTEST(oPath1.GetFullPath() == "Tests\\Assets\\Core\\Dossier\\");
-				//FT_UTEST(oPath2.GetFullPath() == "Tests\\Assets\\Core\\Dossier\\Fichier.txt");
+				//FT_UTEST(oPath1.GetFullPath() == "/home/gonzo/projects/bomberman/Tests/Assets/TestsPath/Dossier/");
+				//FT_UTEST(oPath2.GetFullPath() == "/home/gonzo/projects/bomberman/Tests/Assets/TestsPath/Dossier/Fichier.txt");
+
+				//FT_UTEST(oPath0.GetFullPath() == "D:\\42\\Bomberman\\git\\Tests\\Assets\\TestsPath\\Fichier.txt");
+				//FT_UTEST(oPath1.GetFullPath() == "D:\\42\\Bomberman\\git\\Tests\\Assets\\TestsPath\\Dossier\\");
+				//FT_UTEST(oPath2.GetFullPath() == "D:\\42\\Bomberman\\git\\Tests\\Assets\\TestsPath\\Dossier\\Fichier.txt");
 
 				FT_UTEST(oPath0.GetFullName() == "Fichier.txt");
 				FT_UTEST(oPath1.GetFullName() == "Dossier");
 				FT_UTEST(oPath2.GetFullName() == "Fichier.txt");
 
-				//FT_UTEST(oPath0.GetDirPath() == "Tests\\Assets\\Core\\");
-				//FT_UTEST(oPath1.GetDirPath() == "Tests\\Assets\\Core\\");
-				//FT_UTEST(oPath2.GetDirPath() == "Tests\\Assets\\Core\\Dossier\\");
+				//FT_UTEST(oPath0.GetDirPath() == "/home/gonzo/projects/bomberman/Tests/Assets/TestsPath/");
+				//FT_UTEST(oPath1.GetDirPath() == "/home/gonzo/projects/bomberman/Tests/Assets/TestsPath/");
+				//FT_UTEST(oPath2.GetDirPath() == "/home/gonzo/projects/bomberman/Tests/Assets/TestsPath/Dossier/");
+
+				//FT_UTEST(oPath0.GetDirPath() == "D:\\42\\Bomberman\\git\\Tests\\Assets\\TestsPath\\");
+				//FT_UTEST(oPath1.GetDirPath() == "D:\\42\\Bomberman\\git\\Tests\\Assets\\TestsPath\\");
+				//FT_UTEST(oPath2.GetDirPath() == "D:\\42\\Bomberman\\git\\Tests\\Assets\\TestsPath\\Dossier\\");
 
 				FT_UTEST(oPath0.GetName() == "Fichier");
 				FT_UTEST(oPath1.GetName() == "Dossier");
