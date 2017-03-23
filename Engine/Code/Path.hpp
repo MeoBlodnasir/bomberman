@@ -44,6 +44,6 @@ namespace ft
 
 		std::string		m_sFullPath;
 	};
-}
 
-std::ostream& operator << (std::ostream& oOs, const ft::Path& oPath);
+	std::ostream& operator << (std::ostream& oOs, const ft::Path& oPath);
+}
