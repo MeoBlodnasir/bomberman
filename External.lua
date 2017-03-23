@@ -62,10 +62,26 @@ end
 
 ---------------------------------------------------
 
+function LinkExternalLib_ASSIMP()
+
+	configuration {}
+		includedirs	{ExternalDir.."assimp"}
+	configuration {}
+		libdirs		{ExternalDir.."assimp"}
+	configuration {"Debug"}
+		links		{"assimp_d"}
+	configuration {"Release"}
+		links		{"assimp"}
+	configuration {}
+end
+
+---------------------------------------------------
+
 LinkExternalLibFunctions =  {
 	["SFML"]	= LinkExternalLib_SFML,
-	["GLM"]		= LinkExternalLib_GLM,
+	["glm"]		= LinkExternalLib_GLM,
 	["OpenGL"]	= LinkExternalLib_OpenGL,
+	["assimp"]	= LinkExternalLib_ASSIMP
 }
 
 function LinkExternalLib(...)

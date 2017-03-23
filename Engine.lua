@@ -27,7 +27,7 @@ function DefineEngineProject(ProjectName, ProjectDir, ProjectKind)
 			
 			buildoptions {"-std=c++0x"}
 			
-			LinkExternalLib("SFML", "GLM", "OpenGL")
+			LinkExternalLib("SFML", "glm", "OpenGL", "assimp")
 			
 		configuration {"Debug"}
 			targetname	(ProjectName.."_d")
