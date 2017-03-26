@@ -3,6 +3,8 @@
 
 #include "Path.hpp"
 
+//#include "ProfilerBlock.hpp"
+
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -44,12 +46,14 @@ namespace ft
 	
 	ErrorCode	ModelResource::LoadFromFile(const Path& oModelFilePath)
 	{
+		//ProfilerBlockPrint oProfilerBlock(std::string("ModelResource::LoadFromFile : ") + oModelFilePath.GetFullPath());
+
 		Assimp::Importer oAssimpImporter;
 
 		// Chargement de la scène
 		const aiScene* pScene = oAssimpImporter.ReadFile(oModelFilePath.GetFullPath(),
 								aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
-		
+
 		// Vérifications de la validité
 		FT_ASSERT(pScene != nullptr);
 		FT_ASSERT(!(pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE));

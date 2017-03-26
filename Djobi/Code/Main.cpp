@@ -5,6 +5,7 @@
 
 #include <Output.hpp>
 #include <OpenGL.hpp>
+#include <ProfilerBlock.hpp>
 #include <Mesh.hpp>
 #include <Model.hpp>
 #include <Shader.hpp>
@@ -33,19 +34,24 @@ int		main()
 
 	FT_COUT << "Binvenu sur DJOBI!" << std::endl;
 
-	sf::ContextSettings oOpenGLContext;
-	oOpenGLContext.depthBits		 = 24;
-	oOpenGLContext.stencilBits		 = 8;
-	oOpenGLContext.antialiasingLevel = 4;
-	oOpenGLContext.majorVersion		 = 4;
-	oOpenGLContext.minorVersion		 = 1;
-	oOpenGLContext.attributeFlags	 = sf::ContextSettings::Core;
-	sf::Window* pWindow = new sf::Window(sf::VideoMode(1080, 720), "Bomberman", sf::Style::Default, oOpenGLContext);
+	sf::Window* pWindow = nullptr;
+	{
+		ProfilerBlockPrint oProfilerBlock("Fenetre SFML");
+		sf::ContextSettings oOpenGLContext;
+		oOpenGLContext.depthBits		 = 24;
+		oOpenGLContext.stencilBits		 = 8;
+		oOpenGLContext.antialiasingLevel = 4;
+		oOpenGLContext.majorVersion		 = 4;
+		oOpenGLContext.minorVersion		 = 1;
+		oOpenGLContext.attributeFlags	 = sf::ContextSettings::Core;
+		pWindow = new sf::Window(sf::VideoMode(1080, 720), "Bomberman", sf::Style::Default, oOpenGLContext);
+	}
 	{
 		pWindow->setFramerateLimit(60);
 
 		// Après l'initialisation d'un contexte OpenGL
 		{
+			ProfilerBlockPrint oProfilerBlock("Init GLEW");
 			glewExperimental = GL_TRUE; // core profile
 			const GLenum eGlewError = glewInit();
 			if (eGlewError != GLEW_OK)
@@ -64,7 +70,11 @@ int		main()
 		float fDt;
 
 		SPtr<MeshResource>	xTorusResource = new MeshResource;
+		SPtr<Mesh>			xTorusMesh = new Mesh;
+		Matrix44			mTransformTorus;
 		{
+			ProfilerBlockPrint oProfilerBlock("Chargement Torus.FBX");
+
 			Assimp::Importer oAssimpImporter;
 			const aiScene* pScene =
 				oAssimpImporter.ReadFile(Path("./Djobi/Assets/Models/Torus.FBX").GetFullPath(),
@@ -75,47 +85,45 @@ int		main()
 			FT_ASSERT(pScene->mNumMeshes > 0);
 
 			FT_TEST(xTorusResource->MakeFromAssimpMesh(pScene->mMeshes[0]) == FT_OK);
+			FT_TEST(xTorusMesh->Create(xTorusResource) == FT_OK);
+			mTransformTorus = glm::rotate(glm::scale(Matrix44(1), Vector3(0.03f)), glm::radians(45.f), glm::normalize(Vector3(0.7f, 0.3f, 0.1f)));
 		}
 
 		SPtr<ModelResource> xBombermanResource = new ModelResource;
-		{
-			FT_TEST(xBombermanResource->LoadFromFile(Path("./Djobi/Assets/Models/Bomberman.FBX")) == FT_OK);
-
-			ModelNodeResource::const_iterator	itNode(xBombermanResource->xRootNode);
-			FT_ASSERT(*itNode != nullptr);
-			FT_COUT << "------" << std::endl;
-			while (*itNode != nullptr)
-			{
-				FT_COUT << (*itNode)->GetName() << std::endl;
-				itNode.Next();
-			}
-			FT_COUT << "------" << std::endl;
-		}
 		SPtr<Model>	xBombermanModel = new Model;
 		{
+			ProfilerBlockPrint oProfilerBlock("Chargement Bomberman.FBX");
+
+			FT_TEST(xBombermanResource->LoadFromFile(Path("./Djobi/Assets/Models/Bomberman.FBX")) == FT_OK);
+
+			//ModelNodeResource::const_iterator	itNode(xBombermanResource->xRootNode);
+			//FT_ASSERT(*itNode != nullptr);
+			//FT_COUT << "------" << std::endl;
+			//while (*itNode != nullptr)
+			//{
+			//	FT_COUT << (*itNode)->GetName() << std::endl;
+			//	itNode.Next();
+			//}
+			//FT_COUT << "------" << std::endl;
+
 			Model::Desc oBombermanDesc;
 			oBombermanDesc.pParent = nullptr;
 			FT_TEST(xBombermanModel->Create(&oBombermanDesc, xBombermanResource) == FT_OK);
 		}
-
-		SPtr<Mesh>			xTorusMesh = new Mesh;
-		FT_TEST(xTorusMesh->Create(xTorusResource) == FT_OK);
-		Matrix44 mTransformTorus = glm::rotate(glm::scale(Matrix44(1), Vector3(0.03f)), glm::radians(45.f), glm::normalize(Vector3(0.7f, 0.3f, 0.1f)));
 
 		SPtr<MeshResource>	xCubeResource = new MeshResource;
 		FT_TEST(xCubeResource->MakePrimitiveCube(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_UV) == FT_OK);
 		SPtr<Mesh>			xCubeMesh = new Mesh;
 		FT_TEST(xCubeMesh->Create(xCubeResource) == FT_OK);
 		Matrix44 mTransformCube = glm::rotate(Matrix44(1), glm::radians(-55.f), glm::normalize(Vector3(0.7f, 0.3f, 0.1f)));
-
 		SPtr<MeshResource>	xAxisResource = new MeshResource;
 		FT_TEST(xAxisResource->MakePrimitiveMatrixAxis(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_COLOR) == FT_OK);
 		SPtr<Mesh>			xAxisMesh = new Mesh;
 		FT_TEST(xAxisMesh->Create(xAxisResource) == FT_OK);
 
-		ViewContext		oViewContext;
 		SPtr<Camera>	xCamera = new Camera;
 		Camera::Desc	oCameraDesc;
+		ViewContext		oViewContext;
 		oCameraDesc.eProjectionType = E_PROJECTION_PERSPECTIVE;
 		oCameraDesc.fFov = glm::radians(60.f);
 		oCameraDesc.fNear = 0.1f;
@@ -124,22 +132,32 @@ int		main()
 		oCameraDesc.fRatio = oCameraDesc.fWidth / (float)pWindow->getSize().y;
 		FT_TEST(xCamera->Create(&oCameraDesc) == FT_OK);
 
-		SPtr<Shader> xVsPositionUV = new Shader;
-		FT_TEST(xVsPositionUV->Create(E_VERTEX_SHADER, Path("./Engine/Assets/Shaders/PositionUV.vs.glsl")) == FT_OK);
-		SPtr<Shader> xVsPositionColor = new Shader;
-		FT_TEST(xVsPositionColor->Create(E_VERTEX_SHADER, Path("./Engine/Assets/Shaders/PositionColor.vs.glsl")) == FT_OK);
-		SPtr<Shader> xFsTexture = new Shader;
-		FT_TEST(xFsTexture->Create(E_FRAGMENT_SHADER, Path("./Engine/Assets/Shaders/Texture.fs.glsl")) == FT_OK);
-		SPtr<Shader> xFsColor = new Shader;
-		FT_TEST(xFsColor->Create(E_FRAGMENT_SHADER, Path("./Engine/Assets/Shaders/Color.fs.glsl")) == FT_OK);
 
+		SPtr<Shader> xVsPositionUV = new Shader;
+		SPtr<Shader> xVsPositionColor = new Shader;
+		SPtr<Shader> xFsTexture = new Shader;
+		SPtr<Shader> xFsColor = new Shader;
 		SPtr<ShaderProgram> xTextureShader = new ShaderProgram;
-		FT_TEST(xTextureShader->Create(xVsPositionUV, xFsTexture) == FT_OK);
 		SPtr<ShaderProgram> xColorShader = new ShaderProgram;
-		FT_TEST(xColorShader->Create(xVsPositionColor, xFsColor) == FT_OK);
+		{
+			ProfilerBlockPrint oProfilerBlock("Chargement Sharders");
+
+			FT_TEST(xVsPositionUV->Create(E_VERTEX_SHADER, Path("./Engine/Assets/Shaders/PositionUV.vs.glsl")) == FT_OK);
+			FT_TEST(xVsPositionColor->Create(E_VERTEX_SHADER, Path("./Engine/Assets/Shaders/PositionColor.vs.glsl")) == FT_OK);
+			FT_TEST(xFsTexture->Create(E_FRAGMENT_SHADER, Path("./Engine/Assets/Shaders/Texture.fs.glsl")) == FT_OK);
+			FT_TEST(xFsColor->Create(E_FRAGMENT_SHADER, Path("./Engine/Assets/Shaders/Color.fs.glsl")) == FT_OK);
+
+			FT_TEST(xTextureShader->Create(xVsPositionUV, xFsTexture) == FT_OK);
+			FT_TEST(xColorShader->Create(xVsPositionColor, xFsColor) == FT_OK);
+		}
+		
 
 		SPtr<Texture> xTextureTest = new Texture;
-		FT_TEST(xTextureTest->Create(GL_TEXTURE_2D, Path("./Djobi/Assets/Textures/Purple.png")) == FT_OK);
+		{
+			ProfilerBlockPrint oProfilerBlock("Chargement Textures");
+
+			FT_TEST(xTextureTest->Create(GL_TEXTURE_2D, Path("./Djobi/Assets/Textures/Purple.png")) == FT_OK);
+		}
 
 		// Controles camera
 
@@ -158,6 +176,8 @@ int		main()
 		bool bRunning = true;
 		while (bRunning)
 		{
+			//ProfilerBlockPrint oProfilerBlockLoop("Boucle de jeu");
+
 			sf::Time oDeltaTime = oSFClock.restart();
 			fDt = oDeltaTime.asSeconds();
 
@@ -182,7 +202,6 @@ int		main()
 			vMousePosition.x = (float)vSfMousePosition.x;
 			vMousePosition.y = (float)vSfMousePosition.y;
 
-
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 			{
 				float fTranslationMotion = (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) ? -fTranslationSpeed : fTranslationSpeed) * fDt;
@@ -205,46 +224,48 @@ int		main()
 			xCamera->mWorldTransform = glm::inverse(glm::lookAt(vCamControllerPos, vCamControllerPos + (qCamControllerRot * Vector3(0.f, 0.f, -1.f)), Vector3(0.f, 0.f, 1.f)));
 
 
-
-
-
-
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glEnable(GL_DEPTH_TEST);
-
-			xCamera->MakeViewContext(&oViewContext);
-
-			xTextureShader->Use();
-			xTextureShader->SetUniform("oTexture0", xTextureTest, 0);
-			xTextureShader->SetUniform("mView", oViewContext.mView);
-			xTextureShader->SetUniform("mProjection", oViewContext.mProjection);
-
-			//xTextureShader->SetUniform("mModel", mTransformCube);
-			//xCubeMesh->Draw();
-
-			//xTextureShader->SetUniform("mModel", mTransformTorus);
-			//xTorusMesh->Draw();
-
-			ModelNode::const_iterator	itNode(xBombermanModel->m_xRootNode);
-			while (*itNode != nullptr)
 			{
-				for (const Mesh* pMesh : itNode->m_oMeshes)
+				//ProfilerBlockPrint oProfilerBlockRender("Boucle de rendu");
+
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glEnable(GL_DEPTH_TEST);
+
+				xCamera->MakeViewContext(&oViewContext);
+
+				xTextureShader->Use();
+				xTextureShader->SetUniform("oTexture0", xTextureTest, 0);
+				xTextureShader->SetUniform("mView", oViewContext.mView);
+				xTextureShader->SetUniform("mProjection", oViewContext.mProjection);
+
+				//xTextureShader->SetUniform("mModel", mTransformCube);
+				//xCubeMesh->Draw();
+
+				//xTextureShader->SetUniform("mModel", mTransformTorus);
+				//xTorusMesh->Draw();
+
+				ModelNode::const_iterator	itNode(xBombermanModel->m_xRootNode);
+				while (*itNode != nullptr)
 				{
-					xTextureShader->SetUniform("mModel", itNode->GetWorldTransform());
-					pMesh->Draw();
+					for (const Mesh* pMesh : itNode->m_oMeshes)
+					{
+						xTextureShader->SetUniform("mModel", itNode->GetWorldTransform());
+						pMesh->Draw();
+					}
+					itNode.Next();
 				}
-				itNode.Next();
+
+				glDisable(GL_DEPTH_TEST);
+				xColorShader->Use();
+				xTextureShader->SetUniform("mModel", Matrix44(1));
+				xTextureShader->SetUniform("mView", oViewContext.mView);
+				xTextureShader->SetUniform("mProjection", oViewContext.mProjection);
+				xAxisMesh->Draw();
 			}
 
-			glDisable(GL_DEPTH_TEST);
-			xColorShader->Use();
-			xTextureShader->SetUniform("mModel", Matrix44(1));
-			xTextureShader->SetUniform("mView", oViewContext.mView);
-			xTextureShader->SetUniform("mProjection", oViewContext.mProjection);
-			xAxisMesh->Draw();
-
-
-			pWindow->display();
+			{
+				//ProfilerBlockPrint oProfilerBlockFlip("Flip");
+				pWindow->display();
+			}
 		}
 	}
 
