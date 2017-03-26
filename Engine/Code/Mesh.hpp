@@ -5,6 +5,10 @@
 
 namespace ft
 {
+	// A considérer comme une ressource GPU ?
+	// Dans le sens où il ne faudrait pas la charger sur le GPU plusieurs fois,
+	// ni la décharger tant qu'elle est utilisée.
+	// Faire la même distinction qu'entre Image et Texture.
 	class Mesh : public Handled, public CountableSPtr
 	{
 	public:

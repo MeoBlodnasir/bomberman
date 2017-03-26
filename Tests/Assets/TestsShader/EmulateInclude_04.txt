@@ -1,0 +1,10 @@
+
+//#include "Fichier.txt" ignoré
+#include "EmulateInclude_05.txt"
+#include "EmulateInclude_06.txt"
+#include "Include00/EmulateInclude_00.txt"
+
+int main()
+{
+	return 0;
+}

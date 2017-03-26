@@ -1,0 +1,5 @@
+
+int toto01()
+{
+	return 1;
+}

@@ -1,0 +1,38 @@
+
+//#include "Fichier.txt" ignoré
+
+float toto05()
+{
+	return 0.5f;
+}
+
+
+float toto06()
+{
+	return 6.0f;
+}
+
+
+
+int toto01()
+{
+	return 1;
+}
+
+
+int toto02()
+{
+	return 2;
+}
+
+
+int toto00()
+{
+	return 0;
+}
+
+
+int main()
+{
+	return 0;
+}

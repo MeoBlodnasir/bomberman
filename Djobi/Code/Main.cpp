@@ -6,10 +6,12 @@
 #include <Output.hpp>
 #include <OpenGL.hpp>
 #include <Mesh.hpp>
+#include <Model.hpp>
 #include <Shader.hpp>
 #include <ShaderProgram.hpp>
 #include <Texture.hpp>
 #include <Camera.hpp>
+#include <Quaternion.hpp>
 
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Event.hpp>
@@ -19,6 +21,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
+
 
 int		main()
 {
@@ -63,43 +66,38 @@ int		main()
 		SPtr<MeshResource>	xTorusResource = new MeshResource;
 		{
 			Assimp::Importer oAssimpImporter;
-			const aiScene* pScene = oAssimpImporter.ReadFile(Path("./Djobi/Assets/Models/Torus.FBX").GetFullPath(),
-									aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+			const aiScene* pScene =
+				oAssimpImporter.ReadFile(Path("./Djobi/Assets/Models/Torus.FBX").GetFullPath(),
+//				oAssimpImporter.ReadFile(Path("./Djobi/Assets/Models/Bomberman.FBX").GetFullPath(),
+				aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
 			FT_ASSERT(pScene != nullptr);
+			FT_ASSERT(!(pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE));
 			FT_ASSERT(pScene->mNumMeshes > 0);
 
-			const aiMesh* pMesh = pScene->mMeshes[0];
-			uint32 iVertexProperties = E_VERTEX_PROP_POSITION;
-			if (pMesh->HasTextureCoords(0))
-				iVertexProperties |= E_VERTEX_PROP_UV;
-			FT_TEST(xTorusResource->oVertexDescription.Create(iVertexProperties) == FT_OK);
-
-			std::vector<float32>& oVerticeData = xTorusResource->oVerticeData;
-			oVerticeData.reserve(pMesh->mNumVertices * xTorusResource->oVertexDescription.GetVertexSize());
-			for (uint32 i = 0 , iCount = pMesh->mNumVertices; i < iCount; ++i)
-			{
-				const aiVector3D* pPos = pMesh->mVertices + i;
-				oVerticeData.push_back(pPos->x);
-				oVerticeData.push_back(pPos->y);
-				oVerticeData.push_back(pPos->z);
-				if (iVertexProperties & E_VERTEX_PROP_UV)
-				{
-					const aiVector3D* pTexCoord = pMesh->mTextureCoords[0] + i;
-					oVerticeData.push_back(pTexCoord->x);
-					oVerticeData.push_back(pTexCoord->y);
-				}
-			}
-			std::vector<uint32>& oIndice = xTorusResource->oIndice;
-			oIndice.reserve(pMesh->mNumFaces * 3);
-			for (uint32 i = 0 , iCount = pMesh->mNumFaces; i < iCount; ++i)
-			{
-				const aiFace& oFace = pMesh->mFaces[i];
-				FT_ASSERT(oFace.mNumIndices == 3);
-				oIndice.push_back(oFace.mIndices[0]);
-				oIndice.push_back(oFace.mIndices[1]);
-				oIndice.push_back(oFace.mIndices[2]);
-			}
+			FT_TEST(xTorusResource->MakeFromAssimpMesh(pScene->mMeshes[0]) == FT_OK);
 		}
+
+		SPtr<ModelResource> xBombermanResource = new ModelResource;
+		{
+			FT_TEST(xBombermanResource->LoadFromFile(Path("./Djobi/Assets/Models/Bomberman.FBX")) == FT_OK);
+
+			ModelNodeResource::const_iterator	itNode(xBombermanResource->xRootNode);
+			FT_ASSERT(*itNode != nullptr);
+			FT_COUT << "------" << std::endl;
+			while (*itNode != nullptr)
+			{
+				FT_COUT << (*itNode)->GetName() << std::endl;
+				itNode.Next();
+			}
+			FT_COUT << "------" << std::endl;
+		}
+		SPtr<Model>	xBombermanModel = new Model;
+		{
+			Model::Desc oBombermanDesc;
+			oBombermanDesc.pParent = nullptr;
+			FT_TEST(xBombermanModel->Create(&oBombermanDesc, xBombermanResource) == FT_OK);
+		}
+
 		SPtr<Mesh>			xTorusMesh = new Mesh;
 		FT_TEST(xTorusMesh->Create(xTorusResource) == FT_OK);
 		Matrix44 mTransformTorus = glm::rotate(glm::scale(Matrix44(1), Vector3(0.03f)), glm::radians(45.f), glm::normalize(Vector3(0.7f, 0.3f, 0.1f)));
@@ -110,8 +108,9 @@ int		main()
 		FT_TEST(xCubeMesh->Create(xCubeResource) == FT_OK);
 		Matrix44 mTransformCube = glm::rotate(Matrix44(1), glm::radians(-55.f), glm::normalize(Vector3(0.7f, 0.3f, 0.1f)));
 
-		SPtr<Camera> xCamera = new Camera;
-		Camera::Desc oCameraDesc;
+		ViewContext		oViewContext;
+		SPtr<Camera>	xCamera = new Camera;
+		Camera::Desc	oCameraDesc;
 		oCameraDesc.eProjectionType = E_PROJECTION_PERSPECTIVE;
 		oCameraDesc.fFov = glm::radians(60.f);
 		oCameraDesc.fNear = 0.1f;
@@ -120,7 +119,6 @@ int		main()
 		oCameraDesc.fRatio = oCameraDesc.fWidth / (float)pWindow->getSize().y;
 		FT_TEST(xCamera->Create(&oCameraDesc) == FT_OK);
 		xCamera->mWorldTransform = glm::translate(Matrix44(1), Vector3(0.f, 0.f, -3.f));
-		ViewContext oViewContext;
 
 		SPtr<Shader> xVsPositionUV = new Shader;
 		FT_TEST(xVsPositionUV->Create(E_VERTEX_SHADER, Path("./Engine/Assets/Shaders/PositionUV.vs.glsl")) == FT_OK);
@@ -131,7 +129,16 @@ int		main()
 		FT_TEST(xTextureShader->Create(xVsPositionUV, xFsTexture) == FT_OK);
 
 		SPtr<Texture> xTextureTest = new Texture;
-		FT_TEST(xTextureTest->Create(GL_TEXTURE_2D, Path("./Djobi/Assets/Textures/Test.png")) == FT_OK);
+		FT_TEST(xTextureTest->Create(GL_TEXTURE_2D, Path("./Djobi/Assets/Textures/Purple.png")) == FT_OK);
+
+		// Controles camera
+		sf::Vector2i	vSfMousePosition = sf::Mouse::getPosition(*pWindow);
+		Vector2			vMousePosition((float)vSfMousePosition.x, (float)vSfMousePosition.y);
+		Vector2			vMouseMotion(0.f, 0.f);
+		Vector3			vCamControllerPos = Vector3(0.f, 0.f, -3.f);
+		Quaternion		qCamControllerRot = Quaternion(0.f, 0.f, 0.f, 1.f);
+		const float		fTranslationSpeed = 3.f;
+		const float		fRotationSpeed = 0.2f;
 
 		bool bRunning = true;
 		while (bRunning)
@@ -156,20 +163,55 @@ int		main()
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 			{
-				mTransformCube = glm::translate(mTransformCube, Vector3(0.f, fDt, 0.f));
+				xCamera->mWorldTransform = glm::translate(xCamera->mWorldTransform, Vector3(0.f, -fDt, 0.f));
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 			{
-				mTransformCube = glm::translate(mTransformCube, Vector3(0.f, -fDt, 0.f));
+				xCamera->mWorldTransform = glm::translate(xCamera->mWorldTransform, Vector3(0.f, fDt, 0.f));
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 			{
-				mTransformCube = glm::translate(mTransformCube, Vector3(-fDt, 0.f, 0.f));
+				xCamera->mWorldTransform = glm::translate(xCamera->mWorldTransform, Vector3(fDt, 0.f, 0.f));
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 			{
-				mTransformCube = glm::translate(mTransformCube, Vector3(fDt, 0.f, 0.f));
+				xCamera->mWorldTransform = glm::translate(xCamera->mWorldTransform, Vector3(-fDt, 0.f, 0.f));
 			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Add))
+			{
+				xCamera->mWorldTransform = glm::translate(xCamera->mWorldTransform, Vector3(0.f, 0.f, fDt * 10));
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Subtract))
+			{
+				xCamera->mWorldTransform = glm::translate(xCamera->mWorldTransform, Vector3(0.f, 0.f, -fDt * 10));
+			}
+
+			vSfMousePosition = sf::Mouse::getPosition(*pWindow);
+			vMouseMotion = Vector2((float)vSfMousePosition.x, (float)vSfMousePosition.y) - vMousePosition;
+			vMousePosition.x = (float)vSfMousePosition.x;
+			vMousePosition.y = (float)vSfMousePosition.y;
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+			{
+				Vector4 vOffset = Vector4(0.f, 0.f, (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) ? fTranslationSpeed : -fTranslationSpeed) * fDt, 1.f);
+				vOffset = vOffset * xCamera->mWorldTransform;
+				vCamControllerPos = vCamControllerPos + glm::vec3(vOffset);
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+			{
+				Vector4 vOffset = Vector4((sf::Keyboard::isKeyPressed(sf::Keyboard::Left) ? fTranslationSpeed : -fTranslationSpeed) * fDt, 0.f, 0.f, 1.f);
+				vOffset = vOffset * xCamera->mWorldTransform;
+				vCamControllerPos = vCamControllerPos + glm::vec3(vOffset);
+			}
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && glm::dot(vMouseMotion, vMouseMotion) > 0.1f) // glm::dot(v, v) <-> v.lengthSquare
+			{
+				float fMoveMotion = glm::length(vMouseMotion);
+				Vector3 vAxis = Vector3(Vector4(vMouseMotion.y, vMouseMotion.x, 0.f, 0.f) * qCamControllerRot);
+				if (fMoveMotion > 0.01f)
+					qCamControllerRot = glm::rotate(qCamControllerRot, fMoveMotion * fDt * fRotationSpeed, vAxis);
+			}
+
+			xCamera->mWorldTransform = glm::translate(glm::mat4_cast(qCamControllerRot), vCamControllerPos);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -177,13 +219,25 @@ int		main()
 
 			xTextureShader->Use();
 			xTextureShader->SetUniform("oTexture0", xTextureTest, 0);
-			xTextureShader->SetUniform("mModel", mTransformCube);
 			xTextureShader->SetUniform("mView", oViewContext.mView);
 			xTextureShader->SetUniform("mProjection", oViewContext.mProjection);
-			xCubeMesh->Draw();
 
-			xTextureShader->SetUniform("mModel", mTransformTorus);
-			xTorusMesh->Draw();
+			//xTextureShader->SetUniform("mModel", mTransformCube);
+			//xCubeMesh->Draw();
+
+			//xTextureShader->SetUniform("mModel", mTransformTorus);
+			//xTorusMesh->Draw();
+
+			ModelNode::const_iterator	itNode(xBombermanModel->m_xRootNode);
+			while (*itNode != nullptr)
+			{
+				for (const Mesh* pMesh : itNode->m_oMeshes)
+				{
+					xTextureShader->SetUniform("mModel", itNode->GetWorldTransform());
+					pMesh->Draw();
+				}
+				itNode.Next();
+			}
 
 			pWindow->display();
 		}

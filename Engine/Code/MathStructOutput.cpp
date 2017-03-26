@@ -24,6 +24,12 @@ namespace ft
 		return oOs;
 	}
 
+	std::ostream& operator<<(std::ostream& oOs, const Quaternion& q)
+	{
+		oOs << '[' << (q.x) << ", " << (q.y) << ", " << (q.z) << ", " << (q.w) << ']';
+		return oOs;
+	}
+
 	std::ostream&	operator << (std::ostream& oOs, const Matrix33& m)
 	{
 		oOs << '[' << (m[0][0]) << ", " << (m[0][1]) << ", " << (m[0][2]) << "]\n";

@@ -4,9 +4,9 @@
 
 namespace ft
 {
-	namespace TestsPath
+	namespace TestsShader
 	{
 		uint32	All();
-		uint32	Basics();
+		uint32	EmulateInclude();
 	}
 }

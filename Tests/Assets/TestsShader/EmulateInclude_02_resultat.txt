@@ -1,0 +1,9 @@
+
+|||||||||||||||
+coucou les gens
+|||||||||||||||
+
+int main()
+{
+	return 0;
+}

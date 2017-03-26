@@ -2,78 +2,78 @@
 
 namespace ft
 {
-	template <class THierarchyNode, class TNode>
-	HierarchyNodeIteratorTemplate<THierarchyNode, TNode>::HierarchyNodeIteratorTemplate()
+	template <class TNode>
+	HierarchyNodeIterator<TNode>::HierarchyNodeIterator()
 		: m_pStartingNode(nullptr)
 		, m_pNode(nullptr)
 	{
 	}
 
-	template <class THierarchyNode, class TNode>
-	HierarchyNodeIteratorTemplate<THierarchyNode, TNode>::HierarchyNodeIteratorTemplate(TNode* pNode)
-		: m_pStartingNode(dynamic_cast<IHierarchyNode*>(pNode))
+	template <class TNode>
+	HierarchyNodeIterator<TNode>::HierarchyNodeIterator(TNode* pNode)
+		: m_pStartingNode(dynamic_cast<const IHierarchyNode*>(pNode))
 		, m_pNode(m_pStartingNode)
 	{
 	}
 
-	template <class THierarchyNode, class TNode>
-	HierarchyNodeIteratorTemplate<THierarchyNode, TNode>::HierarchyNodeIteratorTemplate(const HierarchyNodeIteratorTemplate<THierarchyNode, TNode>& oIt)
+	template <class TNode>
+	HierarchyNodeIterator<TNode>::HierarchyNodeIterator(const HierarchyNodeIterator<TNode>& oIt)
 		: m_pStartingNode(oIt.m_pStartingNode)
 		, m_pNode(oIt.m_pNode)
 	{
 	}
 
-	template <class THierarchyNode, class TNode>
+	template <class TNode>
 	template <class TOther>
-	HierarchyNodeIteratorTemplate<THierarchyNode, TNode>::HierarchyNodeIteratorTemplate(const HierarchyNodeIteratorTemplate<THierarchyNode, TOther>& oIt)
+	HierarchyNodeIterator<TNode>::HierarchyNodeIterator(const HierarchyNodeIterator<TOther>& oIt)
 		: m_pStartingNode(oIt.m_pStartingNode)
 		, m_pNode(oIt.m_pNode)
 	{
 	}
 
-	template <class THierarchyNode, class TNode>
-	HierarchyNodeIteratorTemplate<THierarchyNode, TNode>::~HierarchyNodeIteratorTemplate()
+	template <class TNode>
+	HierarchyNodeIterator<TNode>::~HierarchyNodeIterator()
 	{
 		m_pStartingNode	= nullptr;
 		m_pNode			= nullptr;
 	}
 
-	template <class THierarchyNode, class TNode>
-	HierarchyNodeIteratorTemplate<THierarchyNode, TNode>&
-	HierarchyNodeIteratorTemplate<THierarchyNode, TNode>::operator = (const HierarchyNodeIteratorTemplate<THierarchyNode, TNode>& oIt)
+	template <class TNode>
+	HierarchyNodeIterator<TNode>&
+	HierarchyNodeIterator<TNode>::operator = (const HierarchyNodeIterator<TNode>& oIt)
 	{
 		m_pStartingNode	= oIt.m_pStartingNode;
 		m_pNode			= oIt.m_pNode;
 		return *this;
 	}
 
-	template <class THierarchyNode, class TNode>
+	template <class TNode>
 	template <class TOther>
-	HierarchyNodeIteratorTemplate<THierarchyNode, TNode>&
-		HierarchyNodeIteratorTemplate<THierarchyNode, TNode>::operator = (const HierarchyNodeIteratorTemplate<THierarchyNode, TOther>& oIt)
+	HierarchyNodeIterator<TNode>&
+	HierarchyNodeIterator<TNode>::operator = (const HierarchyNodeIterator<TOther>& oIt)
 	{
 		m_pStartingNode	= oIt.m_pStartingNode;
 		m_pNode			= oIt.m_pNode;
 		return *this;
 	}
 
-	template <class THierarchyNode, class TNode>
+	template <class TNode>
 	void
-	HierarchyNodeIteratorTemplate<THierarchyNode, TNode>::Reset(TNode* pNode)
+	HierarchyNodeIterator<TNode>::Reset(TNode* pNode)
 	{
-		m_pStartingNode	= dynamic_cast<IHierarchyNode*>(pNode);
+		m_pStartingNode	= dynamic_cast<const IHierarchyNode*>(pNode);
 		m_pNode			= m_pStartingNode;
 	}
 
-	template <class THierarchyNode, class TNode>
+	template <class TNode>
 	void
-	HierarchyNodeIteratorTemplate<THierarchyNode, TNode>::Next() // Parcours préfixe
+	HierarchyNodeIterator<TNode>::Next() // Parcours préfixe
 	{
 		FT_ASSERT(IsValid());
 		if (m_pNode != nullptr)
 		{
 			// Descente dans la hiérarchie
-			THierarchyNode* pNext = m_pNode->GetChild();
+			const IHierarchyNode* pNext = m_pNode->GetChild();
 			if (pNext == nullptr)
 			{
 				// Parcours horizontal
@@ -85,7 +85,7 @@ namespace ft
 					if (pNext == nullptr)
 					{
 						// Remontée
-						THierarchyNode* pParent = m_pNode->GetParent();
+						const IHierarchyNode* pParent = m_pNode->GetParent();
 						while (pParent != nullptr && pParent != m_pStartingNode)
 						{
 							if (pParent->GetSibling() != nullptr)

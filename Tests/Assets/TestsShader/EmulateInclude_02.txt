@@ -1,0 +1,7 @@
+
+#include "Fichier.txt"
+
+int main()
+{
+	return 0;
+}

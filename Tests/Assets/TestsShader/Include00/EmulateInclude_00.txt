@@ -1,0 +1,8 @@
+
+#include "EmulateInclude_01.txt"
+#include "EmulateInclude_02.txt"
+
+int toto00()
+{
+	return 0;
+}

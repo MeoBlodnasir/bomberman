@@ -7,7 +7,8 @@
 namespace ft
 {
 	Mesh::Mesh()
-		: m_iVbo(0)
+		: m_xMeshResource(nullptr)
+		, m_iVbo(0)
 		, m_iEbo(0)
 		, m_iVertexCount(0)
 		, m_iVertexToDrawCount(0)
@@ -83,6 +84,8 @@ namespace ft
 		FT_GL_ASSERT( glDeleteVertexArrays(1, &m_iHandle) );
 		m_iVbo = 0;
 		m_iEbo = 0;
+
+		m_xMeshResource = nullptr;
 
 		return Handled::Destroy();
 	}

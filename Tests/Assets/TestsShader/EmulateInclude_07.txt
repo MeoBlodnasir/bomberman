@@ -1,0 +1,9 @@
+
+#include "EmulateInclude_08.txt"
+#include "EmulateInclude_09.txt"
+#include "Include00/EmulateInclude_00.txt"
+
+int main()
+{
+	return 0;
+}

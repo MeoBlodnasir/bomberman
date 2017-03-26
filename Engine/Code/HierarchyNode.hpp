@@ -11,9 +11,8 @@ namespace ft
 	{
 	public:
 
-		// Chiant à faire à chaque fois, trouver mieux
-		typedef HierarchyNodeIteratorTemplate<		IHierarchyNode,	HierarchyNode>	iterator;
-		typedef HierarchyNodeIteratorTemplate<const	IHierarchyNode, HierarchyNode>	const_iterator;
+		typedef HierarchyNodeIterator<		HierarchyNode>	iterator;
+		typedef HierarchyNodeIterator<const	HierarchyNode>	const_iterator;
 
 		struct Desc
 		{

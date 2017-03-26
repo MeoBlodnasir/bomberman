@@ -5,7 +5,9 @@
 
 #include "TestsSPtr.hpp"
 #include "TestsPath.hpp"
+#include "TestsShader.hpp"
 #include "TestsHierarchyNode.hpp"
+#include "TestsSceneNode.hpp"
 
 int main()
 {
@@ -16,9 +18,11 @@ int main()
 	using namespace ft;
 	
 	uint32 iRet = 0;
-	iRet += Tests::StrongPointer::All();
-	iRet += Tests::Path::All();
-	iRet += Tests::Hierarchy::All();
+	iRet += TestsStrongPointer::All();
+	iRet += TestsPath::All();
+	iRet += TestsShader::All();
+	iRet += TestsHierarchyNode::All();
+	iRet += TestsSceneNode::All();
 
 	return 0;
 }

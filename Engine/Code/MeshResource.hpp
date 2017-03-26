@@ -5,6 +5,10 @@
 
 #include <vector>
 
+// fw
+struct aiNode;
+struct aiMesh;
+
 namespace ft
 {
 	// Utiliser une classe générique de ressource, plus tard, quand elle existera, bitch
@@ -16,5 +20,7 @@ namespace ft
 
 		ErrorCode	MakePrimitiveQuad(uint32 iVertexProperties);
 		ErrorCode	MakePrimitiveCube(uint32 iVertexProperties);
+
+		ErrorCode	MakeFromAssimpMesh(const aiMesh* pMesh);
 	};
 }

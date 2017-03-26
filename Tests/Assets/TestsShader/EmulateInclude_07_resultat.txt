@@ -1,0 +1,42 @@
+
+
+
+
+
+float toto09()
+{
+	return 9.0f;
+}
+
+
+
+int toto01()
+{
+	return 1;
+}
+
+
+int toto02()
+{
+	return 2;
+}
+
+
+int toto00()
+{
+	return 0;
+}
+
+
+float toto08()
+{
+	return 8.0f;
+}
+
+
+
+
+int main()
+{
+	return 0;
+}

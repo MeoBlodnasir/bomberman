@@ -1,0 +1,7 @@
+
+#include "EmulateInclude_07.txt"
+
+float toto09()
+{
+	return 9.0f;
+}

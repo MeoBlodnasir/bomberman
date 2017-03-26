@@ -2,14 +2,14 @@
 
 #include "Tests.hpp"
 
-#include <HierarchyNode.hpp>
 #include <Namable.hpp>
+#include <SceneNode.hpp>
 
 namespace ft
 {
-	namespace TestsHierarchyNode
+	namespace TestsSceneNode
 	{
-		struct Node : public HierarchyNode, public Namable
+		struct Node : public SceneNode, public Namable
 		{
 			typedef HierarchyNodeIterator<		Node>	iterator;
 			typedef HierarchyNodeIterator<const Node>	const_iterator;

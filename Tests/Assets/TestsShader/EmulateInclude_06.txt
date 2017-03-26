@@ -1,0 +1,5 @@
+
+float toto06()
+{
+	return 6.0f;
+}
