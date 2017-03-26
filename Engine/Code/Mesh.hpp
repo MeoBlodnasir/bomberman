@@ -29,8 +29,6 @@ namespace ft
 
 		uint32	m_iVbo;
 		uint32	m_iEbo;
-		uint32	m_iVertexCount;
-		uint32	m_iVertexToDrawCount;
 
 	private:
 

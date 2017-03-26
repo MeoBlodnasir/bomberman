@@ -54,7 +54,7 @@ namespace ft
 
 	bool	VertexDescription::IsValid() const
 	{
-		return m_iVertexSize != (uint32)-1;
+		return m_iVertexSize != (uint32)-1 && m_iVertexSize > 0;
 	}
 
 	uint32	VertexDescription::GetPropertyStride(EVertexProperty eProperty) const

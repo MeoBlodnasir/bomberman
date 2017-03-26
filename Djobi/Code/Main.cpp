@@ -108,6 +108,11 @@ int		main()
 		FT_TEST(xCubeMesh->Create(xCubeResource) == FT_OK);
 		Matrix44 mTransformCube = glm::rotate(Matrix44(1), glm::radians(-55.f), glm::normalize(Vector3(0.7f, 0.3f, 0.1f)));
 
+		SPtr<MeshResource>	xAxisResource = new MeshResource;
+		FT_TEST(xAxisResource->MakePrimitiveMatrixAxis(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_COLOR) == FT_OK);
+		SPtr<Mesh>			xAxisMesh = new Mesh;
+		FT_TEST(xAxisMesh->Create(xAxisResource) == FT_OK);
+
 		ViewContext		oViewContext;
 		SPtr<Camera>	xCamera = new Camera;
 		Camera::Desc	oCameraDesc;
@@ -118,25 +123,35 @@ int		main()
 		oCameraDesc.fWidth = (float)pWindow->getSize().x;
 		oCameraDesc.fRatio = oCameraDesc.fWidth / (float)pWindow->getSize().y;
 		FT_TEST(xCamera->Create(&oCameraDesc) == FT_OK);
-		xCamera->mWorldTransform = glm::translate(Matrix44(1), Vector3(0.f, 0.f, -3.f));
 
 		SPtr<Shader> xVsPositionUV = new Shader;
 		FT_TEST(xVsPositionUV->Create(E_VERTEX_SHADER, Path("./Engine/Assets/Shaders/PositionUV.vs.glsl")) == FT_OK);
+		SPtr<Shader> xVsPositionColor = new Shader;
+		FT_TEST(xVsPositionColor->Create(E_VERTEX_SHADER, Path("./Engine/Assets/Shaders/PositionColor.vs.glsl")) == FT_OK);
 		SPtr<Shader> xFsTexture = new Shader;
 		FT_TEST(xFsTexture->Create(E_FRAGMENT_SHADER, Path("./Engine/Assets/Shaders/Texture.fs.glsl")) == FT_OK);
+		SPtr<Shader> xFsColor = new Shader;
+		FT_TEST(xFsColor->Create(E_FRAGMENT_SHADER, Path("./Engine/Assets/Shaders/Color.fs.glsl")) == FT_OK);
 
 		SPtr<ShaderProgram> xTextureShader = new ShaderProgram;
 		FT_TEST(xTextureShader->Create(xVsPositionUV, xFsTexture) == FT_OK);
+		SPtr<ShaderProgram> xColorShader = new ShaderProgram;
+		FT_TEST(xColorShader->Create(xVsPositionColor, xFsColor) == FT_OK);
 
 		SPtr<Texture> xTextureTest = new Texture;
 		FT_TEST(xTextureTest->Create(GL_TEXTURE_2D, Path("./Djobi/Assets/Textures/Purple.png")) == FT_OK);
 
 		// Controles camera
+
+		// Commentaire vu sur un site d'aide, à garder en tête:
+		// Left-multiplying rot, will perform a rotation about the camera space X axis.
+		// If you want a rotation about the world-space X axis, you need to right-multiply it.
+
 		sf::Vector2i	vSfMousePosition = sf::Mouse::getPosition(*pWindow);
 		Vector2			vMousePosition((float)vSfMousePosition.x, (float)vSfMousePosition.y);
 		Vector2			vMouseMotion(0.f, 0.f);
-		Vector3			vCamControllerPos = Vector3(0.f, 0.f, -3.f);
-		Quaternion		qCamControllerRot = Quaternion(0.f, 0.f, 0.f, 1.f);
+		Vector3			vCamControllerPos = Vector3(3.f, 1.f, 1.f);
+		Quaternion		qCamControllerRot = Quaternion(glm::inverse(glm::lookAt(vCamControllerPos, Vector3(0.f, 0.f, 0.5f), Vector3(0.f, 0.f, 1.f))));
 		const float		fTranslationSpeed = 3.f;
 		const float		fRotationSpeed = 0.2f;
 
@@ -161,59 +176,41 @@ int		main()
 					}
 				}
 			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-			{
-				xCamera->mWorldTransform = glm::translate(xCamera->mWorldTransform, Vector3(0.f, -fDt, 0.f));
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-			{
-				xCamera->mWorldTransform = glm::translate(xCamera->mWorldTransform, Vector3(0.f, fDt, 0.f));
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-			{
-				xCamera->mWorldTransform = glm::translate(xCamera->mWorldTransform, Vector3(fDt, 0.f, 0.f));
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-			{
-				xCamera->mWorldTransform = glm::translate(xCamera->mWorldTransform, Vector3(-fDt, 0.f, 0.f));
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Add))
-			{
-				xCamera->mWorldTransform = glm::translate(xCamera->mWorldTransform, Vector3(0.f, 0.f, fDt * 10));
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Subtract))
-			{
-				xCamera->mWorldTransform = glm::translate(xCamera->mWorldTransform, Vector3(0.f, 0.f, -fDt * 10));
-			}
 
 			vSfMousePosition = sf::Mouse::getPosition(*pWindow);
 			vMouseMotion = Vector2((float)vSfMousePosition.x, (float)vSfMousePosition.y) - vMousePosition;
 			vMousePosition.x = (float)vSfMousePosition.x;
 			vMousePosition.y = (float)vSfMousePosition.y;
 
+
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 			{
-				Vector4 vOffset = Vector4(0.f, 0.f, (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) ? fTranslationSpeed : -fTranslationSpeed) * fDt, 1.f);
-				vOffset = vOffset * xCamera->mWorldTransform;
-				vCamControllerPos = vCamControllerPos + glm::vec3(vOffset);
+				float fTranslationMotion = (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) ? -fTranslationSpeed : fTranslationSpeed) * fDt;
+				vCamControllerPos += qCamControllerRot * Vector3(0.f, 0.f, fTranslationMotion);
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 			{
-				Vector4 vOffset = Vector4((sf::Keyboard::isKeyPressed(sf::Keyboard::Left) ? fTranslationSpeed : -fTranslationSpeed) * fDt, 0.f, 0.f, 1.f);
-				vOffset = vOffset * xCamera->mWorldTransform;
-				vCamControllerPos = vCamControllerPos + glm::vec3(vOffset);
+				float fTranslationMotion = (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) ? -fTranslationSpeed : fTranslationSpeed) * fDt;
+				vCamControllerPos += qCamControllerRot * Vector3(fTranslationMotion, 0.f, 0.f);
 			}
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && glm::dot(vMouseMotion, vMouseMotion) > 0.1f) // glm::dot(v, v) <-> v.lengthSquare
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 			{
-				float fMoveMotion = glm::length(vMouseMotion);
-				Vector3 vAxis = Vector3(Vector4(vMouseMotion.y, vMouseMotion.x, 0.f, 0.f) * qCamControllerRot);
-				if (fMoveMotion > 0.01f)
-					qCamControllerRot = glm::rotate(qCamControllerRot, fMoveMotion * fDt * fRotationSpeed, vAxis);
+				if (vMouseMotion.y * vMouseMotion.y > 0.1f)
+					qCamControllerRot = glm::rotate(qCamControllerRot, vMouseMotion.y * fDt * fRotationSpeed, Vector3(1.f, 0.f, 0.f));
+				if (vMouseMotion.x * vMouseMotion.x > 0.1f)
+					qCamControllerRot = glm::rotate(qCamControllerRot, vMouseMotion.x * fDt * fRotationSpeed, Vector3(0.f, 1.f, 0.f));
 			}
 
-			xCamera->mWorldTransform = glm::translate(glm::mat4_cast(qCamControllerRot), vCamControllerPos);
+			//xCamera->mWorldTransform = glm::translate(Matrix44(1.f), vCamControllerPos) * glm::mat4_cast(qCamControllerRot);
+			xCamera->mWorldTransform = glm::inverse(glm::lookAt(vCamControllerPos, vCamControllerPos + (qCamControllerRot * Vector3(0.f, 0.f, -1.f)), Vector3(0.f, 0.f, 1.f)));
+
+
+
+
+
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glEnable(GL_DEPTH_TEST);
 
 			xCamera->MakeViewContext(&oViewContext);
 
@@ -238,6 +235,14 @@ int		main()
 				}
 				itNode.Next();
 			}
+
+			glDisable(GL_DEPTH_TEST);
+			xColorShader->Use();
+			xTextureShader->SetUniform("mModel", Matrix44(1));
+			xTextureShader->SetUniform("mView", oViewContext.mView);
+			xTextureShader->SetUniform("mProjection", oViewContext.mProjection);
+			xAxisMesh->Draw();
+
 
 			pWindow->display();
 		}

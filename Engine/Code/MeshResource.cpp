@@ -6,6 +6,28 @@
 
 namespace ft
 {
+	MeshResource::MeshResource()
+		: m_oVertexDescription()
+		, m_ePrimitiveType(E_TRIANGLES)
+		, m_oIndice()
+		, m_oVerticeData()
+		, m_iVerticeCount(0)
+		, m_iVertexToDrawCount(0)
+	{
+	}
+
+	MeshResource::~MeshResource()
+	{
+	}
+
+	bool	 MeshResource::IsValid() const
+	{
+		return m_oVertexDescription.IsValid()
+			&& m_oVerticeData.size() > 0
+			&& m_iVerticeCount == m_oVerticeData.size() / m_oVertexDescription.GetVertexElementCount()
+			&& m_iVertexToDrawCount > 0;
+	}
+
 	// voir comment utiliser les propriétés pour assigner efficacement les valeurs correspondantes
 	// pour le moment, flemme
 	ErrorCode	MeshResource::MakePrimitiveQuad(uint32 /*iVertexProperties*/)
@@ -24,9 +46,13 @@ namespace ft
 			0, 1, 2, 1, 2, 3
 		};
 
-		oVerticeData.assign((const float32*)oVert, (const float32*)((uint8*)oVert + sizeof(oVert)));
-		oIndice.assign((const uint32*)oId, (const uint32*)((uint8*)oId + sizeof(oId)));
-		FT_TEST(oVertexDescription.Create(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_UV) == FT_OK);
+		m_oVerticeData.assign((const float32*)oVert, (const float32*)((uint8*)oVert + sizeof(oVert)));
+		m_oIndice.assign((const uint32*)oId, (const uint32*)((uint8*)oId + sizeof(oId)));
+
+		FT_TEST(m_oVertexDescription.Create(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_UV) == FT_OK);
+		m_ePrimitiveType = E_TRIANGLES;
+		m_iVerticeCount = m_oVerticeData.size() / m_oVertexDescription.GetVertexElementCount();
+		m_iVertexToDrawCount = m_oIndice.size();
 
 		return FT_OK;
 	}
@@ -79,9 +105,41 @@ namespace ft
 			20, 21, 22, 20, 22, 23
 		};
 
-		oVerticeData.assign((float32*)oVert, (float32*)((uint8*)(oVert) + sizeof(oVert)));
-		oIndice.assign((uint32*)oId, (uint32*)((uint8*)(oId) + sizeof(oId)));
-		FT_TEST(oVertexDescription.Create(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_UV) == FT_OK);
+		m_oVerticeData.assign((float32*)oVert, (float32*)((uint8*)(oVert) + sizeof(oVert)));
+		m_oIndice.assign((uint32*)oId, (uint32*)((uint8*)(oId) + sizeof(oId)));
+
+		FT_TEST(m_oVertexDescription.Create(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_UV) == FT_OK);
+		m_ePrimitiveType = E_TRIANGLES;
+		m_iVerticeCount = m_oVerticeData.size() / m_oVertexDescription.GetVertexElementCount();
+		m_iVertexToDrawCount = m_oIndice.size();
+
+		return FT_OK;
+	}
+
+	// voir comment utiliser les propriétés pour assigner efficacement les valeurs correspondantes
+	// pour le moment, flemme
+	ErrorCode	MeshResource::MakePrimitiveMatrixAxis(uint32 /*iVertexProperties*/)
+	{
+		static const float32 oVert[] =
+		{
+			// pos				color
+			0.0f, 0.0f, 0.0f,	1.0f, 0.0f, 0.0f, 1.0f,
+			1.0f, 0.0f, 0.0f,	1.0f, 0.0f, 0.0f, 1.0f,
+
+			0.0f, 0.0f, 0.0f,	0.0f, 1.0f, 0.0f, 1.0f,
+			0.0f, 1.0f, 0.0f,	0.0f, 1.0f, 0.0f, 1.0f,
+
+			0.0f, 0.0f, 0.0f,	0.0f, 0.0f, 1.0f, 1.0f,
+			0.0f, 0.0f, 1.0f,	0.0f, 0.0f, 1.0f, 1.0f,
+		};
+
+		m_oVerticeData.assign((float32*)oVert, (float32*)((uint8*)(oVert) + sizeof(oVert)));
+		m_oIndice.clear();
+
+		FT_TEST(m_oVertexDescription.Create(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_COLOR) == FT_OK);
+		m_ePrimitiveType = E_LINES;
+		m_iVerticeCount = m_oVerticeData.size() / m_oVertexDescription.GetVertexElementCount();
+		m_iVertexToDrawCount = m_iVerticeCount;
 
 		return FT_OK;
 	}
@@ -94,31 +152,40 @@ namespace ft
 		if (pMesh->mNumVertices == 0)
 			return FT_FAIL;
 
+		// Récupération du type de primitive à laquelle correspondent les données
+		switch (pMesh->mPrimitiveTypes)
+		{
+		case aiPrimitiveType_POINT:		{ m_ePrimitiveType = E_POINTS; break; }
+		case aiPrimitiveType_LINE:		{ m_ePrimitiveType = E_LINES; break; }
+		case aiPrimitiveType_TRIANGLE:	{ m_ePrimitiveType = E_TRIANGLES; break; }
+		default:						{ return FT_FAIL; }
+		}
+
 		// Récupération des propriétés de vertex disponibles
 		uint32 iVertexProperties = E_VERTEX_PROP_POSITION;
 		if (pMesh->HasTextureCoords(0))
 			iVertexProperties |= E_VERTEX_PROP_UV;
-		FT_TEST(oVertexDescription.Create(iVertexProperties) == FT_OK);
+		FT_TEST(m_oVertexDescription.Create(iVertexProperties) == FT_OK);
 
 		// Récupération des données de vertex et d'indices
 		// Réinitialisation, puis allocation de la mémoire nécessaire
-		oVerticeData.clear();
-		oIndice.clear();
-		oVerticeData.reserve(pMesh->mNumVertices * oVertexDescription.GetVertexSize());
-		oIndice.reserve(pMesh->mNumFaces * 3);
+		m_oVerticeData.clear();
+		m_oIndice.clear();
+		m_oVerticeData.reserve(pMesh->mNumVertices * m_oVertexDescription.GetVertexSize());
+		m_oIndice.reserve(pMesh->mNumFaces * 3);
 
 		// Vertice
 		for (uint32 i = 0, iCount = pMesh->mNumVertices; i < iCount; ++i)
 		{
 			const aiVector3D* pPos = pMesh->mVertices + i;
-			oVerticeData.push_back(pPos->x);
-			oVerticeData.push_back(pPos->y);
-			oVerticeData.push_back(pPos->z);
+			m_oVerticeData.push_back(pPos->x);
+			m_oVerticeData.push_back(pPos->y);
+			m_oVerticeData.push_back(pPos->z);
 			if (iVertexProperties & E_VERTEX_PROP_UV)
 			{
 				const aiVector3D* pTexCoord = pMesh->mTextureCoords[0] + i;
-				oVerticeData.push_back(pTexCoord->x);
-				oVerticeData.push_back(pTexCoord->y);
+				m_oVerticeData.push_back(pTexCoord->x);
+				m_oVerticeData.push_back(pTexCoord->y);
 			}
 		}
 
@@ -127,10 +194,16 @@ namespace ft
 		{
 			const aiFace& oFace = pMesh->mFaces[i];
 			FT_ASSERT(oFace.mNumIndices == 3);
-			oIndice.push_back(oFace.mIndices[0]);
-			oIndice.push_back(oFace.mIndices[1]);
-			oIndice.push_back(oFace.mIndices[2]);
+			m_oIndice.push_back(oFace.mIndices[0]);
+			m_oIndice.push_back(oFace.mIndices[1]);
+			m_oIndice.push_back(oFace.mIndices[2]);
 		}
+
+		m_iVerticeCount = m_oVerticeData.size() / m_oVertexDescription.GetVertexElementCount();
+		if (m_oIndice.size() > 0)
+			m_iVertexToDrawCount = m_oIndice.size();
+		else
+			m_iVertexToDrawCount = m_iVerticeCount;
 
 		return FT_OK;
 	}

@@ -41,7 +41,7 @@ namespace ft
 	void		Camera::MakeViewContext(ViewContext* pOutViewContext) const
 	{
 		FT_ASSERT(pOutViewContext != nullptr);
-		pOutViewContext->mView = mWorldTransform;
+		pOutViewContext->mView = glm::inverse(mWorldTransform);
 		if (m_eProjectionType == E_PROJECTION_PERSPECTIVE)
 			pOutViewContext->mProjection = glm::perspective(m_fFov, m_fRatio, m_fNear, m_fFar);
 		else if (m_eProjectionType == E_PROJECTION_ORTHOGRAPHIC)

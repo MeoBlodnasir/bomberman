@@ -3,14 +3,14 @@
 #include "LayoutLocation.h.glsl"
 
 LAYOUT_LOCATION_POSITION in vec3 vPosition;
-LAYOUT_LOCATION_COLOR	 in vec3 vColor;
 LAYOUT_LOCATION_UV		 in vec2 vUV;
+LAYOUT_LOCATION_COLOR	 in vec4 vColor;
 
 uniform mat4 mModel;
 uniform mat4 mView;
 uniform mat4 mProjection;
 
-out vec3 vColor_vs;
+out vec4 vColor_vs;
 out vec2 vUV_vs;
 
 void main()
