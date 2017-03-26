@@ -159,8 +159,6 @@ int		main()
 			FT_TEST(xTextureTest->Create(GL_TEXTURE_2D, Path("./Djobi/Assets/Textures/Purple.png")) == FT_OK);
 		}
 
-		// Controles camera
-
 		// Commentaire vu sur un site d'aide, à garder en tête:
 		// Left-multiplying rot, will perform a rotation about the camera space X axis.
 		// If you want a rotation about the world-space X axis, you need to right-multiply it.
@@ -168,10 +166,11 @@ int		main()
 		sf::Vector2i	vSfMousePosition = sf::Mouse::getPosition(*pWindow);
 		Vector2			vMousePosition((float)vSfMousePosition.x, (float)vSfMousePosition.y);
 		Vector2			vMouseMotion(0.f, 0.f);
+
 		Vector3			vCamControllerPos = Vector3(3.f, 1.f, 1.f);
 		Quaternion		qCamControllerRot = Quaternion(glm::inverse(glm::lookAt(vCamControllerPos, Vector3(0.f, 0.f, 0.5f), Vector3(0.f, 0.f, 1.f))));
 		const float		fTranslationSpeed = 3.f;
-		const float		fRotationSpeed = 0.2f;
+		const float		fRotationSpeed = 0.3f;
 
 		bool bRunning = true;
 		while (bRunning)
@@ -223,6 +222,39 @@ int		main()
 			//xCamera->mWorldTransform = glm::translate(Matrix44(1.f), vCamControllerPos) * glm::mat4_cast(qCamControllerRot);
 			xCamera->mWorldTransform = glm::inverse(glm::lookAt(vCamControllerPos, vCamControllerPos + (qCamControllerRot * Vector3(0.f, 0.f, -1.f)), Vector3(0.f, 0.f, 1.f)));
 
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Z) || sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+			{
+				xBombermanModel->SetLocalTransform(glm::translate(xBombermanModel->GetLocalTransform(),
+					Vector3(sf::Keyboard::isKeyPressed(sf::Keyboard::A) ? fTranslationSpeed * fDt : 0.f,
+							sf::Keyboard::isKeyPressed(sf::Keyboard::Z) ? fTranslationSpeed * fDt : 0.f,
+							sf::Keyboard::isKeyPressed(sf::Keyboard::E) ? fTranslationSpeed * fDt : 0.f)));
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) || sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+			{
+				xBombermanModel->SetLocalTransform(glm::translate(xBombermanModel->GetLocalTransform(),
+					Vector3(sf::Keyboard::isKeyPressed(sf::Keyboard::Q) ? -fTranslationSpeed * fDt : 0.f,
+							sf::Keyboard::isKeyPressed(sf::Keyboard::S) ? -fTranslationSpeed * fDt : 0.f,
+							sf::Keyboard::isKeyPressed(sf::Keyboard::D) ? -fTranslationSpeed * fDt : 0.f)));
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) || sf::Keyboard::isKeyPressed(sf::Keyboard::F))
+			{
+				xBombermanModel->SetLocalTransform(glm::rotate(xBombermanModel->GetLocalTransform(),
+												   (sf::Keyboard::isKeyPressed(sf::Keyboard::R) ? fRotationSpeed : -fRotationSpeed) * 3.f * fDt,
+												   Vector3(1.f, 0.f, 0.f)));
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::T) || sf::Keyboard::isKeyPressed(sf::Keyboard::G))
+			{
+				xBombermanModel->SetLocalTransform(glm::rotate(xBombermanModel->GetLocalTransform(),
+												  (sf::Keyboard::isKeyPressed(sf::Keyboard::T) ? fRotationSpeed : -fRotationSpeed) * 3.f * fDt,
+												  Vector3(0.f, 1.f, 0.f)));
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y) || sf::Keyboard::isKeyPressed(sf::Keyboard::H))
+			{
+				xBombermanModel->SetLocalTransform(glm::rotate(xBombermanModel->GetLocalTransform(),
+												   (sf::Keyboard::isKeyPressed(sf::Keyboard::Y) ? fRotationSpeed : -fRotationSpeed) * 3.f * fDt,
+												   Vector3(0.f, 0.f, 1.f)));
+			}
+			xBombermanModel->Update();
 
 			{
 				//ProfilerBlockPrint oProfilerBlockRender("Boucle de rendu");
@@ -248,7 +280,7 @@ int		main()
 				{
 					for (const Mesh* pMesh : itNode->m_oMeshes)
 					{
-						xTextureShader->SetUniform("mModel", itNode->GetWorldTransform());
+						xTextureShader->SetUniform("mModel", xBombermanModel->GetWorldTransform() * itNode->GetWorldTransform());
 						pMesh->Draw();
 					}
 					itNode.Next();
