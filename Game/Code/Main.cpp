@@ -5,6 +5,8 @@
 
 #include <Output.hpp>
 #include <OpenGL.hpp>
+#include "InputHandler.hpp"
+
 
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Event.hpp>
@@ -45,13 +47,13 @@ int		main()
 	glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
 	
 	bool bRunning = true;
+    InputHandler inputHandler;
 	while (bRunning)
 	{
 		sf::Event oEvent;
 		while (pWindow->pollEvent(oEvent))
 		{
-			if (oEvent.type == sf::Event::Closed || (oEvent.type == sf::Event::KeyPressed && oEvent.key.code == sf::Keyboard::Escape))
-				bRunning = false;
+          inputHandler.handleInput(oEvent);
 		}
 		
 		
