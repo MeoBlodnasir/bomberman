@@ -22,8 +22,5 @@ void InputHandler::handleInput(sf::Event oEvent)
 }
 bool InputHandler::isPressed(const std::string& action)
 {
-  if (oKeysPressed[oBindings[action]])
-    return true;
-  else
-    return false;
+  return oKeysPressed[oBindings[action]];
 }
