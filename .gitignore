@@ -47,6 +47,7 @@ Makefile
 *.ilk
 *.VC.db
 *.VC.opendb
+*.d
 
 # External Folder
 External
