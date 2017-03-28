@@ -42,5 +42,8 @@ solution ("Bomberman")
 		LinkExternalLib("SFML", "glm", "OpenGL", "assimp")
 		
 	DefineGameProject("Djobi", RootDir.."Djobi/")
-		LinkExternalLib("SFML", "glm", "OpenGL", "assimp")
-		
+        LinkExternalLib("SFML", "glm", "OpenGL", "assimp")
+
+    DefineGameProject("Gonzo", RootDir.."Gonzo/")
+        LinkExternalLib("SFML", "glm", "OpenGL", "assimp")
+
