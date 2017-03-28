@@ -1,34 +1,27 @@
 #pragma once
 
-#include "Handled.hpp"
-#include "StrongPointer.hpp"
-#include "Path.hpp"
+#include "TextureResource.hpp"
 #include "Vector2.hpp"
-#include "OpenGL.hpp"
 
 namespace ft
 {
-	class Texture : public Handled, public CountableSPtr
+	class Texture : public CountableSPtr
 	{
 	public:
 
 				Texture();
 		virtual ~Texture();
 
-				ErrorCode		Create(GLenum eTextureTarget, const Path& oSourceFilePath);
-		virtual ErrorCode		Destroy();
+		ErrorCode		Create(const SPtr<TextureResource>& xResource);
+		ErrorCode		Destroy();
 
-		inline	const Vector2&	GetSize() const					{ return m_vSize; }
-		inline	uint32			GetWidth() const				{ return (uint32)m_vSize.x; }
-		inline	uint32			GetHeight() const				{ return (uint32)m_vSize.y; }
+		const Vector2&	GetSize() const;
 
-				void			Bind(uint32 iTextureUnit) const;
+		void			Bind(uint32 iTextureUnit) const;
 
 	protected:
 
-		Path		m_oSourceFilePath;
-		Vector2		m_vSize;
-		GLenum		m_eTextureTarget;
+		SPtr<TextureResource>	m_xResource;
 
 	private:
 

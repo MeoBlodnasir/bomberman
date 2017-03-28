@@ -13,6 +13,7 @@
 #include <Texture.hpp>
 #include <Camera.hpp>
 #include <Quaternion.hpp>
+#include <TextureResourceManager.hpp>
 
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Event.hpp>
@@ -22,7 +23,6 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
-
 
 int		main()
 {
@@ -69,6 +69,11 @@ int		main()
 		oSFClock.restart();
 		float fDt;
 
+
+		TextureResourceManager	oTextureResManager;
+
+
+
 		SPtr<MeshResource>	xTorusResource = new MeshResource;
 		SPtr<Mesh>			xTorusMesh = new Mesh;
 		Matrix44			mTransformTorus;
@@ -78,7 +83,6 @@ int		main()
 			Assimp::Importer oAssimpImporter;
 			const aiScene* pScene =
 				oAssimpImporter.ReadFile(Path("./Djobi/Assets/Models/Torus.FBX").GetFullPath(),
-//				oAssimpImporter.ReadFile(Path("./Djobi/Assets/Models/Bomberman.FBX").GetFullPath(),
 				aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
 			FT_ASSERT(pScene != nullptr);
 			FT_ASSERT(!(pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE));
@@ -151,12 +155,27 @@ int		main()
 			FT_TEST(xColorShader->Create(xVsPositionColor, xFsColor) == FT_OK);
 		}
 		
-
+		TextureResourceInfos	oTextureResInfos;
 		SPtr<Texture> xTextureTest = new Texture;
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement Textures");
 
-			FT_TEST(xTextureTest->Create(GL_TEXTURE_2D, Path("./Djobi/Assets/Textures/Purple.png")) == FT_OK);
+			SPtr<TextureResource>	xTextureResource;
+			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/Purple.png");
+			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
+			FT_TEST(oTextureResManager.Load(oTextureResInfos, xTextureResource) == FT_OK);
+			FT_TEST(xTextureTest->Create(xTextureResource) == FT_OK);
+		}
+
+		SPtr<Texture> xTexturePurple = new Texture;
+		{
+			ProfilerBlockPrint oProfilerBlock("Chargement Textures");
+
+			SPtr<TextureResource>	xTextureResource;
+			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/Purple.png");
+			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
+			FT_TEST(oTextureResManager.Load(oTextureResInfos, xTextureResource) == FT_OK);
+			FT_TEST(xTexturePurple->Create(xTextureResource) == FT_OK);
 		}
 
 		// Commentaire vu sur un site d'aide, à garder en tête:
@@ -265,7 +284,7 @@ int		main()
 				xCamera->MakeViewContext(&oViewContext);
 
 				xTextureShader->Use();
-				xTextureShader->SetUniform("oTexture0", xTextureTest, 0);
+				xTextureShader->SetUniform("oDiffuseTexture", xTextureTest, 0);
 				xTextureShader->SetUniform("mView", oViewContext.mView);
 				xTextureShader->SetUniform("mProjection", oViewContext.mProjection);
 
@@ -299,6 +318,8 @@ int		main()
 				pWindow->display();
 			}
 		}
+
+		oTextureResManager.UnloadAll();
 	}
 
 	delete pWindow;
