@@ -22,7 +22,7 @@ InputHandler *Game::getInputHandler()
   return pInputHandler;
 }
 
-void    Game::launchControllerActions()
+void    Game::launchMenuActions()
 {
   pMenuController->checkActions(pInputHandler);
 }

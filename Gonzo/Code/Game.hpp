@@ -9,7 +9,7 @@ class Game
     void getInputs(sf::Event oEvent); 
     void changeState();
     InputHandler *getInputHandler();
-    void    launchControllerActions();
+    void    launchMenuActions();
   protected:
     State *pCurrentState;
     InputHandler *pInputHandler;
