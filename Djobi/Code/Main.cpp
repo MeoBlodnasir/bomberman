@@ -319,7 +319,7 @@ int		main()
 			}
 		}
 
-		oTextureResManager.UnloadAll();
+		FT_TEST(oTextureResManager.UnloadAll() == FT_OK);
 	}
 
 	delete pWindow;

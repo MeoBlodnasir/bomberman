@@ -41,7 +41,7 @@ namespace ft
 		// sinon récupère la ressource dans la map,
 		// renvoie la ressource par le StrongPointer donné en paramètre.
 		// FT_OK si tout s'est bien passé,
-		// FT_FAIL si la ressource n'a pas pu être chargée.
+		// FT_FAIL si la ressource n'a pas pu être chargée (pas de modification de xOutResource).
 		ErrorCode	Load(const ResourceId& oId, SPtr<ResourceType>& xOutResource)
 		{
 			ErrorCode	eRet	= FT_OK;
@@ -93,8 +93,8 @@ namespace ft
 				if (pResource != nullptr)
 				{
 					eRet = Unload_Impl(pResource);
-					// Test s'il s'agit bien de la dernière référence à cette ressource
-					if (pResource->GetReferenceCount() == 1)
+					// Test qu'il s'agit bien de la dernière référence à cette ressource
+					if (pResource->GetReferenceCount() > 1)
 						eRet = FT_FAIL;
 				}
 				// Suppression de la référence à la ressource
