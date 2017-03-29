@@ -4,9 +4,9 @@
 MenuState::MenuState(Game &game)
   : State(game)
 {
- game.getInputHandler()->bind(sf::Keyboard::Up, "MenuUp"); 
- game.getInputHandler()->bind(sf::Keyboard::Down, "MenuDown"); 
- game.getInputHandler()->bind(sf::Keyboard::Right, "MenuRight"); 
- game.getInputHandler()->bind(sf::Keyboard::Left, "MenuLeft"); 
- game.getInputHandler()->bind(sf::Keyboard::Escape, "MenuQuit"); 
+ game.getInputHandler()->bind(sf::Keyboard::Up, InputHandler::E_MENU_UP); 
+ game.getInputHandler()->bind(sf::Keyboard::Down, InputHandler::E_MENU_DOWN); 
+ game.getInputHandler()->bind(sf::Keyboard::Right, InputHandler::E_MENU_RIGHT); 
+ game.getInputHandler()->bind(sf::Keyboard::Left, InputHandler::E_MENU_LEFT); 
+ game.getInputHandler()->bind(sf::Keyboard::Escape, InputHandler::E_MENU_QUIT); 
 }

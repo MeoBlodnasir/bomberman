@@ -4,9 +4,9 @@
 GameState::GameState(Game &game)
   : State(game)
 {
- game.getInputHandler()->bind(sf::Keyboard::Up, "MoveUp"); 
- game.getInputHandler()->bind(sf::Keyboard::Down, "MoveDown"); 
- game.getInputHandler()->bind(sf::Keyboard::Right, "MoveRight"); 
- game.getInputHandler()->bind(sf::Keyboard::Left, "MoveLeft"); 
- game.getInputHandler()->bind(sf::Keyboard::Escape, "GameQuit"); 
+ game.getInputHandler()->bind(sf::Keyboard::Up, InputHandler::E_MOVE_UP); 
+ game.getInputHandler()->bind(sf::Keyboard::Down, InputHandler::E_MOVE_DOWN); 
+ game.getInputHandler()->bind(sf::Keyboard::Right, InputHandler::E_MOVE_RIGHT); 
+ game.getInputHandler()->bind(sf::Keyboard::Left, InputHandler::E_MOVE_LEFT); 
+ game.getInputHandler()->bind(sf::Keyboard::Escape, InputHandler::E_ESCAPE); 
 }

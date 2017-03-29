@@ -10,7 +10,7 @@ InputHandler::InputHandler() {
   */
 }
 
-void InputHandler::bind(const int key, const std::string &action)
+void InputHandler::bind(const int key, const int action)
 {
 
   if (oBindings.count(action) == 0)
@@ -24,7 +24,7 @@ void InputHandler::handleInput(sf::Event oEvent)
     else if (oEvent.type == sf::Event::KeyReleased)
       oKeysPressed[oEvent.key.code] = false;
 }
-bool InputHandler::isPressed(const std::string& action)
+bool InputHandler::isPressed(const int action)
 {
   if (oBindings.count(action) > 0)
     return oKeysPressed[oBindings.at(action)];

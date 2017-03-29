@@ -55,8 +55,8 @@ int		main()
       if (event.type == sf::Event::Closed)
         window.close();
       game.getInputs(event);
-      menuController.checkActions(game.getInputHandler());
     }
+    menuController.checkActions(game.getInputHandler());
 
     // clear the window with black color
     window.clear(sf::Color::Black);

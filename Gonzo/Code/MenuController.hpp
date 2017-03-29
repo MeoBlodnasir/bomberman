@@ -6,5 +6,5 @@ class MenuController
     MenuController();
     void   checkActions(InputHandler *pInputHandler);
   private:
-      std::map<std::string, void (*)()> oActionMap;
+      std::map<int, void (*)()> oActionMap;
 };

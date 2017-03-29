@@ -20,11 +20,11 @@ void    menuQuit() {
 
 MenuController::MenuController()
 {
-  oActionMap["MenuUp"] = menuUp; 
-  oActionMap["MenuDown"] = menuDown; 
-  oActionMap["MenuLeft"] = menuLeft; 
-  oActionMap["MenuRight"] = menuRight; 
-  oActionMap["MenuQuit"] = menuQuit; 
+  oActionMap[InputHandler::E_MENU_UP] = menuUp; 
+  oActionMap[InputHandler::E_MENU_DOWN] = menuDown; 
+  oActionMap[InputHandler::E_MENU_LEFT] = menuLeft; 
+  oActionMap[InputHandler::E_MENU_RIGHT] = menuRight; 
+  oActionMap[InputHandler::E_MENU_QUIT] = menuQuit; 
 }
 
 void    MenuController::checkActions(InputHandler *pInputHandler)
