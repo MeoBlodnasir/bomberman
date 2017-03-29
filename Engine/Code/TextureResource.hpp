@@ -17,7 +17,10 @@ namespace ft
 		Path	oFilePath;
 		uint32	iTextureTarget;
 	};
+}
 
+namespace ft
+{
 	class TextureResource : public Resource<TextureResourceInfos>
 	{
 	public:
@@ -41,5 +44,18 @@ namespace ft
 		sf::Image*	m_pImage;
 		uint32		m_iHandle;
 		uint32		m_iTarget;
+	};
+}
+
+// Nécessaire pour TextureResourceManager
+namespace std
+{
+	template <>
+	struct hash<ft::TextureResourceInfos>
+	{
+		size_t	operator ()	(const ft::TextureResourceInfos& oObj) const
+		{
+			return hash<std::string>()(oObj.oFilePath.GetFullPath());
+		}
 	};
 }

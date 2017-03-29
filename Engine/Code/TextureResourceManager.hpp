@@ -7,13 +7,9 @@ namespace ft
 {
 	class TextureResourceManager : public ResourceManager<TextureResource>
 	{
-	public:
-
-		virtual ErrorCode	Load(const TextureResourceInfos& oInfos, SPtr<TextureResource>& xOutResource) override;
-		virtual ErrorCode	Unload(const TextureResourceInfos& oInfos) override;
-
 	protected:
 
-		virtual	ErrorCode	UnloadByHash(Hash::Type iHash) override;
+		virtual ErrorCode	Load_Impl(const TextureResourceInfos& oInfos, SPtr<TextureResource>& xOutResource) override;
+		virtual ErrorCode	Unload_Impl(TextureResource* pResource) override;
 	};
 }

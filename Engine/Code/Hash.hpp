@@ -13,10 +13,9 @@ namespace ft
 		typedef uint32	Type;
 
 		template <typename T>
-		static Type		Compute(const T& tObj)
+		static inline Type	Compute(const T& tObj)
 		{
-			std::hash<T> oHasher;
-			return static_cast<Type>(oHasher(tObj));
+			return static_cast<Type>(std::hash<T>()(tObj));
 		}
 	};
 }
