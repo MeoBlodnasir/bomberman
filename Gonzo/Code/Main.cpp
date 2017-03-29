@@ -14,7 +14,6 @@
 #include <Camera.hpp>
 #include <Quaternion.hpp>
 #include "Game.hpp"
-#include "MenuController.hpp"
 
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Event.hpp>
@@ -41,7 +40,6 @@ int		main()
   sf::CircleShape shape(50);
   shape.setFillColor(sf::Color(100, 250, 50));
   Game game; 
-  MenuController menuController;
 
 
   // run the program as long as the window is open
@@ -56,7 +54,7 @@ int		main()
         window.close();
       game.getInputs(event);
     }
-    menuController.checkActions(game.getInputHandler());
+    game.launchControllerActions();
 
     // clear the window with black color
     window.clear(sf::Color::Black);
