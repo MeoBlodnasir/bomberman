@@ -30,11 +30,13 @@ int		main()
 {
 #if defined(_WIN32)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	//long	iBreakAlloc = -1;
+	//_CrtSetBreakAlloc(iBreakAlloc);
 #endif
 
 	using namespace ft;
 
-	FT_COUT << "Binvenu sur DJOBI!" << std::endl;
+	FT_COUT << "Bienvenu sur DJOBI!" << std::endl;
 
 	sf::Window* pWindow = nullptr;
 	{
@@ -75,53 +77,17 @@ int		main()
 		ResourceManager	oResourceManager;
 		FT_TEST(oResourceManager.Create() == FT_OK);
 
-
-		SPtr<MeshResource>	xTorusResource = new MeshResource;
-		SPtr<Mesh>			xTorusMesh = new Mesh;
-		Matrix44			mTransformTorus;
-		{
-			ProfilerBlockPrint oProfilerBlock("Chargement Torus.FBX");
-
-			Assimp::Importer oAssimpImporter;
-			const aiScene* pScene =
-				oAssimpImporter.ReadFile(Path("./Djobi/Assets/Models/Torus.FBX").GetFullPath(),
-				aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
-			FT_ASSERT(pScene != nullptr);
-			FT_ASSERT(!(pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE));
-			FT_ASSERT(pScene->mNumMeshes > 0);
-
-			FT_TEST(xTorusResource->MakeFromAssimpMesh(pScene->mMeshes[0]) == FT_OK);
-			FT_TEST(xTorusMesh->Create(xTorusResource) == FT_OK);
-			mTransformTorus = glm::rotate(glm::scale(Matrix44(1), Vector3(0.03f)), glm::radians(45.f), glm::normalize(Vector3(0.7f, 0.3f, 0.1f)));
-		}
-
-		SPtr<ModelResource> xBombermanResource = new ModelResource;
 		SPtr<Model>	xBombermanModel = new Model;
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement Bomberman.FBX");
 
-			FT_TEST(xBombermanResource->LoadFromFile(Path("./Djobi/Assets/Models/Bomberman.FBX")) == FT_OK);
-
-			//ModelNodeResource::const_iterator	itNode(xBombermanResource->xRootNode);
-			//FT_ASSERT(*itNode != nullptr);
-			//FT_COUT << "------" << std::endl;
-			//while (*itNode != nullptr)
-			//{
-			//	FT_COUT << (*itNode)->GetName() << std::endl;
-			//	itNode.Next();
-			//}
-			//FT_COUT << "------" << std::endl;
-
+			SPtr<ModelResource> xBombermanResource = new ModelResource;
 			Model::Desc oBombermanDesc;
+			FT_TEST(xBombermanResource->LoadFromFile(Path("./Djobi/Assets/Models/Bomberman.FBX")) == FT_OK);
 			oBombermanDesc.pParent = nullptr;
 			FT_TEST(xBombermanModel->Create(&oBombermanDesc, xBombermanResource) == FT_OK);
 		}
 
-		SPtr<MeshResource>	xCubeResource = new MeshResource;
-		FT_TEST(xCubeResource->MakePrimitiveCube(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_UV) == FT_OK);
-		SPtr<Mesh>			xCubeMesh = new Mesh;
-		FT_TEST(xCubeMesh->Create(xCubeResource) == FT_OK);
-		Matrix44 mTransformCube = glm::rotate(Matrix44(1), glm::radians(-55.f), glm::normalize(Vector3(0.7f, 0.3f, 0.1f)));
 		SPtr<MeshResource>	xAxisResource = new MeshResource;
 		FT_TEST(xAxisResource->MakePrimitiveMatrixAxis(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_COLOR) == FT_OK);
 		SPtr<Mesh>			xAxisMesh = new Mesh;
@@ -287,12 +253,6 @@ int		main()
 				xTextureShader->SetUniform("oDiffuseTexture", xTextureTest, 0);
 				xTextureShader->SetUniform("mView", oViewContext.mView);
 				xTextureShader->SetUniform("mProjection", oViewContext.mProjection);
-
-				//xTextureShader->SetUniform("mModel", mTransformCube);
-				//xCubeMesh->Draw();
-
-				//xTextureShader->SetUniform("mModel", mTransformTorus);
-				//xTorusMesh->Draw();
 
 				ModelNode::const_iterator	itNode(xBombermanModel->m_xRootNode);
 				while (*itNode != nullptr)
