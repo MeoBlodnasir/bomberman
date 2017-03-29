@@ -29,13 +29,22 @@ namespace ft
 	ErrorCode	ResourceManager::Destroy()
 	{
 		if (m_pTextureResManager != nullptr)
+		{
 			FT_TEST(m_pTextureResManager->UnloadAll() == FT_OK);
+			FT_DELETE(m_pTextureResManager);
+		}
 
 		if (m_pShaderFileResManager != nullptr)
+		{
 			FT_TEST(m_pShaderFileResManager->UnloadAll() == FT_OK);
+			FT_DELETE(m_pShaderFileResManager);
+		}
 
 		if (m_pShaderResManager != nullptr)
+		{
 			FT_TEST(m_pShaderResManager->UnloadAll() == FT_OK);
+			FT_DELETE(m_pShaderResManager);
+		}
 
 		return FT_OK;
 	}
