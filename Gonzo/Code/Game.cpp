@@ -3,6 +3,7 @@
 
 Game::Game()
 {
+  pInputHandler = new InputHandler();
   pCurrentState = new MenuState(*this);
 }
 
@@ -12,4 +13,9 @@ void    Game::getInputs(sf::Event oEvent)
 }
 void    Game::changeState() {
 
+}
+
+InputHandler *Game::getInputHandler()
+{
+  return pInputHandler;
 }

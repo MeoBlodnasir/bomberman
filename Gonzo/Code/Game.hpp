@@ -7,7 +7,8 @@ class Game
     Game();
     void getInputs(sf::Event oEvent); 
     void changeState();
-  private:
+    InputHandler *getInputHandler();
+  protected:
     State *pCurrentState;
     InputHandler *pInputHandler;
 };

@@ -48,6 +48,7 @@ Makefile
 *.VC.db
 *.VC.opendb
 *.d
+*.swp
 
 # External Folder
 External
