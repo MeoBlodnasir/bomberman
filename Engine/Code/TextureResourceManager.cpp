@@ -50,10 +50,9 @@ namespace ft
 		FT_TODO("Tester les retours OpenGL pour sortir de la fonction avec FT_FAIL au besoin");
 
 		pResource = new TextureResource;
-		pResource->m_oFilePath	= oInfos.oFilePath;
-		pResource->m_pImage		= pImage;
-		pResource->m_iHandle	= iHandle;
-		pResource->m_iTarget	= eTextureTarget;
+		pResource->m_oResourceInfos	= oInfos;
+		pResource->m_pImage			= pImage;
+		pResource->m_iHandle		= iHandle;
 
 		xOutResource = pResource;
 

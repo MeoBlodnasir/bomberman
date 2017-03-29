@@ -5,8 +5,7 @@ namespace ft
 {
 	TextureResource::TextureResource()
 		: m_pImage(nullptr)
-		, m_iHandle(0)
-		, m_iTarget(0)
+		, m_oResourceInfos()
 	{
 	}
 
@@ -17,6 +16,6 @@ namespace ft
 
 	bool	TextureResource::IsLoadedAndValid() const 
 	{
-		return !m_oFilePath.IsEmpty() && m_pImage != nullptr && m_iHandle != 0;
+		return !m_oResourceInfos.oFilePath.IsEmpty() && m_pImage != nullptr && m_iHandle != 0;
 	}
 }

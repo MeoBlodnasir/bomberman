@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Resource.hpp"
-#include "Path.hpp"
 #include "ErrorCode.hpp"
+#include "Resource.hpp"
+#include "Handled.hpp"
+#include "Path.hpp"
 
 // fw
 namespace sf
@@ -10,18 +11,23 @@ namespace sf
 	class Image;
 }
 
+// Séparer TextureResource de ImageResource?
+// Notammeent pour pouvoir libérer la mémoire quand on n'a besoin que de la mémoire vidéo.
+
 namespace ft
 {
 	struct TextureResourceInfos
 	{
 		Path	oFilePath;
 		uint32	iTextureTarget;
-	};
-}
 
-namespace ft
-{
-	class TextureResource : public Resource<TextureResourceInfos>
+		TextureResourceInfos()
+			: oFilePath()
+			, iTextureTarget(0)
+		{}
+	};
+
+	class TextureResource : public Handled, public Resource<TextureResourceInfos>
 	{
 	public:
 
@@ -29,10 +35,9 @@ namespace ft
 
 		virtual bool				IsLoadedAndValid() const override;
 
-		inline	const Path&			GetFilePath() const			{ return m_oFilePath; }
+		inline	const Path&			GetFilePath() const			{ return m_oResourceInfos.oFilePath; }
+		inline	uint32				GetTextureTarget() const	{ return m_oResourceInfos.iTextureTarget; }
 		inline	const sf::Image*	GetImage() const			{ return m_pImage; }
-		inline	uint32				GetHandle() const			{ return m_iHandle; }
-		inline	uint32				GetTextureTarget() const	{ return m_iTarget; }
 
 	protected:
 
@@ -40,14 +45,12 @@ namespace ft
 		
 		TextureResource();
 
-		Path		m_oFilePath;
-		sf::Image*	m_pImage;
-		uint32		m_iHandle;
-		uint32		m_iTarget;
+		TextureResourceInfos	m_oResourceInfos;
+		sf::Image*				m_pImage;
 	};
 }
 
-// Nécessaire pour TextureResourceManager
+// Nécessaire pour SpecificResourceManager
 namespace std
 {
 	template <>

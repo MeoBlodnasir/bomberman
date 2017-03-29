@@ -3,37 +3,28 @@
 #include "Handled.hpp"
 #include "Path.hpp"
 #include "StrongPointer.hpp"
+#include "ShaderType.hpp"
 
 namespace ft
 {
-	enum EShaderType
-	{
-		E_INVALID_SHADER_TYPE = -1,
+	// fw
+	class ShaderFileResource;
 
-		E_VERTEX_SHADER = 0,
-		E_FRAGMENT_SHADER,
-
-		E_SHADER_TYPE_COUNT
-	};
-
-	class Shader : public Handled, public CountableSPtr
+	class Shader : public CountableSPtr
 	{
 	public:
 
 				Shader();
 		virtual ~Shader();
 
-				ErrorCode		Create(EShaderType eShaderType, const Path& oSourceFilePath);
-		virtual ErrorCode		Destroy() override;
+		ErrorCode		Create(const SPtr<ShaderFileResource>& xResource);
+		ErrorCode		Destroy();
 
-		inline	EShaderType		GetShaderType() const						{ return m_eShaderType; }
-
-		static	uint32			GetGLShaderType(EShaderType eShaderType);
+		EShaderType		GetShaderType() const;
 
 	protected:
 
-		Path			m_oSourceFilePath;
-		EShaderType		m_eShaderType;
+		SPtr<ShaderFileResource>	m_xResource;
 
 	private:
 

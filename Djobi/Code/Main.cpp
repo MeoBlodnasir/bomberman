@@ -13,7 +13,9 @@
 #include <Texture.hpp>
 #include <Camera.hpp>
 #include <Quaternion.hpp>
+#include <ResourceManager.hpp>
 #include <TextureResourceManager.hpp>
+#include <ShaderResourceManager.hpp>
 
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Event.hpp>
@@ -70,8 +72,8 @@ int		main()
 		float fDt;
 
 
-		TextureResourceManager	oTextureResManager;
-
+		ResourceManager	oResourceManager;
+		FT_TEST(oResourceManager.Create() == FT_OK);
 
 
 		SPtr<MeshResource>	xTorusResource = new MeshResource;
@@ -137,44 +139,42 @@ int		main()
 		FT_TEST(xCamera->Create(&oCameraDesc) == FT_OK);
 
 
-		SPtr<Shader> xVsPositionUV = new Shader;
-		SPtr<Shader> xVsPositionColor = new Shader;
-		SPtr<Shader> xFsTexture = new Shader;
-		SPtr<Shader> xFsColor = new Shader;
-		SPtr<ShaderProgram> xTextureShader = new ShaderProgram;
-		SPtr<ShaderProgram> xColorShader = new ShaderProgram;
+		ShaderResourceInfos	oShaderResInfos;
+		SPtr<ShaderProgram> xTextureShader	= new ShaderProgram;
+		SPtr<ShaderProgram> xColorShader	= new ShaderProgram;
 		{
-			ProfilerBlockPrint oProfilerBlock("Chargement Sharders");
+			ProfilerBlockPrint oProfilerBlock("Chargement Shaders");
 
-			FT_TEST(xVsPositionUV->Create(E_VERTEX_SHADER, Path("./Engine/Assets/Shaders/PositionUV.vs.glsl")) == FT_OK);
-			FT_TEST(xVsPositionColor->Create(E_VERTEX_SHADER, Path("./Engine/Assets/Shaders/PositionColor.vs.glsl")) == FT_OK);
-			FT_TEST(xFsTexture->Create(E_FRAGMENT_SHADER, Path("./Engine/Assets/Shaders/Texture.fs.glsl")) == FT_OK);
-			FT_TEST(xFsColor->Create(E_FRAGMENT_SHADER, Path("./Engine/Assets/Shaders/Color.fs.glsl")) == FT_OK);
+			SPtr<ShaderResource>	xShaderResource;
 
-			FT_TEST(xTextureShader->Create(xVsPositionUV, xFsTexture) == FT_OK);
-			FT_TEST(xColorShader->Create(xVsPositionColor, xFsColor) == FT_OK);
+			oShaderResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
+			FT_TEST(oShaderResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/PositionUV.vs.glsl"));
+			FT_TEST(oShaderResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/Texture.fs.glsl"));
+			FT_TEST(oResourceManager.GetShaderResManager()->Load(oShaderResInfos, xShaderResource) == FT_OK);
+			FT_TEST(xTextureShader->Create(xShaderResource) == FT_OK);
+
+			oShaderResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
+			FT_TEST(oShaderResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/PositionColor.vs.glsl"));
+			FT_TEST(oShaderResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/Color.fs.glsl"));
+			FT_TEST(oResourceManager.GetShaderResManager()->Load(oShaderResInfos, xShaderResource) == FT_OK);
+			FT_TEST(xColorShader->Create(xShaderResource) == FT_OK);
 		}
 		
-		TextureResourceInfos	oTextureResInfos;
-		SPtr<Texture> xTextureTest = new Texture;
+		TextureResourceInfos oTextureResInfos;
+		SPtr<Texture>	xTextureTest	= new Texture;
+		SPtr<Texture>	xTexturePurple	= new Texture;
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement Textures");
 
 			SPtr<TextureResource>	xTextureResource;
 			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/Purple.png");
 			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
-			FT_TEST(oTextureResManager.Load(oTextureResInfos, xTextureResource) == FT_OK);
+			FT_TEST(oResourceManager.GetTextureResManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
 			FT_TEST(xTextureTest->Create(xTextureResource) == FT_OK);
-		}
 
-		SPtr<Texture> xTexturePurple = new Texture;
-		{
-			ProfilerBlockPrint oProfilerBlock("Chargement Textures");
-
-			SPtr<TextureResource>	xTextureResource;
 			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/Purple.png");
 			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
-			FT_TEST(oTextureResManager.Load(oTextureResInfos, xTextureResource) == FT_OK);
+			FT_TEST(oResourceManager.GetTextureResManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
 			FT_TEST(xTexturePurple->Create(xTextureResource) == FT_OK);
 		}
 
@@ -319,7 +319,7 @@ int		main()
 			}
 		}
 
-		FT_TEST(oTextureResManager.UnloadAll() == FT_OK);
+		FT_TEST(oResourceManager.Destroy() == FT_OK);
 	}
 
 	delete pWindow;
