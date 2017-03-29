@@ -31,7 +31,7 @@ void    MenuController::checkActions(InputHandler *pInputHandler)
 {
   for (auto const& x : oActionMap)
   {
-    if (pInputHandler->isPressed(x.first))
+    if (pInputHandler->isPressed(x.first).isPressed && pInputHandler->isPressed(x.first).changedThisFrame)
     {
       x.second();
     }

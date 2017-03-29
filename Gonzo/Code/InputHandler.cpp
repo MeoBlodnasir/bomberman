@@ -1,4 +1,5 @@
 #include "InputHandler.hpp"
+#include "Output.hpp"
 
 InputHandler::InputHandler() {
   /*
@@ -12,7 +13,6 @@ InputHandler::InputHandler() {
 
 void InputHandler::bind(const int key, const int action)
 {
-
   if (oBindings.count(action) == 0)
     oBindings[action] = key;
 }
@@ -20,14 +20,35 @@ void InputHandler::bind(const int key, const int action)
 void InputHandler::handleInput(sf::Event oEvent)
 {
     if (oEvent.type == sf::Event::KeyPressed)
-      oKeysPressed[oEvent.key.code] = true;
+    {
+      if (oKeysPressed[oEvent.key.code].isPressed == true)
+        oKeysPressed[oEvent.key.code].changedThisFrame = false;
+      else
+        oKeysPressed[oEvent.key.code].changedThisFrame = true;
+      oKeysPressed[oEvent.key.code].isPressed = true;
+    }
     else if (oEvent.type == sf::Event::KeyReleased)
-      oKeysPressed[oEvent.key.code] = false;
+    {
+      if (oKeysPressed[oEvent.key.code].isPressed == false)
+        oKeysPressed[oEvent.key.code].changedThisFrame = false;
+      else
+        oKeysPressed[oEvent.key.code].changedThisFrame = true;
+      oKeysPressed[oEvent.key.code].isPressed = false;
+    }
 }
-bool InputHandler::isPressed(const int action)
+InputHandler::KeyStatus InputHandler::isPressed(const int action)
 {
   if (oBindings.count(action) > 0)
     return oKeysPressed[oBindings.at(action)];
   else
-    return false;
+    return InputHandler::KeyStatus{false, false};
+}
+
+void    InputHandler::resetKeysPressedThisFrame()
+{
+  for (auto & x : oKeysPressed)
+  {
+    x.second.changedThisFrame = false;
+  }
+
 }

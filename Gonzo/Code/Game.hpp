@@ -10,6 +10,7 @@ class Game
     void changeState();
     InputHandler *getInputHandler();
     void    launchMenuActions();
+    void    resetKeysPressedThisFrame();
   protected:
     State *pCurrentState;
     InputHandler *pInputHandler;

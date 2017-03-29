@@ -18,12 +18,17 @@ class InputHandler
       E_MOVE_RIGHT,
       E_ESCAPE
     }; 
+    struct KeyStatus {
+      bool isPressed;
+      bool changedThisFrame;
+    };
     InputHandler();
     void handleInput(sf::Event oEvent);
     void bind(const int key, const int action);
-    bool isPressed(const int action);
+    KeyStatus isPressed(const int action);
+    void    resetKeysPressedThisFrame();
 
   protected:
-    std::map<int, bool> oKeysPressed;
+    std::map<int, KeyStatus> oKeysPressed;
     std::map<int, int> oBindings;
 };

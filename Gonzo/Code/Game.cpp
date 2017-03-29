@@ -26,3 +26,7 @@ void    Game::launchMenuActions()
 {
   pMenuController->checkActions(pInputHandler);
 }
+void    Game::resetKeysPressedThisFrame()
+{
+  pInputHandler->resetKeysPressedThisFrame();
+}
