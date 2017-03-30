@@ -50,21 +50,21 @@ namespace ft
 
 #	define FT_STATIC_ASSERT(expr)		typedef char __FT_S_ASSERT__[(expr) ? 1 : -1]
 
+#	define FT_TEST(expr)						\
+	{											\
+		if (!(expr))							\
+		{										\
+			FT_FAILED_ASSERTION(expr);			\
+		}										\
+	}
 #else
 
 #	define FT_FAILED_ASSERTION(expr)
 #	define FT_ASSERT(expr)
 #	define FT_STATIC_ASSERT(expr)
+#	define FT_TEST(expr)				expr
 
 #endif
-
-#define FT_TEST(expr)						\
-{											\
-	if (!(expr))							\
-	{										\
-		FT_FAILED_ASSERTION(expr);			\
-	}										\
-}
 
 #define FT_TEST_RETURN(expr, ret)			\
 {											\

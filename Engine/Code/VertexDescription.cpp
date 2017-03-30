@@ -6,6 +6,7 @@ namespace ft
 	const uint32	VertexDescription::s_iElementCount[FT_VERTEX_LOCATION_COUNT] =
 	{
 		3, // FT_VERTEX_LOCATION_POSITION
+		3, // FT_VERTEX_LOCATION_NORMAL
 		2, // FT_VERTEX_LOCATION_UV
 		4  // FT_VERTEX_LOCATION_COLOR
 	};

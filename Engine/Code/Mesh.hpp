@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Handled.hpp"
-#include "MeshResource.hpp"
+#include "MeshData.hpp"
 
 namespace ft
 {
@@ -16,7 +16,7 @@ namespace ft
 				Mesh();
 		virtual ~Mesh();
 
-		virtual ErrorCode	Create(const SPtr<MeshResource>& xMeshResource);
+		virtual ErrorCode	Create(const SPtr<MeshData>& xMeshData);
 		virtual ErrorCode	Destroy() override;
 
 		virtual bool		IsValid() const;
@@ -25,7 +25,7 @@ namespace ft
 
 	protected:
 
-		SPtr<MeshResource>	m_xMeshResource;
+		SPtr<MeshData>	m_xMeshData;
 
 		uint32	m_iVbo;
 		uint32	m_iEbo;

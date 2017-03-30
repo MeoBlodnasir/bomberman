@@ -38,6 +38,9 @@ int		main()
 
 	FT_COUT << "Bienvenu sur DJOBI!" << std::endl;
 
+	ResourceManager	oResourceManager;
+	FT_TEST(oResourceManager.Create() == FT_OK);
+
 	sf::Window* pWindow = nullptr;
 	{
 		ProfilerBlockPrint oProfilerBlock("Fenetre SFML");
@@ -73,10 +76,6 @@ int		main()
 		oSFClock.restart();
 		float fDt;
 
-
-		ResourceManager	oResourceManager;
-		FT_TEST(oResourceManager.Create() == FT_OK);
-
 		SPtr<Model>	xBombermanModel = new Model;
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement Bomberman.FBX");
@@ -88,7 +87,7 @@ int		main()
 			FT_TEST(xBombermanModel->Create(&oBombermanDesc, xBombermanResource) == FT_OK);
 		}
 
-		SPtr<MeshResource>	xAxisResource = new MeshResource;
+		SPtr<MeshData>	xAxisResource = new MeshData;
 		FT_TEST(xAxisResource->MakePrimitiveMatrixAxis(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_COLOR) == FT_OK);
 		SPtr<Mesh>			xAxisMesh = new Mesh;
 		FT_TEST(xAxisMesh->Create(xAxisResource) == FT_OK);
@@ -199,9 +198,9 @@ int		main()
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 			{
 				if (vMouseMotion.y * vMouseMotion.y > 0.1f)
-					qCamControllerRot = glm::rotate(qCamControllerRot, vMouseMotion.y * fDt * fRotationSpeed, Vector3(1.f, 0.f, 0.f));
+					qCamControllerRot = glm::rotate(qCamControllerRot, -vMouseMotion.y * fDt * fRotationSpeed, Vector3(1.f, 0.f, 0.f));
 				if (vMouseMotion.x * vMouseMotion.x > 0.1f)
-					qCamControllerRot = glm::rotate(qCamControllerRot, vMouseMotion.x * fDt * fRotationSpeed, Vector3(0.f, 1.f, 0.f));
+					qCamControllerRot = glm::rotate(qCamControllerRot, -vMouseMotion.x * fDt * fRotationSpeed, Vector3(0.f, 1.f, 0.f));
 			}
 
 			//xCamera->mWorldTransform = glm::translate(Matrix44(1.f), vCamControllerPos) * glm::mat4_cast(qCamControllerRot);
@@ -267,9 +266,9 @@ int		main()
 
 				glDisable(GL_DEPTH_TEST);
 				xColorShader->Use();
-				xTextureShader->SetUniform("mModel", Matrix44(1));
-				xTextureShader->SetUniform("mView", oViewContext.mView);
-				xTextureShader->SetUniform("mProjection", oViewContext.mProjection);
+				xColorShader->SetUniform("mModel", Matrix44(1));
+				xColorShader->SetUniform("mView", oViewContext.mView);
+				xColorShader->SetUniform("mProjection", oViewContext.mProjection);
 				xAxisMesh->Draw();
 			}
 
@@ -278,9 +277,9 @@ int		main()
 				pWindow->display();
 			}
 		}
-
-		FT_TEST(oResourceManager.Destroy() == FT_OK);
 	}
+
+	FT_TEST(oResourceManager.Destroy() == FT_OK);
 
 	delete pWindow;
 

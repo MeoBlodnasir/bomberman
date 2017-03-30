@@ -4,6 +4,7 @@
 #include "Path.hpp"
 
 //#include "ProfilerBlock.hpp"
+#include "Output.hpp"// tests
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -52,7 +53,19 @@ namespace ft
 
 		// Chargement de la scène
 		const aiScene* pScene = oAssimpImporter.ReadFile(oModelFilePath.GetFullPath(),
-								aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+#if defined (__FT_DEBUG__)
+									aiProcess_FindInvalidData		|
+									aiProcess_ValidateDataStructure	|
+#endif
+									aiProcess_Triangulate			|
+									aiProcess_JoinIdenticalVertices	|
+									aiProcess_GenNormals			|
+									aiProcess_GenUVCoords			|
+									aiProcess_CalcTangentSpace		|
+									aiProcess_SortByPType			|
+									aiProcess_FlipUVs				|
+									aiProcess_RemoveRedundantMaterials
+								);
 
 		// Vérifications de la validité
 		FT_ASSERT(pScene != nullptr);
@@ -61,6 +74,50 @@ namespace ft
 		FT_ASSERT(pScene->mNumMeshes > 0);
 		if (pScene == nullptr || (pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) || pScene->mRootNode == nullptr || pScene->mNumMeshes == 0)
 			return FT_FAIL;
+
+		// Pas bloquant, mais autant le faire pour voir
+		FT_ASSERT(!(pScene->mFlags & AI_SCENE_FLAGS_VALIDATION_WARNING))
+		if (pScene->mFlags & AI_SCENE_FLAGS_VALIDATION_WARNING)
+		{
+			FT_CERR << "Assimp WARNING: " << oAssimpImporter.GetErrorString() << std::endl;
+		}
+
+		// Tests
+		{
+			FT_COUT << oModelFilePath.GetFullPath() << std::endl;
+			FT_COUT << pScene->mNumMaterials << " materiaux" << std::endl;
+			for (uint32 i = 0, iCount = pScene->mNumMaterials; i < iCount; ++i)
+			{
+				const aiMaterial* pMat = pScene->mMaterials[i];
+				aiString	oString;
+				aiColor3D	oColor;
+				float		fFloat;
+				FT_COUT << "\tMat " << i << " : " << std::endl;
+				if (pMat->Get(AI_MATKEY_NAME, oString) == AI_SUCCESS)
+					FT_COUT << "\t\tName : " << oString.C_Str() << std::endl;
+				if (pMat->Get(AI_MATKEY_COLOR_DIFFUSE, oColor) == AI_SUCCESS)
+					FT_COUT << "\t\tDiffuse Color :  " << oColor.r << ',' << oColor.g << ',' << oColor.b << std::endl;
+				if (pMat->Get(AI_MATKEY_COLOR_AMBIENT, oColor) == AI_SUCCESS)
+					FT_COUT << "\t\tAmbient Color :  " << oColor.r << ',' << oColor.g << ',' << oColor.b << std::endl;
+				if (pMat->Get(AI_MATKEY_COLOR_SPECULAR, oColor) == AI_SUCCESS)
+					FT_COUT << "\t\tSpecular Color : " << oColor.r << ',' << oColor.g << ',' << oColor.b << std::endl;
+				if (pMat->Get(AI_MATKEY_COLOR_EMISSIVE, oColor) == AI_SUCCESS)
+					FT_COUT << "\t\tEmissive Color : " << oColor.r << ',' << oColor.g << ',' << oColor.b << std::endl;
+				if (pMat->Get(AI_MATKEY_SHININESS, fFloat) == AI_SUCCESS)
+					FT_COUT << "\t\tShininess : " << fFloat << std::endl;
+				if (pMat->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), oString) == AI_SUCCESS)
+					FT_COUT << "\t\tTexture Diffuse :  " << oString.C_Str() << std::endl;
+				if (pMat->Get(AI_MATKEY_TEXTURE(aiTextureType_AMBIENT, 0), oString) == AI_SUCCESS)
+					FT_COUT << "\t\tTexture Ambient :  " << oString.C_Str() << std::endl;
+				if (pMat->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), oString) == AI_SUCCESS)
+					FT_COUT << "\t\tTexture Specular : " << oString.C_Str() << std::endl;
+				if (pMat->Get(AI_MATKEY_TEXTURE(aiTextureType_EMISSIVE, 0), oString) == AI_SUCCESS)
+					FT_COUT << "\t\tTexture Emissive : " << oString.C_Str() << std::endl;
+				if (pMat->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), oString) == AI_SUCCESS)
+					FT_COUT << "\t\tTexture Normals :  " << oString.C_Str() << std::endl;
+			}
+		}
+		//
 
 		const aiNode* pNode = pScene->mRootNode;
 		while (pNode->mMetaData == nullptr && pNode->mNumMeshes == 0)
@@ -72,12 +129,12 @@ namespace ft
 		}
 
 		// Récupération des maillages
-		SPtr<MeshResource>	xMeshResource = nullptr;
+		SPtr<MeshData>	xMeshResource = nullptr;
 		oMeshResources.clear();
 		oMeshResources.reserve(pScene->mNumMeshes);
 		for (uint32 i = 0, iCount = pScene->mNumMeshes; i < iCount; ++i)
 		{
-			xMeshResource = new MeshResource;
+			xMeshResource = new MeshData;
 			xMeshResource->MakeFromAssimpMesh(pScene->mMeshes[i]);
 			oMeshResources.push_back(xMeshResource);
 		}

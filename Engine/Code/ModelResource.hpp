@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MeshResource.hpp"
+#include "MeshData.hpp"
 #include "HierarchyNode.hpp"
 #include "Matrix44.hpp"
 #include "Namable.hpp"
@@ -27,7 +27,7 @@ namespace ft
 	{
 		SPtr<ModelNodeResource>				xRootNode;
 		std::vector<ModelNodeResource*>		oNodes;
-		std::vector< SPtr<MeshResource> >	oMeshResources;
+		std::vector< SPtr<MeshData> >	oMeshResources;
 
 		ErrorCode	LoadFromFile(const Path& oModelFilePath);
 	};

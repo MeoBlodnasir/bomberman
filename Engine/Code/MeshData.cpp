@@ -1,14 +1,16 @@
 
-#include "MeshResource.hpp"
+#include "MeshData.hpp"
+
+#include "OpenGL.hpp"
 
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
 
 namespace ft
 {
-	MeshResource::MeshResource()
+	MeshData::MeshData()
 		: m_oVertexDescription()
-		, m_ePrimitiveType(E_TRIANGLES)
+		, m_iPrimitiveType(GL_TRIANGLES)
 		, m_oIndice()
 		, m_oVerticeData()
 		, m_iVerticeCount(0)
@@ -16,11 +18,11 @@ namespace ft
 	{
 	}
 
-	MeshResource::~MeshResource()
+	MeshData::~MeshData()
 	{
 	}
 
-	bool	 MeshResource::IsValid() const
+	bool	 MeshData::IsValid() const
 	{
 		return m_oVertexDescription.IsValid()
 			&& m_oVerticeData.size() > 0
@@ -30,7 +32,7 @@ namespace ft
 
 	// voir comment utiliser les propriétés pour assigner efficacement les valeurs correspondantes
 	// pour le moment, flemme
-	ErrorCode	MeshResource::MakePrimitiveQuad(uint32 /*iVertexProperties*/)
+	ErrorCode	MeshData::MakePrimitiveQuad(uint32 /*iVertexProperties*/)
 	{
 		static const float32 oVert[] =
 		{
@@ -50,7 +52,7 @@ namespace ft
 		m_oIndice.assign((const uint32*)oId, (const uint32*)((uint8*)oId + sizeof(oId)));
 
 		FT_TEST(m_oVertexDescription.Create(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_UV) == FT_OK);
-		m_ePrimitiveType = E_TRIANGLES;
+		m_iPrimitiveType = GL_TRIANGLES;
 		m_iVerticeCount = m_oVerticeData.size() / m_oVertexDescription.GetVertexElementCount();
 		m_iVertexToDrawCount = m_oIndice.size();
 
@@ -59,7 +61,7 @@ namespace ft
 
 	// voir comment utiliser les propriétés pour assigner efficacement les valeurs correspondantes
 	// pour le moment, flemme
-	ErrorCode	MeshResource::MakePrimitiveCube(uint32 /*iVertexProperties*/)
+	ErrorCode	MeshData::MakePrimitiveCube(uint32 /*iVertexProperties*/)
 	{
 		static const float32 oVert[] =
 		{
@@ -109,7 +111,7 @@ namespace ft
 		m_oIndice.assign((uint32*)oId, (uint32*)((uint8*)(oId) + sizeof(oId)));
 
 		FT_TEST(m_oVertexDescription.Create(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_UV) == FT_OK);
-		m_ePrimitiveType = E_TRIANGLES;
+		m_iPrimitiveType = GL_TRIANGLES;
 		m_iVerticeCount = m_oVerticeData.size() / m_oVertexDescription.GetVertexElementCount();
 		m_iVertexToDrawCount = m_oIndice.size();
 
@@ -118,7 +120,7 @@ namespace ft
 
 	// voir comment utiliser les propriétés pour assigner efficacement les valeurs correspondantes
 	// pour le moment, flemme
-	ErrorCode	MeshResource::MakePrimitiveMatrixAxis(uint32 /*iVertexProperties*/)
+	ErrorCode	MeshData::MakePrimitiveMatrixAxis(uint32 /*iVertexProperties*/)
 	{
 		static const float32 oVert[] =
 		{
@@ -137,14 +139,14 @@ namespace ft
 		m_oIndice.clear();
 
 		FT_TEST(m_oVertexDescription.Create(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_COLOR) == FT_OK);
-		m_ePrimitiveType = E_LINES;
+		m_iPrimitiveType = GL_LINES;
 		m_iVerticeCount = m_oVerticeData.size() / m_oVertexDescription.GetVertexElementCount();
 		m_iVertexToDrawCount = m_iVerticeCount;
 
 		return FT_OK;
 	}
 
-	ErrorCode	MeshResource::MakeFromAssimpMesh(const aiMesh* pMesh)
+	ErrorCode	MeshData::MakeFromAssimpMesh(const aiMesh* pMesh)
 	{
 		FT_ASSERT(pMesh != nullptr);
 
@@ -155,9 +157,9 @@ namespace ft
 		// Récupération du type de primitive à laquelle correspondent les données
 		switch (pMesh->mPrimitiveTypes)
 		{
-		case aiPrimitiveType_POINT:		{ m_ePrimitiveType = E_POINTS; break; }
-		case aiPrimitiveType_LINE:		{ m_ePrimitiveType = E_LINES; break; }
-		case aiPrimitiveType_TRIANGLE:	{ m_ePrimitiveType = E_TRIANGLES; break; }
+		case aiPrimitiveType_POINT:		{ m_iPrimitiveType = GL_POINTS; break; }
+		case aiPrimitiveType_LINE:		{ m_iPrimitiveType = GL_LINES; break; }
+		case aiPrimitiveType_TRIANGLE:	{ m_iPrimitiveType = GL_TRIANGLES; break; }
 		default:						{ return FT_FAIL; }
 		}
 
