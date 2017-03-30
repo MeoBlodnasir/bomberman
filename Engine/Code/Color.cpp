@@ -4,16 +4,28 @@
 namespace ft
 {
 	Color::Color()
+		: Vector4(0.f, 0.f, 0.f, 1.f)
+	{
+	}
+
+	Color::Color(float fR, float fG, float fB, float fA /*= 1.f*/)
+		: Vector4(fR, fG, fB, fA)
 	{
 	}
 
 	Color::Color(const Color32& oColor32)
+		: Vector4(oColor32.r / 255.f, oColor32.g / 255.f, oColor32.b / 255.f, oColor32.a / 255.f)
 	{
-		const float fInv = 1.f / 255.f;
-		r = (float)oColor32.r * fInv;
-		g = (float)oColor32.g * fInv;
-		b = (float)oColor32.b * fInv;
-		a = (float)oColor32.a * fInv;
+	}
+
+	Color::Color(const Color3& oColor3)
+		: Vector4(oColor3)
+	{
+	}
+
+	Color::operator Color3() const
+	{
+		return Color3(*this);
 	}
 
 	Color::operator Color32() const
@@ -21,8 +33,38 @@ namespace ft
 		return Color32(*this);
 	}
 
+	Color3::Color3()
+		: Vector3(0.f, 0.f, 0.f)
+	{
+	}
+
+	Color3::Color3(float fR, float fG, float fB)
+		: Vector3(fR, fG, fB)
+	{
+	}
+
+	Color3::Color3(const Color& oColor)
+		: Vector3(oColor)
+	{
+	}
+
+	Color3::Color3(const Color32& oColor32)
+		: Vector3(oColor32.r / 255.f, oColor32.g / 255.f, oColor32.b / 255.f)
+	{
+	}
+
+	Color3::operator Color() const
+	{
+		return Color(*this);
+	}
+
+	Color3::operator Color32() const
+	{
+		return Color32(*this);
+	}
+
 	Color32::Color32()
-		: m_iColor(0)
+		: iColor(0)
 	{
 	}
 
@@ -35,55 +77,23 @@ namespace ft
 	}
 
 	Color32::Color32(uint32 iColor)
-		: m_iColor(iColor)
+		: iColor(iColor)
 	{
 	}
 
 	Color32::Color32(const Color& oColor)
-		: r((uint8)oColor.r)
-		, g((uint8)oColor.g)
-		, b((uint8)oColor.b)
-		, a((uint8)oColor.a)
+		: r((uint8)(oColor.r * 255.f))
+		, g((uint8)(oColor.g * 255.f))
+		, b((uint8)(oColor.b * 255.f))
+		, a((uint8)(oColor.a * 255.f))
 	{
 	}
 
-	Color32::~Color32()
+	Color32::Color32(const Color3& oColor3)
+		: r((uint8)(oColor3.r * 255.f))
+		, g((uint8)(oColor3.g * 255.f))
+		, b((uint8)(oColor3.b * 255.f))
+		, a((uint8)255)
 	{
-	}
-
-	Color		ClampedAdd(const Color& /*c1*/, const Color& /*c2*/)
-	{
-		FT_NOT_IMPLEMENTED("ClampedAdd");
-		return Color();
-	}
-
-	Color32		ClampedAdd(const Color32& /*c1*/, const Color32& /*c2*/)
-	{
-		FT_NOT_IMPLEMENTED("ClampedAdd");
-		return Color32();
-	}
-
-	Color		ClampedSub(const Color& /*c1*/, const Color& /*c2*/)
-	{
-		FT_NOT_IMPLEMENTED("ClampedSub");
-		return Color();
-	}
-
-	Color32		ClampedSub(const Color32& /*c1*/, const Color32& /*c2*/)
-	{
-		FT_NOT_IMPLEMENTED("ClampedSub");
-		return Color32();
-	}
-
-	Color		ClampedMult(const Color& /*c1*/, float /*f*/)
-	{
-		FT_NOT_IMPLEMENTED("ClampedMult");
-		return Color();
-	}
-
-	Color32		ClampedMult(const Color32& /*c1*/, float /*f*/)
-	{
-		FT_NOT_IMPLEMENTED("ClampedMult");
-		return Color32();
 	}
 }

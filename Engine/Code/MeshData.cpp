@@ -165,6 +165,8 @@ namespace ft
 
 		// Récupération des propriétés de vertex disponibles
 		uint32 iVertexProperties = E_VERTEX_PROP_POSITION;
+		if (pMesh->HasNormals())
+			iVertexProperties |= E_VERTEX_PROP_NORMAL;
 		if (pMesh->HasTextureCoords(0))
 			iVertexProperties |= E_VERTEX_PROP_UV;
 		FT_TEST(m_oVertexDescription.Create(iVertexProperties) == FT_OK);
@@ -183,6 +185,15 @@ namespace ft
 			m_oVerticeData.push_back(pPos->x);
 			m_oVerticeData.push_back(pPos->y);
 			m_oVerticeData.push_back(pPos->z);
+
+			if (iVertexProperties & E_VERTEX_PROP_NORMAL)
+			{
+				const aiVector3D* pNormal = pMesh->mNormals + i;
+				m_oVerticeData.push_back(pNormal->x);
+				m_oVerticeData.push_back(pNormal->y);
+				m_oVerticeData.push_back(pNormal->z);
+			}
+
 			if (iVertexProperties & E_VERTEX_PROP_UV)
 			{
 				const aiVector3D* pTexCoord = pMesh->mTextureCoords[0] + i;

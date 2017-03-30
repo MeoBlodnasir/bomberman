@@ -51,9 +51,9 @@ namespace ft
 		uint64 iCurrentStride = 0;
 		for (uint32 i = 0; i < FT_VERTEX_LOCATION_COUNT; ++i)
 		{
-			if (iProperties & (1 << i))
+			if (iProperties & VERTEX_PROPERTY_FROM_LOCATION(i))
 			{
-				FT_ASSERT(iCurrentStride == xMeshData->m_oVertexDescription.GetPropertyStride((EVertexProperty)(1 << i)));
+				FT_ASSERT(iCurrentStride == xMeshData->m_oVertexDescription.GetPropertyStride((EVertexProperty)VERTEX_PROPERTY_FROM_LOCATION(i)));
 				iPropertyElementCount = VertexDescription::s_iElementCount[i];
 				FT_GL_ASSERT( glVertexAttribPointer(i, iPropertyElementCount, GL_FLOAT, GL_FALSE, iVertexSize, (GLvoid*)iCurrentStride) );
 				FT_GL_ASSERT( glEnableVertexAttribArray(i) );

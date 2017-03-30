@@ -60,15 +60,15 @@ namespace ft
 
 	uint32	VertexDescription::GetPropertyStride(EVertexProperty eProperty) const
 	{
-		FT_ASSERT((m_iProperties & (uint32)eProperty) > 0);
+		FT_ASSERT(m_iProperties & (uint32)eProperty);
 
 		uint32 iStride = 0;
 
-		if ((m_iProperties & (uint32)eProperty) > 0)
+		if (m_iProperties & (uint32)eProperty)
 		{
-			for (uint32 i = 0; (1u << i) < (uint32)eProperty; ++i)
-				if (m_iProperties & (1 << i))
-					iStride += GetPropertySize(static_cast<EVertexProperty>(1 << i));
+			for (uint32 i = 0; VERTEX_PROPERTY_FROM_LOCATION(i) < (uint32)eProperty; ++i)
+				if (m_iProperties & VERTEX_PROPERTY_FROM_LOCATION(i))
+					iStride += GetPropertySize(static_cast<EVertexProperty>(VERTEX_PROPERTY_FROM_LOCATION(i)));
 		}
 
 		return iStride;
@@ -81,6 +81,7 @@ namespace ft
 		switch (eProperty)
 		{
 		case E_VERTEX_PROP_POSITION:	{ iRet = s_iElementCount[FT_VERTEX_LOCATION_POSITION]	* sizeof(float32);	break; }
+		case E_VERTEX_PROP_NORMAL:		{ iRet = s_iElementCount[FT_VERTEX_LOCATION_NORMAL]		* sizeof(float32);	break; }
 		case E_VERTEX_PROP_UV:			{ iRet = s_iElementCount[FT_VERTEX_LOCATION_UV]			* sizeof(float32);	break; }
 		case E_VERTEX_PROP_COLOR:		{ iRet = s_iElementCount[FT_VERTEX_LOCATION_COLOR]		* sizeof(float32);	break; }
 		default:						{ iRet = (uint32)-1; break; }

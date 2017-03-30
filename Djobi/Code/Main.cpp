@@ -26,6 +26,8 @@
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
 
+#include <glm/gtx/matrix_decompose.hpp>
+
 int		main()
 {
 #if defined(_WIN32)
@@ -76,6 +78,7 @@ int		main()
 		oSFClock.restart();
 		float fDt;
 
+		
 		SPtr<Model>	xBombermanModel = new Model;
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement Bomberman.FBX");
@@ -86,11 +89,35 @@ int		main()
 			oBombermanDesc.pParent = nullptr;
 			FT_TEST(xBombermanModel->Create(&oBombermanDesc, xBombermanResource) == FT_OK);
 		}
+		
 
-		SPtr<MeshData>	xAxisResource = new MeshData;
-		FT_TEST(xAxisResource->MakePrimitiveMatrixAxis(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_COLOR) == FT_OK);
-		SPtr<Mesh>			xAxisMesh = new Mesh;
-		FT_TEST(xAxisMesh->Create(xAxisResource) == FT_OK);
+		SPtr<Model>	xCubeSphereModel = new Model;
+		{
+			ProfilerBlockPrint oProfilerBlock("Chargement CubeSphere.FBX");
+
+			SPtr<ModelResource> xResource = new ModelResource;
+			Model::Desc oDesc;
+			FT_TEST(xResource->LoadFromFile(Path("./Djobi/Assets/Models/CubeSphere.FBX")) == FT_OK);
+			oDesc.pParent = nullptr;
+			FT_TEST(xCubeSphereModel->Create(&oDesc, xResource) == FT_OK);
+		}
+		
+
+		SPtr<Mesh> xAxisMesh = new Mesh;
+		{
+			SPtr<MeshData> xData = new MeshData;
+			FT_TEST(xData->MakePrimitiveMatrixAxis(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_COLOR) == FT_OK);
+			FT_TEST(xAxisMesh->Create(xData) == FT_OK);
+		}
+
+		SPtr<Mesh> xCubeMesh = new Mesh;
+		{
+			SPtr<MeshData> xData = new MeshData;
+			FT_TEST(xData->MakePrimitiveCube(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_COLOR) == FT_OK);
+			FT_TEST(xCubeMesh->Create(xData) == FT_OK);
+		}
+		Matrix44 mCubeTransform = glm::translate(glm::scale(Matrix44(1.f), Vector3(0.2f, 0.2f, 0.2f)), Vector3(2.f, 3.f, 4.f));
+
 
 		SPtr<Camera>	xCamera = new Camera;
 		Camera::Desc	oCameraDesc;
@@ -105,8 +132,10 @@ int		main()
 
 
 		ShaderResourceInfos	oShaderResInfos;
-		SPtr<ShaderProgram> xTextureShader	= new ShaderProgram;
-		SPtr<ShaderProgram> xColorShader	= new ShaderProgram;
+		SPtr<ShaderProgram> xTextureShader		= new ShaderProgram;
+		SPtr<ShaderProgram> xColorShader		= new ShaderProgram;
+		SPtr<ShaderProgram> xColorValueShader	= new ShaderProgram;
+		SPtr<ShaderProgram> xBlinnPhongShader	= new ShaderProgram;
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement Shaders");
 
@@ -123,6 +152,18 @@ int		main()
 			FT_TEST(oShaderResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/Color.fs.glsl"));
 			FT_TEST(oResourceManager.GetShaderResManager()->Load(oShaderResInfos, xShaderResource) == FT_OK);
 			FT_TEST(xColorShader->Create(xShaderResource) == FT_OK);
+
+			oShaderResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
+			FT_TEST(oShaderResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/Position.vs.glsl"));
+			FT_TEST(oShaderResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/ColorValue.fs.glsl"));
+			FT_TEST(oResourceManager.GetShaderResManager()->Load(oShaderResInfos, xShaderResource) == FT_OK);
+			FT_TEST(xColorValueShader->Create(xShaderResource) == FT_OK);
+
+			oShaderResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
+			FT_TEST(oShaderResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/BlinnPhong.vs.glsl"));
+			FT_TEST(oShaderResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/BlinnPhong.fs.glsl"));
+			FT_TEST(oResourceManager.GetShaderResManager()->Load(oShaderResInfos, xShaderResource) == FT_OK);
+			FT_TEST(xBlinnPhongShader->Create(xShaderResource) == FT_OK);
 		}
 		
 		TextureResourceInfos oTextureResInfos;
@@ -208,37 +249,37 @@ int		main()
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Z) || sf::Keyboard::isKeyPressed(sf::Keyboard::E))
 			{
-				xBombermanModel->SetLocalTransform(glm::translate(xBombermanModel->GetLocalTransform(),
+				mCubeTransform = (glm::translate(mCubeTransform,
 					Vector3(sf::Keyboard::isKeyPressed(sf::Keyboard::A) ? fTranslationSpeed * fDt : 0.f,
 							sf::Keyboard::isKeyPressed(sf::Keyboard::Z) ? fTranslationSpeed * fDt : 0.f,
 							sf::Keyboard::isKeyPressed(sf::Keyboard::E) ? fTranslationSpeed * fDt : 0.f)));
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) || sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 			{
-				xBombermanModel->SetLocalTransform(glm::translate(xBombermanModel->GetLocalTransform(),
+				mCubeTransform = (glm::translate(mCubeTransform,
 					Vector3(sf::Keyboard::isKeyPressed(sf::Keyboard::Q) ? -fTranslationSpeed * fDt : 0.f,
 							sf::Keyboard::isKeyPressed(sf::Keyboard::S) ? -fTranslationSpeed * fDt : 0.f,
 							sf::Keyboard::isKeyPressed(sf::Keyboard::D) ? -fTranslationSpeed * fDt : 0.f)));
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R) || sf::Keyboard::isKeyPressed(sf::Keyboard::F))
 			{
-				xBombermanModel->SetLocalTransform(glm::rotate(xBombermanModel->GetLocalTransform(),
+				xCubeSphereModel->SetLocalTransform(glm::rotate(xCubeSphereModel->GetLocalTransform(),
 												   (sf::Keyboard::isKeyPressed(sf::Keyboard::R) ? fRotationSpeed : -fRotationSpeed) * 3.f * fDt,
 												   Vector3(1.f, 0.f, 0.f)));
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::T) || sf::Keyboard::isKeyPressed(sf::Keyboard::G))
 			{
-				xBombermanModel->SetLocalTransform(glm::rotate(xBombermanModel->GetLocalTransform(),
+				xCubeSphereModel->SetLocalTransform(glm::rotate(xCubeSphereModel->GetLocalTransform(),
 												  (sf::Keyboard::isKeyPressed(sf::Keyboard::T) ? fRotationSpeed : -fRotationSpeed) * 3.f * fDt,
 												  Vector3(0.f, 1.f, 0.f)));
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y) || sf::Keyboard::isKeyPressed(sf::Keyboard::H))
 			{
-				xBombermanModel->SetLocalTransform(glm::rotate(xBombermanModel->GetLocalTransform(),
+				xCubeSphereModel->SetLocalTransform(glm::rotate(xCubeSphereModel->GetLocalTransform(),
 												   (sf::Keyboard::isKeyPressed(sf::Keyboard::Y) ? fRotationSpeed : -fRotationSpeed) * 3.f * fDt,
 												   Vector3(0.f, 0.f, 1.f)));
 			}
-			xBombermanModel->Update();
+			xCubeSphereModel->Update();
 
 			{
 				//ProfilerBlockPrint oProfilerBlockRender("Boucle de rendu");
@@ -248,12 +289,29 @@ int		main()
 
 				xCamera->MakeViewContext(&oViewContext);
 
-				xTextureShader->Use();
-				xTextureShader->SetUniform("oDiffuseTexture", xTextureTest, 0);
-				xTextureShader->SetUniform("mView", oViewContext.mView);
-				xTextureShader->SetUniform("mProjection", oViewContext.mProjection);
+				xBlinnPhongShader->Use();
+				xBlinnPhongShader->SetUniform("mView", oViewContext.mView);
+				xBlinnPhongShader->SetUniform("mProjection", oViewContext.mProjection);
 
-				ModelNode::const_iterator	itNode(xBombermanModel->m_xRootNode);
+				xBlinnPhongShader->SetUniform("vObjectColor", Vector3(1.0f, 0.5f, 0.3f));
+				xBlinnPhongShader->SetUniform("vLightPosition", Vector3(mCubeTransform[3]));
+				xBlinnPhongShader->SetUniform("vLightColor", Vector3(1.f, 1.f, 1.f));
+				xBlinnPhongShader->SetUniform("vViewPosition", Vector3(xCamera->mWorldTransform[3]));
+
+				/*
+				ModelNode::const_iterator itNode(xCubeSphereModel->m_xRootNode);
+				while (*itNode != nullptr)
+				{
+					for (const Mesh* pMesh : itNode->m_oMeshes)
+					{
+						xTextureShader->SetUniform("mModel", xCubeSphereModel->GetWorldTransform() * itNode->GetWorldTransform());
+						pMesh->Draw();
+					}
+					itNode.Next();
+				}
+				*/
+				
+				ModelNode::const_iterator itNode(xBombermanModel->m_xRootNode);
 				while (*itNode != nullptr)
 				{
 					for (const Mesh* pMesh : itNode->m_oMeshes)
@@ -263,6 +321,16 @@ int		main()
 					}
 					itNode.Next();
 				}
+				
+
+				xColorValueShader->Use();
+				xColorValueShader->SetUniform("mModel", mCubeTransform);
+				xColorValueShader->SetUniform("mView", oViewContext.mView);
+				xColorValueShader->SetUniform("mProjection", oViewContext.mProjection);
+				xColorValueShader->SetUniform("vColor", Vector4(1.f, 1.f, 1.f, 1.f));
+				xCubeMesh->Draw();
+
+				
 
 				glDisable(GL_DEPTH_TEST);
 				xColorShader->Use();

@@ -1,8 +1,14 @@
 #ifndef _MATERIAL_H_
 #	define _MATERIAL_H_
 
-struct TextureSet
+struct PhongMaterial
 {
+	vec3		vDiffuseColor;
+	vec3		vAmbientColor;
+	vec3		vSpecularColor;
+	vec3		vEmissiveColor;
+	float		fShininess;
+
 	bool		bHasDiffuseTexture;
 	bool		bHasAmbientTexture;
 	bool		bHasSpecularTexture;
@@ -14,17 +20,6 @@ struct TextureSet
 	sampler2D	oSpecularTexture;
 	sampler2D	oEmissiveTexture;
 	sampler2D	oNormalsTexture;
-};
-
-struct Material
-{
-	vec3		vDiffuseColor;
-	vec3		vAmbientColor;
-	vec3		vSpecularColor;
-	vec3		vEmissiveColor;
-	float		fShininess;
-
-	TextureSet	oTextureSet;
 };
 
 #endif // _MATERIAL_H_
