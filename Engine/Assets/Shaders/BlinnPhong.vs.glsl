@@ -10,7 +10,7 @@ uniform mat4 mModel;
 uniform mat4 mView;
 uniform mat4 mProjection;
 
-out vec3 vFragPos_vs;  
+out vec3 vFragPos_vs;
 out vec3 vNormal_vs;
 out vec2 vUV_vs;
 

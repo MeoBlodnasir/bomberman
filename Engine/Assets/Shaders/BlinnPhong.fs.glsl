@@ -2,16 +2,12 @@
 
 #include "MaterialStruct.h.glsl"
 
-struct Light
-{
-	vec3	vPosition;
-	vec3	vAmbientColor;
-	vec3	vDiffuseColor;
-	vec3	vSpecularColor;
-};
-
 uniform Material	oMaterial;
-uniform Light		oLight;
+
+uniform vec3	vLightDirection = vec3(-0.5f, -1.0f, -0.3f);
+uniform vec3	vLightDiffuse = vec3(1.0f, 1.0f, 1.0f);
+uniform vec3	vLightAmbient = vec3(0.2f, 0.2f, 0.2f);
+uniform vec3	vLightSpecular = vec3(1.0f, 1.0f, 1.0f); // == vLightDiffuse
 
 uniform vec3 vViewPosition;
 
@@ -27,19 +23,20 @@ void main()
 {
 	// Diffuse
 	vec3	vNormal = normalize(vNormal_vs);
-	vec3	vLightDir = normalize(oLight.vPosition - vFragPos_vs);
+	//vec3	vLightDir = normalize(vLightPosition - vFragPos_vs);
+	vec3	vLightDir = normalize(-vLightDirection);
 	float	fDiffuseStrength = max(dot(vNormal, vLightDir), 0.0f);
 	vec3	vMaterialDiffuse = GetMaterialDiffuse();
-	vec3	vDiffuseColor = oLight.vDiffuseColor * (fDiffuseStrength * vMaterialDiffuse);
+	vec3	vDiffuseColor = vLightDiffuse * (fDiffuseStrength * vMaterialDiffuse);
 
 	// Ambient
-	vec3	vAmbientColor = oLight.vAmbientColor * vMaterialDiffuse * oMaterial.fAmbient;
+	vec3	vAmbientColor = vLightAmbient * vMaterialDiffuse * oMaterial.fAmbient;
 	
 	// Specular
 	vec3	vViewDir = normalize(vViewPosition - vFragPos_vs);
 	vec3	vReflectDir = reflect(-vLightDir, vNormal);  
 	float	fSpecular = pow(max(dot(vViewDir, vReflectDir), 0.0f), oMaterial.fShininess);
-	vec3	vSpecularColor = oLight.vSpecularColor * (fSpecular * GetMaterialSpecular());
+	vec3	vSpecularColor = vLightSpecular * (fSpecular * GetMaterialSpecular());
 
 	vec3	vResult = vAmbientColor + vDiffuseColor + vSpecularColor + GetMaterialEmissive();
 			vResult = pow(vResult, vec3(1.0f/2.2f));

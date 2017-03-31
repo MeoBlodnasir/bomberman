@@ -111,14 +111,6 @@ int		main()
 			FT_TEST(xAxisMesh->Create(xData) == FT_OK);
 		}
 
-		SPtr<Mesh> xCubeMesh = new Mesh;
-		{
-			SPtr<MeshData> xData = new MeshData;
-			FT_TEST(xData->MakePrimitiveCube(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_COLOR) == FT_OK);
-			FT_TEST(xCubeMesh->Create(xData) == FT_OK);
-		}
-		Matrix44 mCubeTransform = glm::translate(glm::scale(Matrix44(1.f), Vector3(0.2f, 0.2f, 0.2f)), Vector3(2.f, 3.f, 4.f));
-
 
 		SPtr<Camera>	xCamera = new Camera;
 		Camera::Desc	oCameraDesc;
@@ -263,14 +255,14 @@ int		main()
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Z) || sf::Keyboard::isKeyPressed(sf::Keyboard::E))
 			{
-				mCubeTransform = (glm::translate(mCubeTransform,
+				xCubeSphereModel->SetLocalTransform(glm::translate(xCubeSphereModel->GetLocalTransform(),
 					Vector3(sf::Keyboard::isKeyPressed(sf::Keyboard::A) ? fTranslationSpeed * fDt : 0.f,
 							sf::Keyboard::isKeyPressed(sf::Keyboard::Z) ? fTranslationSpeed * fDt : 0.f,
 							sf::Keyboard::isKeyPressed(sf::Keyboard::E) ? fTranslationSpeed * fDt : 0.f)));
 			}
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) || sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 			{
-				mCubeTransform = (glm::translate(mCubeTransform,
+				xCubeSphereModel->SetLocalTransform(glm::translate(xCubeSphereModel->GetLocalTransform(),
 					Vector3(sf::Keyboard::isKeyPressed(sf::Keyboard::Q) ? -fTranslationSpeed * fDt : 0.f,
 							sf::Keyboard::isKeyPressed(sf::Keyboard::S) ? -fTranslationSpeed * fDt : 0.f,
 							sf::Keyboard::isKeyPressed(sf::Keyboard::D) ? -fTranslationSpeed * fDt : 0.f)));
@@ -316,12 +308,6 @@ int		main()
 				xBlinnPhongShader->SetUniform("oMaterial.fAmbient",				0.2f);
 				xBlinnPhongShader->SetUniform("oMaterial.fShininess",			32.f);
 
-				Color3 oLightDiffuse = Color3(1.f, 1.f, 1.f);
-				xBlinnPhongShader->SetUniform("oLight.vPosition",				Vector3(mCubeTransform[3]));
-				xBlinnPhongShader->SetUniform("oLight.vDiffuseColor",			oLightDiffuse);
-				xBlinnPhongShader->SetUniform("oLight.vAmbientColor",			Color3(0.2f, 0.2f, 0.2f));
-				xBlinnPhongShader->SetUniform("oLight.vSpecularColor",			Color3(1.f, 1.f, 1.f));
-
 				xBlinnPhongShader->SetUniform("vViewPosition",	Vector3(xCamera->mWorldTransform[3]));
 
 				
@@ -348,15 +334,6 @@ int		main()
 					itNode.Next();
 				}
 				*/
-				
-
-				xColorValueShader->Use();
-				xColorValueShader->SetUniform("mModel", mCubeTransform);
-				xColorValueShader->SetUniform("mView", oViewContext.mView);
-				xColorValueShader->SetUniform("mProjection", oViewContext.mProjection);
-				xColorValueShader->SetUniform("vColor", Vector4(oLightDiffuse, 1.f));
-				xCubeMesh->Draw();
-
 				
 
 				glDisable(GL_DEPTH_TEST);
