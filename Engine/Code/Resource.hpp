@@ -1,27 +1,33 @@
 #pragma once
 
 #include "StrongPointer.hpp"
+#include "Hash.hpp"
 
 namespace ft
 {
-	// L'Id de la Resource est une classe qui permet de récupérer une référence
-	// sur cette-ci via un ResourceManager correspondant.
-	// En général std::string, ft:Path, ou int.
-	template <typename TId>
+	// fw
+	class ResourceManager;
+
+	template <typename TResourceInfos>
 	class Resource : public CountableSPtr
 	{
 	public:
 
-		typedef	TId		Id;
+		typedef typename TResourceInfos		InfosType;
 
-		virtual ~Resource()	{}
+		Resource() {}
+		virtual ~Resource() {}
+
+	private:
+
+		// Fonctions uniquement utilisables par un SpecificResourceManager
+		virtual ErrorCode	Load(ResourceManager& oResourceManager, const InfosType& oInfos) = 0;
+		virtual ErrorCode	Unload() = 0;
+
+	public:
 
 		// S'assure que la ressource est exploitable
 		virtual bool	IsLoadedAndValid() const = 0;
-
-	protected:
-
-		Resource()	{}
 
 	private:
 

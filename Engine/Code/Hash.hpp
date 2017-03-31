@@ -6,16 +6,14 @@
 
 namespace ft
 {
-	class Hash
+	namespace Hash
 	{
-	public:
-
 		typedef uint32	Type;
 
 		template <typename T>
-		static inline Type	Compute(const T& tObj)
+		Type	Compute(const T& tObj)
 		{
 			return static_cast<Type>(std::hash<T>()(tObj));
 		}
-	};
+	}
 }

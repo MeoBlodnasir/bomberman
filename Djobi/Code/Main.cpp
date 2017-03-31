@@ -15,8 +15,7 @@
 #include <Camera.hpp>
 #include <Quaternion.hpp>
 #include <ResourceManager.hpp>
-#include <TextureResourceManager.hpp>
-#include <ShaderResourceManager.hpp>
+#include <SpecificResourceManager.hpp>
 
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Event.hpp>
@@ -124,39 +123,39 @@ int		main()
 		FT_TEST(xCamera->Create(&oCameraDesc) == FT_OK);
 
 
-		ShaderResourceInfos	oShaderResInfos;
-		SPtr<ShaderProgram> xTextureShader		= new ShaderProgram;
-		SPtr<ShaderProgram> xColorShader		= new ShaderProgram;
-		SPtr<ShaderProgram> xColorValueShader	= new ShaderProgram;
-		SPtr<ShaderProgram> xBlinnPhongShader	= new ShaderProgram;
+		ShaderProgramResourceInfos	oShaderProgramResInfos;
+		SPtr<ShaderProgram> xTextureShaderProgram		= new ShaderProgram;
+		SPtr<ShaderProgram> xColorShaderProgram			= new ShaderProgram;
+		SPtr<ShaderProgram> xColorValueShaderProgram	= new ShaderProgram;
+		SPtr<ShaderProgram> xBlinnPhongShaderProgram	= new ShaderProgram;
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement Shaders");
 
-			SPtr<ShaderResource>	xShaderResource;
+			SPtr<ShaderProgramResource>	xShaderProgramResource;
 
-			oShaderResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
-			FT_TEST(oShaderResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/PositionUV.vs.glsl"));
-			FT_TEST(oShaderResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/Texture.fs.glsl"));
-			FT_TEST(oResourceManager.GetShaderResManager()->Load(oShaderResInfos, xShaderResource) == FT_OK);
-			FT_TEST(xTextureShader->Create(xShaderResource) == FT_OK);
+			oShaderProgramResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
+			FT_TEST(oShaderProgramResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/PositionUV.vs.glsl"));
+			FT_TEST(oShaderProgramResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/Texture.fs.glsl"));
+			FT_TEST(oResourceManager.GetShaderProgramResourceManager()->Load(oShaderProgramResInfos, xShaderProgramResource) == FT_OK);
+			FT_TEST(xTextureShaderProgram->Create(xShaderProgramResource) == FT_OK);
 
-			oShaderResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
-			FT_TEST(oShaderResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/PositionColor.vs.glsl"));
-			FT_TEST(oShaderResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/Color.fs.glsl"));
-			FT_TEST(oResourceManager.GetShaderResManager()->Load(oShaderResInfos, xShaderResource) == FT_OK);
-			FT_TEST(xColorShader->Create(xShaderResource) == FT_OK);
+			oShaderProgramResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
+			FT_TEST(oShaderProgramResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/PositionColor.vs.glsl"));
+			FT_TEST(oShaderProgramResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/Color.fs.glsl"));
+			FT_TEST(oResourceManager.GetShaderProgramResourceManager()->Load(oShaderProgramResInfos, xShaderProgramResource) == FT_OK);
+			FT_TEST(xColorShaderProgram->Create(xShaderProgramResource) == FT_OK);
 
-			oShaderResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
-			FT_TEST(oShaderResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/Position.vs.glsl"));
-			FT_TEST(oShaderResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/ColorValue.fs.glsl"));
-			FT_TEST(oResourceManager.GetShaderResManager()->Load(oShaderResInfos, xShaderResource) == FT_OK);
-			FT_TEST(xColorValueShader->Create(xShaderResource) == FT_OK);
+			oShaderProgramResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
+			FT_TEST(oShaderProgramResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/Position.vs.glsl"));
+			FT_TEST(oShaderProgramResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/ColorValue.fs.glsl"));
+			FT_TEST(oResourceManager.GetShaderProgramResourceManager()->Load(oShaderProgramResInfos, xShaderProgramResource) == FT_OK);
+			FT_TEST(xColorValueShaderProgram->Create(xShaderProgramResource) == FT_OK);
 
-			oShaderResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
-			FT_TEST(oShaderResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/BlinnPhong.vs.glsl"));
-			FT_TEST(oShaderResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/BlinnPhong.fs.glsl"));
-			FT_TEST(oResourceManager.GetShaderResManager()->Load(oShaderResInfos, xShaderResource) == FT_OK);
-			FT_TEST(xBlinnPhongShader->Create(xShaderResource) == FT_OK);
+			oShaderProgramResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
+			FT_TEST(oShaderProgramResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/BlinnPhong.vs.glsl"));
+			FT_TEST(oShaderProgramResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/BlinnPhong.fs.glsl"));
+			FT_TEST(oResourceManager.GetShaderProgramResourceManager()->Load(oShaderProgramResInfos, xShaderProgramResource) == FT_OK);
+			FT_TEST(xBlinnPhongShaderProgram->Create(xShaderProgramResource) == FT_OK);
 		}
 		
 		SPtr<Texture> xCubeSphereDiffuse	= new Texture;
@@ -166,27 +165,27 @@ int		main()
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement Textures");
 
-			SPtr<TextureResource>	xTextureResource;
+			SPtr<TextureResource> xTextureResource;
 			TextureResourceInfos oTextureResInfos;
 
 			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/CubeSphere_d.png");
 			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
-			FT_TEST(oResourceManager.GetTextureResManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
+			FT_TEST(oResourceManager.GetTextureResourceManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
 			FT_TEST(xCubeSphereDiffuse->Create(xTextureResource) == FT_OK);
 
 			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/CubeSphere_am.png");
 			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
-			FT_TEST(oResourceManager.GetTextureResManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
+			FT_TEST(oResourceManager.GetTextureResourceManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
 			FT_TEST(xCubeSphereAmbient->Create(xTextureResource) == FT_OK);
 
 			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/CubeSphere_s.png");
 			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
-			FT_TEST(oResourceManager.GetTextureResManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
+			FT_TEST(oResourceManager.GetTextureResourceManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
 			FT_TEST(xCubeSphereSpecular->Create(xTextureResource) == FT_OK);
 
 			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/CubeSphere_e.png");
 			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
-			FT_TEST(oResourceManager.GetTextureResManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
+			FT_TEST(oResourceManager.GetTextureResourceManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
 			FT_TEST(xCubeSphereEmissive->Create(xTextureResource) == FT_OK);
 		}
 
@@ -295,20 +294,20 @@ int		main()
 
 				xCamera->MakeViewContext(&oViewContext);
 
-				xBlinnPhongShader->Use();
-				xBlinnPhongShader->SetUniform("mView", oViewContext.mView);
-				xBlinnPhongShader->SetUniform("mProjection", oViewContext.mProjection);
+				xBlinnPhongShaderProgram->Use();
+				xBlinnPhongShaderProgram->SetUniform("mView", oViewContext.mView);
+				xBlinnPhongShaderProgram->SetUniform("mProjection", oViewContext.mProjection);
 
-				xBlinnPhongShader->SetUniform("oMaterial.oDiffuseTexture",		xCubeSphereDiffuse, 0);
-				xBlinnPhongShader->SetUniform("oMaterial.bHasDiffuseTexture",	GL_TRUE);
-				xBlinnPhongShader->SetUniform("oMaterial.oSpecularTexture",		xCubeSphereSpecular, 1);
-				xBlinnPhongShader->SetUniform("oMaterial.bHasSpecularTexture",	GL_TRUE);
-				xBlinnPhongShader->SetUniform("oMaterial.oEmissiveTexture",		xCubeSphereEmissive, 2);
-				xBlinnPhongShader->SetUniform("oMaterial.bHasEmissiveTexture",	GL_TRUE);
-				xBlinnPhongShader->SetUniform("oMaterial.fAmbient",				0.2f);
-				xBlinnPhongShader->SetUniform("oMaterial.fShininess",			32.f);
+				xBlinnPhongShaderProgram->SetUniform("oMaterial.oDiffuseTexture",		xCubeSphereDiffuse, 0);
+				xBlinnPhongShaderProgram->SetUniform("oMaterial.bHasDiffuseTexture",	GL_TRUE);
+				xBlinnPhongShaderProgram->SetUniform("oMaterial.oSpecularTexture",		xCubeSphereSpecular, 1);
+				xBlinnPhongShaderProgram->SetUniform("oMaterial.bHasSpecularTexture",	GL_TRUE);
+				xBlinnPhongShaderProgram->SetUniform("oMaterial.oEmissiveTexture",		xCubeSphereEmissive, 2);
+				xBlinnPhongShaderProgram->SetUniform("oMaterial.bHasEmissiveTexture",	GL_TRUE);
+				xBlinnPhongShaderProgram->SetUniform("oMaterial.fAmbient",				0.2f);
+				xBlinnPhongShaderProgram->SetUniform("oMaterial.fShininess",			32.f);
 
-				xBlinnPhongShader->SetUniform("vViewPosition",	Vector3(xCamera->mWorldTransform[3]));
+				xBlinnPhongShaderProgram->SetUniform("vViewPosition",	Vector3(xCamera->mWorldTransform[3]));
 
 				
 				ModelNode::const_iterator itNode(xCubeSphereModel->m_xRootNode);
@@ -316,7 +315,7 @@ int		main()
 				{
 					for (const Mesh* pMesh : itNode->m_oMeshes)
 					{
-						xTextureShader->SetUniform("mModel", xCubeSphereModel->GetWorldTransform() * itNode->GetWorldTransform());
+						xTextureShaderProgram->SetUniform("mModel", xCubeSphereModel->GetWorldTransform() * itNode->GetWorldTransform());
 						pMesh->Draw();
 					}
 					itNode.Next();
@@ -337,10 +336,10 @@ int		main()
 				
 
 				glDisable(GL_DEPTH_TEST);
-				xColorShader->Use();
-				xColorShader->SetUniform("mModel", Matrix44(1));
-				xColorShader->SetUniform("mView", oViewContext.mView);
-				xColorShader->SetUniform("mProjection", oViewContext.mProjection);
+				xColorShaderProgram->Use();
+				xColorShaderProgram->SetUniform("mModel", Matrix44(1));
+				xColorShaderProgram->SetUniform("mView", oViewContext.mView);
+				xColorShaderProgram->SetUniform("mProjection", oViewContext.mProjection);
 				xAxisMesh->Draw();
 			}
 

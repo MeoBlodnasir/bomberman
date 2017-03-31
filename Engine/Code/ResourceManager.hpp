@@ -6,11 +6,17 @@
 namespace ft
 {
 	// fw
-	class TextureResourceManager;
-	class ShaderFileResourceManager;
-	class ShaderResourceManager;
+	template <typename TResourceType> class SpecificResourceManager;
+	class TextureResource;
+	class ShaderResource;
+	class ShaderProgramResource;
 
 	// Classe générale qui gère tous les SpecificResourceManager
+
+	typedef SpecificResourceManager<TextureResource>		TextureResourceManager;
+	typedef SpecificResourceManager<ShaderResource>			ShaderResourceManager;
+	typedef SpecificResourceManager<ShaderProgramResource>	ShaderProgramResourceManager;
+
 	class ResourceManager
 	{
 	public:
@@ -18,18 +24,18 @@ namespace ft
 		ResourceManager();
 		~ResourceManager();
 
-		ErrorCode					Create();
-		ErrorCode					Destroy();
+		ErrorCode	Create();
+		ErrorCode	Destroy();
 
-		TextureResourceManager*		GetTextureResManager() const		{ FT_ASSERT(m_pTextureResManager != nullptr);		return m_pTextureResManager; }
-		ShaderFileResourceManager*	GetShaderFileResManager() const		{ FT_ASSERT(m_pShaderFileResManager != nullptr);	return m_pShaderFileResManager; }
-		ShaderResourceManager*		GetShaderResManager() const			{ FT_ASSERT(m_pShaderResManager != nullptr);		return m_pShaderResManager; }
+		TextureResourceManager*			GetTextureResourceManager() const		{ FT_ASSERT(m_pTextureResourceManager != nullptr); return m_pTextureResourceManager; }
+		ShaderResourceManager*			GetShaderResourceManager() const		{ FT_ASSERT(m_pShaderResourceManager != nullptr); return m_pShaderResourceManager; }
+		ShaderProgramResourceManager*	GetShaderProgramResourceManager() const	{ FT_ASSERT(m_pShaderProgramResourceManager != nullptr); return m_pShaderProgramResourceManager; }
 
 	private:
 
-		TextureResourceManager*		m_pTextureResManager;
-		ShaderFileResourceManager*	m_pShaderFileResManager;
-		ShaderResourceManager*		m_pShaderResManager;
+		TextureResourceManager*			m_pTextureResourceManager;
+		ShaderResourceManager*			m_pShaderResourceManager;
+		ShaderProgramResourceManager*	m_pShaderProgramResourceManager;
 
 		ResourceManager(const ResourceManager&) FT_DELETED;
 		ResourceManager& operator = (const ResourceManager&) FT_DELETED;

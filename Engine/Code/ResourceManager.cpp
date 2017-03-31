@@ -1,14 +1,17 @@
 
 #include "ResourceManager.hpp"
-#include "TextureResourceManager.hpp"
-#include "ShaderResourceManager.hpp"
+
+#include "Texture.hpp"
+#include "Shader.hpp"
+#include "ShaderProgram.hpp"
+#include "SpecificResourceManager.hpp"
 
 namespace ft
 {
 	ResourceManager::ResourceManager()
-		: m_pTextureResManager(nullptr)
-		, m_pShaderFileResManager(nullptr)
-		, m_pShaderResManager(nullptr)
+		: m_pTextureResourceManager(nullptr)
+		, m_pShaderResourceManager(nullptr)
+		, m_pShaderProgramResourceManager(nullptr)
 	{
 	}
 
@@ -19,31 +22,31 @@ namespace ft
 
 	ErrorCode	ResourceManager::Create()
 	{
-		m_pTextureResManager	= new TextureResourceManager(*this);
-		m_pShaderFileResManager	= new ShaderFileResourceManager(*this);
-		m_pShaderResManager		= new ShaderResourceManager(*this);
+		m_pTextureResourceManager = new TextureResourceManager(*this);
+		m_pShaderResourceManager = new ShaderResourceManager(*this);
+		m_pShaderProgramResourceManager = new ShaderProgramResourceManager(*this);
 
 		return FT_OK;
 	}
 
 	ErrorCode	ResourceManager::Destroy()
 	{
-		if (m_pTextureResManager != nullptr)
+		if (m_pTextureResourceManager != nullptr)
 		{
-			FT_TEST(m_pTextureResManager->UnloadAll() == FT_OK);
-			FT_DELETE(m_pTextureResManager);
+			FT_TEST(m_pTextureResourceManager->UnloadAll() == FT_OK);
+			FT_DELETE(m_pTextureResourceManager);
 		}
 
-		if (m_pShaderFileResManager != nullptr)
+		if (m_pShaderResourceManager != nullptr)
 		{
-			FT_TEST(m_pShaderFileResManager->UnloadAll() == FT_OK);
-			FT_DELETE(m_pShaderFileResManager);
+			FT_TEST(m_pShaderResourceManager->UnloadAll() == FT_OK);
+			FT_DELETE(m_pShaderResourceManager);
 		}
 
-		if (m_pShaderResManager != nullptr)
+		if (m_pShaderProgramResourceManager != nullptr)
 		{
-			FT_TEST(m_pShaderResManager->UnloadAll() == FT_OK);
-			FT_DELETE(m_pShaderResManager);
+			FT_TEST(m_pShaderProgramResourceManager->UnloadAll() == FT_OK);
+			FT_DELETE(m_pShaderProgramResourceManager);
 		}
 
 		return FT_OK;

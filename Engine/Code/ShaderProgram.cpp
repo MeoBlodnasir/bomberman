@@ -1,9 +1,12 @@
 
 #include "ShaderProgram.hpp"
 
-#include "ShaderResource.hpp"
+#include "Shader.hpp"
 #include "OpenGL.hpp"
 #include "Texture.hpp"
+#include "ResourceManager.hpp"
+#include "SpecificResourceManager.hpp"
+#include "Output.hpp"
 
 namespace ft
 {
@@ -17,7 +20,7 @@ namespace ft
 		FT_TEST(Destroy() == FT_OK);
 	}
 
-	ErrorCode	ShaderProgram::Create(const SPtr<ShaderResource>& xResource)
+	ErrorCode	ShaderProgram::Create(const SPtr<ShaderProgramResource>& xResource)
 	{
 		FT_ASSERT(xResource != nullptr);
 
@@ -90,5 +93,88 @@ namespace ft
 		xTexture->Bind(iTextureUnit);
 
 		FT_GL_ASSERT( glUniform1i(glGetUniformLocation(m_xResource->GetHandle(), csName), iTextureUnit) );
+	}
+
+	ShaderProgramResource::ShaderProgramResource()
+	{
+	}
+
+	ShaderProgramResource::~ShaderProgramResource()
+	{
+		FT_ASSERT(!IsLoadedAndValid());
+	}
+
+	bool	ShaderProgramResource::IsLoadedAndValid() const
+	{
+		return m_iHandle != 0;
+	}
+
+	ErrorCode	ShaderProgramResource::Load(ResourceManager& oResourceManager, const ShaderProgramResourceInfos& oInfos)
+	{
+		SPtr<ShaderResource>	xVertexShaderResource = nullptr;
+		SPtr<ShaderResource>	xFragmentShaderResource = nullptr;
+		ShaderResourceInfos		oShaderResourceInfos;
+		GLuint					iHandle;
+
+		// Chargement des shaders individuels
+		if (oInfos.iShaderTypesFlags & E_VERTEX_SHADER_FLAG)
+		{
+			oShaderResourceInfos.eShaderType = E_VERTEX_SHADER;
+			oShaderResourceInfos.oFilePath = oInfos.oVertexShaderFilePath;
+			FT_TEST_RETURN(oResourceManager.GetShaderResourceManager()->Load(oShaderResourceInfos, xVertexShaderResource) == FT_OK, FT_FAIL);
+		}
+
+		if (oInfos.iShaderTypesFlags & E_FRAGMENT_SHADER_FLAG)
+		{
+			oShaderResourceInfos.eShaderType = E_FRAGMENT_SHADER;
+			oShaderResourceInfos.oFilePath = oInfos.oFragmentShaderFilePath;
+			FT_TEST_RETURN(oResourceManager.GetShaderResourceManager()->Load(oShaderResourceInfos, xFragmentShaderResource) == FT_OK, FT_FAIL);
+		}
+
+		// Lien entre les shaders
+		iHandle = glCreateProgram();
+		if (oInfos.iShaderTypesFlags & E_VERTEX_SHADER_FLAG)
+		{
+			FT_GL_ASSERT( glAttachShader(iHandle, xVertexShaderResource->GetHandle()) );
+		}
+		if (oInfos.iShaderTypesFlags & E_FRAGMENT_SHADER_FLAG)
+		{
+			FT_GL_ASSERT( glAttachShader(iHandle, xFragmentShaderResource->GetHandle()) );
+		}
+		FT_GL_ASSERT( glLinkProgram(iHandle) );
+		{
+			GLint	iSuccess;
+			GLchar	csInfoLog[512];
+			glGetProgramiv(iHandle, GL_LINK_STATUS, &iSuccess);
+			if (!iSuccess)
+			{
+				glGetProgramInfoLog(iHandle, 512, NULL, csInfoLog);
+				FT_CERR << "Lien ShaderProgram échoué : " << csInfoLog << std::endl;
+				return FT_FAIL;
+			}
+		}
+
+		// Détachement des shaders
+		if (oInfos.iShaderTypesFlags & E_VERTEX_SHADER_FLAG)
+		{
+			FT_GL_ASSERT( glDetachShader(iHandle, xVertexShaderResource->GetHandle()) );
+		}
+		if (oInfos.iShaderTypesFlags & E_FRAGMENT_SHADER_FLAG)
+		{
+			FT_GL_ASSERT( glDetachShader(iHandle, xFragmentShaderResource->GetHandle()) );
+		}
+
+		m_oResourceInfos = oInfos;
+		m_iHandle = iHandle;
+
+		return FT_OK;
+	}
+
+	ErrorCode	ShaderProgramResource::Unload()
+	{
+		FT_GL_ASSERT( glDeleteProgram(m_iHandle) );
+		m_iHandle = 0;
+
+		return FT_OK;
 	}
 }
