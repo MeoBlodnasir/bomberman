@@ -1,5 +1,6 @@
 #include "InputHandler.hpp"
 #include "MenuController.hpp"
+#include "PlayerController.hpp"
 class State;
 #pragma once
 class Game
@@ -15,4 +16,5 @@ class Game
     State *pCurrentState;
     InputHandler *pInputHandler;
     MenuController *pMenuController;
+    PlayerController *pPlayerController;
 };

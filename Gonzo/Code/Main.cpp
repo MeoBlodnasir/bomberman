@@ -55,7 +55,7 @@ int		main()
         window.close();
       game.getInputs(event);
     }
-    game.launchMenuActions();
+    game.launchActions();
 
     // clear the window with black color
     window.clear(sf::Color::Black);

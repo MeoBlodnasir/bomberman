@@ -7,6 +7,7 @@ Game::Game()
   pInputHandler = new InputHandler();
   pCurrentState = new MenuState(*this);
   pMenuController = new MenuController();
+  pPlayerController = new PlayerController();
   
 }
 
@@ -25,11 +26,19 @@ InputHandler *Game::getInputHandler()
 
 void    Game::launchActions()
 {
+  int newState; 
   switch (pCurrentState->getState())
   {
-
+    case State::EState::E_GAME_STATE:
+      newState = pPlayerController->checkActions(pInputHandler);
+      break ;
+    case State::EState::E_MENU_STATE:
+      newState = pMenuController->checkActions(pInputHandler);
+      break;
+    default:
+      newState = -1;
   }
-  switch (pMenuController->checkActions(pInputHandler))
+  switch (newState)
   {
     case -1:
       return;
