@@ -11,6 +11,7 @@
 #include <Shader.hpp>
 #include <ShaderProgram.hpp>
 #include <Texture.hpp>
+#include <Color.hpp>
 #include <Camera.hpp>
 #include <Quaternion.hpp>
 #include <ResourceManager.hpp>
@@ -72,7 +73,7 @@ int		main()
 
 		glViewport(0, 0, (GLsizei)pWindow->getSize().x, (GLsizei)pWindow->getSize().y);
 		glEnable(GL_DEPTH_TEST);
-		glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
+		glClearColor(0.05f, 0.05f, 0.1f, 1.f);
 
 		sf::Clock oSFClock;
 		oSFClock.restart();
@@ -166,22 +167,35 @@ int		main()
 			FT_TEST(xBlinnPhongShader->Create(xShaderResource) == FT_OK);
 		}
 		
-		TextureResourceInfos oTextureResInfos;
-		SPtr<Texture>	xTextureTest	= new Texture;
-		SPtr<Texture>	xTexturePurple	= new Texture;
+		SPtr<Texture> xCubeSphereDiffuse	= new Texture;
+		SPtr<Texture> xCubeSphereAmbient	= new Texture;
+		SPtr<Texture> xCubeSphereSpecular	= new Texture;
+		SPtr<Texture> xCubeSphereEmissive	= new Texture;
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement Textures");
 
 			SPtr<TextureResource>	xTextureResource;
-			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/Purple.png");
-			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
-			FT_TEST(oResourceManager.GetTextureResManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
-			FT_TEST(xTextureTest->Create(xTextureResource) == FT_OK);
+			TextureResourceInfos oTextureResInfos;
 
-			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/Purple.png");
+			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/CubeSphere_d.png");
 			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
 			FT_TEST(oResourceManager.GetTextureResManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
-			FT_TEST(xTexturePurple->Create(xTextureResource) == FT_OK);
+			FT_TEST(xCubeSphereDiffuse->Create(xTextureResource) == FT_OK);
+
+			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/CubeSphere_am.png");
+			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
+			FT_TEST(oResourceManager.GetTextureResManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
+			FT_TEST(xCubeSphereAmbient->Create(xTextureResource) == FT_OK);
+
+			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/CubeSphere_s.png");
+			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
+			FT_TEST(oResourceManager.GetTextureResManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
+			FT_TEST(xCubeSphereSpecular->Create(xTextureResource) == FT_OK);
+
+			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/CubeSphere_e.png");
+			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
+			FT_TEST(oResourceManager.GetTextureResManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
+			FT_TEST(xCubeSphereEmissive->Create(xTextureResource) == FT_OK);
 		}
 
 		// Commentaire vu sur un site d'aide, à garder en tête:
@@ -293,12 +307,24 @@ int		main()
 				xBlinnPhongShader->SetUniform("mView", oViewContext.mView);
 				xBlinnPhongShader->SetUniform("mProjection", oViewContext.mProjection);
 
-				xBlinnPhongShader->SetUniform("vObjectColor", Vector3(1.0f, 0.5f, 0.3f));
-				xBlinnPhongShader->SetUniform("vLightPosition", Vector3(mCubeTransform[3]));
-				xBlinnPhongShader->SetUniform("vLightColor", Vector3(1.f, 1.f, 1.f));
-				xBlinnPhongShader->SetUniform("vViewPosition", Vector3(xCamera->mWorldTransform[3]));
+				xBlinnPhongShader->SetUniform("oMaterial.oDiffuseTexture",		xCubeSphereDiffuse, 0);
+				xBlinnPhongShader->SetUniform("oMaterial.bHasDiffuseTexture",	GL_TRUE);
+				xBlinnPhongShader->SetUniform("oMaterial.oSpecularTexture",		xCubeSphereSpecular, 1);
+				xBlinnPhongShader->SetUniform("oMaterial.bHasSpecularTexture",	GL_TRUE);
+				xBlinnPhongShader->SetUniform("oMaterial.oEmissiveTexture",		xCubeSphereEmissive, 2);
+				xBlinnPhongShader->SetUniform("oMaterial.bHasEmissiveTexture",	GL_TRUE);
+				xBlinnPhongShader->SetUniform("oMaterial.fAmbient",				0.2f);
+				xBlinnPhongShader->SetUniform("oMaterial.fShininess",			32.f);
 
-				/*
+				Color3 oLightDiffuse = Color3(1.f, 1.f, 1.f);
+				xBlinnPhongShader->SetUniform("oLight.vPosition",				Vector3(mCubeTransform[3]));
+				xBlinnPhongShader->SetUniform("oLight.vDiffuseColor",			oLightDiffuse);
+				xBlinnPhongShader->SetUniform("oLight.vAmbientColor",			Color3(0.2f, 0.2f, 0.2f));
+				xBlinnPhongShader->SetUniform("oLight.vSpecularColor",			Color3(1.f, 1.f, 1.f));
+
+				xBlinnPhongShader->SetUniform("vViewPosition",	Vector3(xCamera->mWorldTransform[3]));
+
+				
 				ModelNode::const_iterator itNode(xCubeSphereModel->m_xRootNode);
 				while (*itNode != nullptr)
 				{
@@ -309,8 +335,8 @@ int		main()
 					}
 					itNode.Next();
 				}
-				*/
 				
+				/*
 				ModelNode::const_iterator itNode(xBombermanModel->m_xRootNode);
 				while (*itNode != nullptr)
 				{
@@ -321,13 +347,14 @@ int		main()
 					}
 					itNode.Next();
 				}
+				*/
 				
 
 				xColorValueShader->Use();
 				xColorValueShader->SetUniform("mModel", mCubeTransform);
 				xColorValueShader->SetUniform("mView", oViewContext.mView);
 				xColorValueShader->SetUniform("mProjection", oViewContext.mProjection);
-				xColorValueShader->SetUniform("vColor", Vector4(1.f, 1.f, 1.f, 1.f));
+				xColorValueShader->SetUniform("vColor", Vector4(oLightDiffuse, 1.f));
 				xCubeMesh->Draw();
 
 				

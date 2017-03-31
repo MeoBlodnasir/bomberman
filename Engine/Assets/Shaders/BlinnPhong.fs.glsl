@@ -1,33 +1,48 @@
 #version 410 core
 
-uniform vec3 vObjectColor;
-uniform vec3 vLightPosition;
-uniform vec3 vLightColor;
+#include "MaterialStruct.h.glsl"
+
+struct Light
+{
+	vec3	vPosition;
+	vec3	vAmbientColor;
+	vec3	vDiffuseColor;
+	vec3	vSpecularColor;
+};
+
+uniform Material	oMaterial;
+uniform Light		oLight;
+
 uniform vec3 vViewPosition;
 
 in	vec3 vFragPos_vs;  
 in	vec3 vNormal_vs;
+in	vec2 vUV_vs;
 
 out	vec4 vColor_fs;
 
+#include "MaterialFunctions.h.glsl"
+
 void main()
 {
-	// Ambient
-	float fAmbientStrength = 0.1f;
-	vec3 vAmbientColor = fAmbientStrength * vLightColor;
-
 	// Diffuse
-	vec3 vNormal = normalize(vNormal_vs);
-	vec3 vLightDir = normalize(vLightPosition - vFragPos_vs);
-	float fDiffuseStrength = max(dot(vNormal, vLightDir), 0.0);
-	vec3 vDiffuseColor = fDiffuseStrength * vLightColor;
+	vec3	vNormal = normalize(vNormal_vs);
+	vec3	vLightDir = normalize(oLight.vPosition - vFragPos_vs);
+	float	fDiffuseStrength = max(dot(vNormal, vLightDir), 0.0f);
+	vec3	vMaterialDiffuse = GetMaterialDiffuse();
+	vec3	vDiffuseColor = oLight.vDiffuseColor * (fDiffuseStrength * vMaterialDiffuse);
 
+	// Ambient
+	vec3	vAmbientColor = oLight.vAmbientColor * vMaterialDiffuse * oMaterial.fAmbient;
+	
 	// Specular
-	float fSpecularStrength = 0.5f;
-	vec3 vViewDir = normalize(vViewPosition - vFragPos_vs);
-	vec3 vReflectDir = reflect(-vLightDir, vNormal);  
-	float fSpecular = pow(max(dot(vViewDir, vReflectDir), 0.0), 32);
-	vec3 vSpecularColor = fSpecularStrength * fSpecular * vLightColor;
+	vec3	vViewDir = normalize(vViewPosition - vFragPos_vs);
+	vec3	vReflectDir = reflect(-vLightDir, vNormal);  
+	float	fSpecular = pow(max(dot(vViewDir, vReflectDir), 0.0f), oMaterial.fShininess);
+	vec3	vSpecularColor = oLight.vSpecularColor * (fSpecular * GetMaterialSpecular());
 
-	vColor_fs = vec4((vAmbientColor + vDiffuseColor + vSpecularColor) * vObjectColor, 1.0f);
+	vec3	vResult = vAmbientColor + vDiffuseColor + vSpecularColor + GetMaterialEmissive();
+			vResult = pow(vResult, vec3(1.0f/2.2f));
+	
+	vColor_fs = vec4(vResult, 1.0f);
 }

@@ -31,7 +31,8 @@ namespace ft
 			if (!iSuccess)
 			{
 				glGetShaderInfoLog(iHandle, 512, NULL, csInfoLog);
-				FT_COUT << "Compilation Shader " << oInfos.oFilePath << " echouee : " << csInfoLog << std::endl;
+				FT_CERR << "Compilation Shader " << oInfos.oFilePath << " echouee : " << csInfoLog << std::endl;
+				FT_CERR << "Sources a copiler:\n" << csShaderSource << std::endl;
 				return FT_FAIL;
 			}
 		}
