@@ -1,4 +1,5 @@
 #include "MenuState.hpp"
+#include "GameState.hpp"
 #include "Game.hpp"
 
 Game::Game()
@@ -22,11 +23,30 @@ InputHandler *Game::getInputHandler()
   return pInputHandler;
 }
 
-void    Game::launchMenuActions()
+void    Game::launchActions()
 {
-  pMenuController->checkActions(pInputHandler);
+  switch (pCurrentState->getState())
+  {
+
+  }
+  switch (pMenuController->checkActions(pInputHandler))
+  {
+    case -1:
+      return;
+    case State::EState::E_GAME_STATE:
+      delete(pCurrentState);
+      pCurrentState = new GameState(*this);
+      break ;
+    case State::EState::E_MENU_STATE:
+      delete(pCurrentState);
+      pCurrentState = new MenuState(*this);
+      break ;
+    default:
+      return;
+  }
 }
 void    Game::resetKeysPressedThisFrame()
 {
   pInputHandler->resetKeysPressedThisFrame();
 }
+

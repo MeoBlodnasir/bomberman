@@ -4,6 +4,7 @@
 GameState::GameState(Game &game)
   : State(game)
 {
+  oState = EState::E_GAME_STATE;
  game.getInputHandler()->bind(sf::Keyboard::Up, InputHandler::E_MOVE_UP); 
  game.getInputHandler()->bind(sf::Keyboard::Down, InputHandler::E_MOVE_DOWN); 
  game.getInputHandler()->bind(sf::Keyboard::Right, InputHandler::E_MOVE_RIGHT); 

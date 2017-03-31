@@ -1,10 +1,6 @@
-#include <map>
-class InputHandler;
-class MenuController
+#include "Controller.hpp"
+class MenuController: public Controller
 {
   public:
     MenuController();
-    void   checkActions(InputHandler *pInputHandler);
-  private:
-      std::map<int, void (*)()> oActionMap;
 };

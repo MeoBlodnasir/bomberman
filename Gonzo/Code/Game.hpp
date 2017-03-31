@@ -1,7 +1,7 @@
 #include "InputHandler.hpp"
 #include "MenuController.hpp"
 class State;
-class MenuState;
+#pragma once
 class Game
 {
   public:
@@ -9,7 +9,7 @@ class Game
     void getInputs(sf::Event oEvent); 
     void changeState();
     InputHandler *getInputHandler();
-    void    launchMenuActions();
+    void    launchActions();
     void    resetKeysPressedThisFrame();
   protected:
     State *pCurrentState;

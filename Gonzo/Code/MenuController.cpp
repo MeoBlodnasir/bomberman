@@ -1,21 +1,27 @@
 #include "MenuController.hpp"
 #include "InputHandler.hpp"
 #include <Output.hpp>
+#include "State.hpp"
 
-void    menuUp() {
+int    menuUp() {
   FT_COUT << "Going up in menu" << std::endl; 
+  return -1;
 }
-void    menuDown() {
+int    menuDown() {
   FT_COUT << "Going down in menu" << std::endl; 
+  return -1;
 }
-void    menuLeft() {
+int    menuLeft() {
   FT_COUT << "Going left in menu" << std::endl; 
+  return -1;
 }
-void    menuRight() {
+int    menuRight() {
   FT_COUT << "Going right in menu" << std::endl; 
+  return -1;
 }
-void    menuQuit() {
+int    menuQuit() {
   FT_COUT << "quitting  menu" << std::endl; 
+  return State::EState::E_GAME_STATE;
 }
 
 MenuController::MenuController()
@@ -27,13 +33,3 @@ MenuController::MenuController()
   oActionMap[InputHandler::E_MENU_QUIT] = menuQuit; 
 }
 
-void    MenuController::checkActions(InputHandler *pInputHandler)
-{
-  for (auto const& x : oActionMap)
-  {
-    if (pInputHandler->isPressed(x.first).isPressed && pInputHandler->isPressed(x.first).changedThisFrame)
-    {
-      x.second();
-    }
-  }
-}

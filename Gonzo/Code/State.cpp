@@ -5,3 +5,8 @@ State::State(Game& game)
   : oOwner(game)
 {
 }
+
+int  State::getState()
+{
+  return oState;
+}
