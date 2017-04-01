@@ -5,7 +5,6 @@
 #include "OpenGL.hpp"
 #include "Texture.hpp"
 #include "ResourceManager.hpp"
-#include "SpecificResourceManager.hpp"
 #include "Output.hpp"
 
 namespace ft
@@ -106,7 +105,7 @@ namespace ft
 
 	bool	ShaderProgramResource::IsLoadedAndValid() const
 	{
-		return m_iHandle != 0;
+		return IsHandled();
 	}
 
 	ErrorCode	ShaderProgramResource::Load(ResourceManager& oResourceManager, const ShaderProgramResourceInfos& oInfos)
@@ -173,8 +172,7 @@ namespace ft
 	ErrorCode	ShaderProgramResource::Unload()
 	{
 		FT_GL_ASSERT( glDeleteProgram(m_iHandle) );
-		m_iHandle = 0;
 
-		return FT_OK;
+		return Handled::Destroy();
 	}
 }

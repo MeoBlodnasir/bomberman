@@ -12,41 +12,43 @@ namespace ft
 	{
 	}
 
-	ErrorCode	Model::Create(const Model::Desc* pDesc, const SPtr<ModelResource>& xModelResource)
+	ErrorCode	Model::Create(const Model::Desc* pDesc, const SPtr<ModelResource>& xResource)
 	{
 		FT_TEST_RETURN(pDesc != nullptr, FT_FAIL);
+		FT_TEST_RETURN(xResource != nullptr && xResource->IsLoadedAndValid(), FT_FAIL);
+
 		FT_TEST_RETURN(SceneNode::Create(pDesc) == FT_OK, FT_FAIL);
 
 		// Chargement de la ressource
-		std::vector<ModelNode*>	oNodes;
-		ModelNode::Desc			oModelNodeDesc;
-		SPtr<Mesh>				xMesh = nullptr;
+		std::vector<InternalNode*>	oInternalNodes;
+		InternalNode::Desc			oInternalNodeDesc;
+		SPtr<Mesh>					xMesh = nullptr;
 
-		oNodes.reserve(xModelResource->oNodes.size());
-		for (const ModelNodeResource* pNodeResource : xModelResource->oNodes)
+		oInternalNodes.reserve(xResource->m_oNodes.size());
+		for (const ModelResource::Node& oResourceNode : xResource->m_oNodes)
 		{
 			// Hiérarchie
-			oNodes.push_back(new ModelNode);
-			oModelNodeDesc.pParent = pNodeResource->iParentIndex >= 0 ? oNodes[pNodeResource->iParentIndex] : nullptr;
-			FT_TEST(oNodes.back()->Create(&oModelNodeDesc) == FT_OK);
+			oInternalNodes.push_back(new InternalNode);
+			oInternalNodeDesc.pParent = oResourceNode.iParentIndex >= 0 ? oInternalNodes[oResourceNode.iParentIndex] : nullptr;
+			FT_TEST(oInternalNodes.back()->Create(&oInternalNodeDesc) == FT_OK);
 
 			// Maillages
-			for (uint32 iMeshIndex : pNodeResource->oMeshIndice)
+			for (uint32 iMeshIndex : oResourceNode.oMeshIndice)
 			{
 				xMesh = new Mesh;
-				FT_TEST(xMesh->Create(xModelResource->oMeshResources[iMeshIndex]) == FT_OK);
-				oNodes.back()->m_oMeshes.push_back(xMesh);
+				FT_TEST(xMesh->Create(xResource->m_oMeshResources[iMeshIndex]) == FT_OK);
+				oInternalNodes.back()->m_oMeshes.push_back(xMesh);
 			}
 
 			// Transform
-			oNodes.back()->SetLocalTransform(pNodeResource->mLocalTransform);
+			oInternalNodes.back()->SetLocalTransform(oResourceNode.mLocalTransform);
 		}
 
-		m_xRootNode = oNodes.front();
+		m_xRootNode = oInternalNodes.front();
 		m_xRootNode->SetWorldTransform(GetWorldTransform());
 		SceneNode::UpdateHierarchy(m_xRootNode.Ptr());
 
-		m_xModelResource = xModelResource;
+		m_xModelResource = xResource;
 
 		return FT_OK;
 	}
@@ -56,14 +58,5 @@ namespace ft
 		m_xModelResource = nullptr;
 		m_xRootNode = nullptr;
 		return SceneNode::Destroy();
-	}
-
-	bool	Model::IsValid() const
-	{
-		return true;
-	}
-
-	void	Model::Draw() const
-	{
 	}
 }

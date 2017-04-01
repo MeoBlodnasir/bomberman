@@ -46,14 +46,13 @@ namespace ft
 	void	Texture::Bind(uint32 iTextureUnit) const
 	{
 		FT_ASSERT(m_xResource != nullptr);
-		FT_ASSERT(m_xResource->IsTextureLoadedAndValid());
+		FT_ASSERT(m_xResource->IsLoadedAndValid());
 		FT_GL_ASSERT( glActiveTexture(GL_TEXTURE0 + iTextureUnit) );
 		FT_GL_ASSERT( glBindTexture(m_xResource->GetTextureTarget(), m_xResource->GetHandle()) );
 	}
 
 	TextureResource::TextureResource()
-		: m_pImage(nullptr)
-		, m_vImageSize(0.f, 0.f)
+		: m_vImageSize(0.f, 0.f)
 	{
 	}
 
@@ -64,17 +63,7 @@ namespace ft
 
 	bool	TextureResource::IsLoadedAndValid() const
 	{
-		return IsImageLoadedAndValid() || IsTextureLoadedAndValid();
-	}
-
-	bool	TextureResource::IsImageLoadedAndValid() const
-	{
-		return !m_oResourceInfos.oFilePath.IsEmpty() && m_pImage != nullptr && m_vImageSize.x > 0.f && m_vImageSize.y > 0.f;
-	}
-
-	bool	TextureResource::IsTextureLoadedAndValid() const
-	{
-		return !m_oResourceInfos.oFilePath.IsEmpty() && m_iHandle != 0 && m_vImageSize.x > 0.f && m_vImageSize.y > 0.f;
+		return !m_oResourceInfos.oFilePath.IsEmpty() && IsHandled() && m_vImageSize.x > 0.f && m_vImageSize.y > 0.f;
 	}
 
 	ErrorCode	TextureResource::Load(ResourceManager& /*oResourceManager*/, const TextureResourceInfos& oInfos)
@@ -88,7 +77,6 @@ namespace ft
 			return FT_FAIL;
 		}
 
-		m_pImage = pImage;
 		m_vImageSize = FromSFML(pImage->getSize());
 
 		// Chargement de la texture dans la mémoire vidéo uniquement si la cible est définie
@@ -121,7 +109,6 @@ namespace ft
 			FT_TODO("Tester les retours OpenGL pour sortir de la fonction avec FT_FAIL au besoin");
 
 			m_iHandle = iHandle;
-			m_pImage = nullptr;
 
 			// Libérer l'image
 			FT_DELETE(pImage);
@@ -134,16 +121,8 @@ namespace ft
 
 	ErrorCode	TextureResource::Unload()
 	{
-		// Libérer la texture
-		if (m_iHandle != 0)
-		{
-			FT_GL_ASSERT( glDeleteTextures(1, &m_iHandle) );
-			m_iHandle = 0;
-		}
+		FT_GL_ASSERT( glDeleteTextures(1, &m_iHandle) );
 
-		// Libérer l'image
-		FT_SAFE_DELETE(m_pImage);
-
-		return FT_OK;
+		return Handled::Destroy();
 	}
 }

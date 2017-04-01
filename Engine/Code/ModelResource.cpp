@@ -2,6 +2,7 @@
 #include "ModelResource.hpp"
 
 #include "Path.hpp"
+#include "ResourceManager.hpp"
 
 //#include "ProfilerBlock.hpp"
 #include "Output.hpp"// tests
@@ -22,50 +23,51 @@ FT_STATIC_ASSERT(sizeof(ft::Matrix44) == sizeof(aiMatrix4x4));
 
 namespace ft
 {
-	// Structure purement utilitaire
+	// Structure purement utilitaire pour éviter de la récursivité
 	struct ParentNodesInfos
 	{
-		const aiNode*		pAiNode;
-		ModelNodeResource*	pModelNode;
-		uint32				iIndex;
-		uint32				iChildToRead;
+		const aiNode*	pAiNode;
+		uint32			iIndex;
+		uint32			iChildToRead;
 
-		ParentNodesInfos()
-			: pAiNode(nullptr)
-			, pModelNode(nullptr)
-			, iIndex(0)
-			, iChildToRead(0)
-		{}
-		ParentNodesInfos(const aiNode* _pAiNode, ModelNodeResource* _pModelNode, uint32 _iIndex)
-			: pAiNode(_pAiNode)
-			, pModelNode(_pModelNode)
-			, iIndex(_iIndex)
-			, iChildToRead(0)
-		{}
+		ParentNodesInfos(const aiNode* _pAiNode, uint32 _iIndex) : pAiNode(_pAiNode) , iIndex(_iIndex) , iChildToRead(0) {}
 	};
 
-	
-	ErrorCode	ModelResource::LoadFromFile(const Path& oModelFilePath)
+	ModelResource::ModelResource()
+	{
+	}
+
+	ModelResource::~ModelResource()
+	{
+		FT_ASSERT(!IsLoadedAndValid());
+	}
+
+	bool	ModelResource::IsLoadedAndValid() const 
+	{
+		return !m_oResourceInfos.oFilePath.IsEmpty() && m_oNodes.size() > 0;
+	}
+
+	ErrorCode	ModelResource::Load(ResourceManager& oResourceManager, const ModelResourceInfos& oInfos)
 	{
 		//ProfilerBlockPrint oProfilerBlock(std::string("ModelResource::LoadFromFile : ") + oModelFilePath.GetFullPath());
 
 		Assimp::Importer oAssimpImporter;
 
 		// Chargement de la scène
-		const aiScene* pScene = oAssimpImporter.ReadFile(oModelFilePath.GetFullPath(),
+		const aiScene* pScene = oAssimpImporter.ReadFile(oInfos.oFilePath.GetFullPath(),
 #if defined (__FT_DEBUG__)
-									aiProcess_FindInvalidData		|
-									aiProcess_ValidateDataStructure	|
+			aiProcess_FindInvalidData		|
+			aiProcess_ValidateDataStructure	|
 #endif
-									aiProcess_Triangulate			|
-									aiProcess_JoinIdenticalVertices	|
-									aiProcess_GenNormals			|
-									aiProcess_GenUVCoords			|
-									aiProcess_CalcTangentSpace		|
-									aiProcess_SortByPType			|
-									aiProcess_FlipUVs				|
-									aiProcess_RemoveRedundantMaterials
-								);
+			aiProcess_Triangulate			|
+			aiProcess_JoinIdenticalVertices	|
+			aiProcess_GenNormals			|
+			aiProcess_GenUVCoords			|
+			aiProcess_CalcTangentSpace		|
+			aiProcess_SortByPType			|
+			aiProcess_FlipUVs				|
+			aiProcess_RemoveRedundantMaterials
+			);
 
 		// Vérifications de la validité
 		FT_ASSERT(pScene != nullptr);
@@ -76,15 +78,15 @@ namespace ft
 			return FT_FAIL;
 
 		// Pas bloquant, mais autant le faire pour voir
-		FT_ASSERT(!(pScene->mFlags & AI_SCENE_FLAGS_VALIDATION_WARNING))
+		FT_ASSERT(!(pScene->mFlags & AI_SCENE_FLAGS_VALIDATION_WARNING));
 		if (pScene->mFlags & AI_SCENE_FLAGS_VALIDATION_WARNING)
 		{
 			FT_CERR << "Assimp WARNING: " << oAssimpImporter.GetErrorString() << std::endl;
 		}
 
-		// Tests
+		// Tests matériaux
 		{
-			FT_COUT << oModelFilePath.GetFullPath() << std::endl;
+			FT_COUT << oInfos.oFilePath.GetFullPath() << std::endl;
 			FT_COUT << pScene->mNumMaterials << " materiaux" << std::endl;
 			for (uint32 i = 0, iCount = pScene->mNumMaterials; i < iCount; ++i)
 			{
@@ -119,77 +121,76 @@ namespace ft
 		}
 		//
 
-		const aiNode* pNode = pScene->mRootNode;
-		while (pNode->mMetaData == nullptr && pNode->mNumMeshes == 0)
+		// Récupération du premier noeud contenant un maillage
+		const aiNode* itAiNode = pScene->mRootNode;
+		while (itAiNode->mMetaData == nullptr && itAiNode->mNumMeshes == 0)
 		{
-			if (pNode->mNumChildren > 0)
-				pNode = pNode->mChildren[0];
+			if (itAiNode->mNumChildren > 0)
+				itAiNode = itAiNode->mChildren[0];
 			else
 				return FT_FAIL;
 		}
 
 		// Récupération des maillages
-		SPtr<MeshData>	xMeshResource = nullptr;
-		oMeshResources.clear();
-		oMeshResources.reserve(pScene->mNumMeshes);
+		m_oMeshResources.clear();
+		m_oMeshResources.reserve(pScene->mNumMeshes);
+		MeshResourceInfos oMeshResourceInfos;
+		SPtr<MeshResource> xMeshResource = nullptr;
+		oMeshResourceInfos.eSource = E_ASSIMP_MESH;
 		for (uint32 i = 0, iCount = pScene->mNumMeshes; i < iCount; ++i)
 		{
-			xMeshResource = new MeshData;
-			xMeshResource->MakeFromAssimpMesh(pScene->mMeshes[i]);
-			oMeshResources.push_back(xMeshResource);
+			oMeshResourceInfos.pAiMesh = pScene->mMeshes[i];
+			FT_TEST(oResourceManager.GetMeshResourceManager()->Load(oMeshResourceInfos, xMeshResource) == FT_OK);
+			m_oMeshResources.push_back(xMeshResource);
 		}
 
 		// Récupération de la hiérarchie et des transformations
-		// Création du noeud racine
-		ModelNodeResource::Desc oModelNodeResDesc;
-		xRootNode = new ModelNodeResource;
-		oModelNodeResDesc.pParent = nullptr;
-		FT_TEST(xRootNode->Create(&oModelNodeResDesc) == FT_OK);
-		xRootNode->SetName(oModelFilePath.GetName());
-		xRootNode->iParentIndex = -1;
-		oNodes.clear();
-		oNodes.push_back(xRootNode.Ptr());
 		// Parcours de la hiérarchie de noeuds de Assimp
 		// A chaque enfant, on empile dans la stack, quand les enfants sont traités, on dépile
+		// (pseudo-récursivité)
+		m_oNodes.clear();
 		std::stack<ParentNodesInfos> oParentStack;
-		oParentStack.push(ParentNodesInfos(pNode->mParent, xRootNode.Ptr(), oNodes.size() - 1));
-
-		SPtr<ModelNodeResource>	xModelNode = nullptr;
+		oParentStack.push(ParentNodesInfos(itAiNode->mParent, m_oNodes.size() - 1));
 		while (!oParentStack.empty())
 		{
 			ParentNodesInfos& oParentNodesInfos = oParentStack.top();
 			FT_ASSERT(oParentNodesInfos.pAiNode != nullptr);
-			
+
 			if (oParentNodesInfos.iChildToRead < oParentNodesInfos.pAiNode->mNumChildren)
 			{
-				pNode = oParentNodesInfos.pAiNode->mChildren[oParentNodesInfos.iChildToRead];
+				itAiNode = oParentNodesInfos.pAiNode->mChildren[oParentNodesInfos.iChildToRead];
 
-				xModelNode = new ModelNodeResource;
-				oModelNodeResDesc.pParent = dynamic_cast<HierarchyNode*>(oParentNodesInfos.pModelNode);
-				FT_ASSERT(oModelNodeResDesc.pParent != nullptr);
-				FT_TEST(xModelNode->Create(&oModelNodeResDesc) == FT_OK);
-				xModelNode->SetName(pNode->mName.C_Str());
+				m_oNodes.push_back(Node());
+				m_oNodes.back().iParentIndex = oParentNodesInfos.iIndex;
+				FT_ASSERT(m_oNodes.back().iParentIndex < (int32)m_oNodes.size() - 1);
 
-				::memcpy((void*)&xModelNode->mLocalTransform, (void*)&pNode->mTransformation, sizeof(Matrix44));
-				xModelNode->mLocalTransform = glm::transpose(xModelNode->mLocalTransform);
+				::memcpy((void*)&m_oNodes.back().mLocalTransform, (void*)&itAiNode->mTransformation, sizeof(Matrix44));
+				m_oNodes.back().mLocalTransform = glm::transpose(m_oNodes.back().mLocalTransform);
 
-				for (uint32 i = 0, iCount = pNode->mNumMeshes; i < iCount; ++i)
-					xModelNode->oMeshIndice.push_back(pNode->mMeshes[i]);
-
-				xModelNode->iParentIndex = oParentNodesInfos.iIndex;
-
-				oNodes.push_back(xModelNode.Ptr());
+				for (uint32 i = 0, iCount = itAiNode->mNumMeshes; i < iCount; ++i)
+					m_oNodes.back().oMeshIndice.push_back(itAiNode->mMeshes[i]);
 
 				// largeur
 				++oParentNodesInfos.iChildToRead;
 
 				// descente
-				oParentStack.push(ParentNodesInfos(pNode, xModelNode.Ptr(), oNodes.size() - 1));
+				oParentStack.push(ParentNodesInfos(itAiNode, m_oNodes.size() - 1));
 			}
 			else
 				// remontée
 				oParentStack.pop();
 		}
+
+
+		m_oResourceInfos = oInfos;
+
+		return FT_OK;
+	}
+
+	ErrorCode	ModelResource::Unload()
+	{
+		m_oNodes.clear();
+		m_oMeshResources.clear();
 
 		return FT_OK;
 	}

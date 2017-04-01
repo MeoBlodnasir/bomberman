@@ -44,7 +44,7 @@ namespace ft
 
 	bool	ShaderResource::IsLoadedAndValid() const
 	{
-		return !m_oResourceInfos.oFilePath.IsEmpty() && m_iHandle != 0;
+		return !m_oResourceInfos.oFilePath.IsEmpty() && IsHandled();
 	}
 
 	ErrorCode	ShaderResource::Load(ResourceManager& /*oResourceManager*/, const ShaderResourceInfos& oInfos)
@@ -83,8 +83,7 @@ namespace ft
 	ErrorCode	ShaderResource::Unload()
 	{
 		FT_GL_ASSERT( glDeleteShader(m_iHandle) );
-		m_iHandle = 0;
 
-		return FT_OK;
+		return Handled::Destroy();;
 	}
 }

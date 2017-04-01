@@ -15,7 +15,6 @@
 #include <Camera.hpp>
 #include <Quaternion.hpp>
 #include <ResourceManager.hpp>
-#include <SpecificResourceManager.hpp>
 
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Event.hpp>
@@ -83,11 +82,14 @@ int		main()
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement Bomberman.FBX");
 
-			SPtr<ModelResource> xBombermanResource = new ModelResource;
-			Model::Desc oBombermanDesc;
-			FT_TEST(xBombermanResource->LoadFromFile(Path("./Djobi/Assets/Models/Bomberman.FBX")) == FT_OK);
-			oBombermanDesc.pParent = nullptr;
-			FT_TEST(xBombermanModel->Create(&oBombermanDesc, xBombermanResource) == FT_OK);
+			ModelResourceInfos oModelResourceInfos;
+			SPtr<ModelResource> xModelResource;
+			Model::Desc oModelDesc;
+
+			oModelResourceInfos.oFilePath = Path("./Djobi/Assets/Models/Bomberman.FBX");
+			FT_TEST(oResourceManager.GetModelResourceManager()->Load(oModelResourceInfos, xModelResource) == FT_OK);
+			oModelDesc.pParent = nullptr;
+			FT_TEST(xBombermanModel->Create(&oModelDesc, xModelResource) == FT_OK);
 		}
 		
 
@@ -95,19 +97,26 @@ int		main()
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement CubeSphere.FBX");
 
-			SPtr<ModelResource> xResource = new ModelResource;
-			Model::Desc oDesc;
-			FT_TEST(xResource->LoadFromFile(Path("./Djobi/Assets/Models/CubeSphere.FBX")) == FT_OK);
-			oDesc.pParent = nullptr;
-			FT_TEST(xCubeSphereModel->Create(&oDesc, xResource) == FT_OK);
+			ModelResourceInfos oModelResourceInfos;
+			SPtr<ModelResource> xModelResource;
+			Model::Desc oModelDesc;
+
+			oModelResourceInfos.oFilePath = Path("./Djobi/Assets/Models/CubeSphere.FBX");
+			FT_TEST(oResourceManager.GetModelResourceManager()->Load(oModelResourceInfos, xModelResource) == FT_OK);
+			oModelDesc.pParent = nullptr;
+			FT_TEST(xCubeSphereModel->Create(&oModelDesc, xModelResource) == FT_OK);
 		}
 		
 
 		SPtr<Mesh> xAxisMesh = new Mesh;
 		{
-			SPtr<MeshData> xData = new MeshData;
-			FT_TEST(xData->MakePrimitiveMatrixAxis(E_VERTEX_PROP_POSITION | E_VERTEX_PROP_COLOR) == FT_OK);
-			FT_TEST(xAxisMesh->Create(xData) == FT_OK);
+			MeshResourceInfos oMeshResourceInfos;
+			SPtr<MeshResource> xMeshResource;
+
+			oMeshResourceInfos.eSource = E_PRIMITIVE_AXIS;
+			oMeshResourceInfos.iVertexProperties = E_VERTEX_PROP_POSITION | E_VERTEX_PROP_COLOR;
+			FT_TEST(oResourceManager.GetMeshResourceManager()->Load(oMeshResourceInfos, xMeshResource) == FT_OK);
+			FT_TEST(xAxisMesh->Create(xMeshResource) == FT_OK);
 		}
 
 
@@ -123,7 +132,6 @@ int		main()
 		FT_TEST(xCamera->Create(&oCameraDesc) == FT_OK);
 
 
-		ShaderProgramResourceInfos	oShaderProgramResInfos;
 		SPtr<ShaderProgram> xTextureShaderProgram		= new ShaderProgram;
 		SPtr<ShaderProgram> xColorShaderProgram			= new ShaderProgram;
 		SPtr<ShaderProgram> xColorValueShaderProgram	= new ShaderProgram;
@@ -131,6 +139,7 @@ int		main()
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement Shaders");
 
+			ShaderProgramResourceInfos	oShaderProgramResInfos;
 			SPtr<ShaderProgramResource>	xShaderProgramResource;
 
 			oShaderProgramResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
@@ -310,7 +319,7 @@ int		main()
 				xBlinnPhongShaderProgram->SetUniform("vViewPosition",	Vector3(xCamera->mWorldTransform[3]));
 
 				
-				ModelNode::const_iterator itNode(xCubeSphereModel->m_xRootNode);
+				Model::InternalNode::const_iterator itNode(xCubeSphereModel->m_xRootNode);
 				while (*itNode != nullptr)
 				{
 					for (const Mesh* pMesh : itNode->m_oMeshes)

@@ -1,5 +1,5 @@
 
-#include "MeshData.hpp"
+#include "MeshResource.hpp"
 
 #include "OpenGL.hpp"
 
@@ -8,33 +8,98 @@
 
 namespace ft
 {
-	MeshData::MeshData()
-		: m_oVertexDescription()
-		, m_iPrimitiveType(GL_TRIANGLES)
-		, m_oIndice()
-		, m_oVerticeData()
+	MeshResource::MeshResource()
+		: m_iPrimitiveType(GL_TRIANGLES)
 		, m_iVerticeCount(0)
 		, m_iVertexToDrawCount(0)
+		, m_iVbo(0)
+		, m_iEbo(0)
 	{
 	}
 
-	MeshData::~MeshData()
+	MeshResource::~MeshResource()
 	{
+		FT_ASSERT(!IsLoadedAndValid());
 	}
 
-	bool	 MeshData::IsValid() const
+	bool	 MeshResource::IsLoadedAndValid() const
 	{
 		return m_oVertexDescription.IsValid()
-			&& m_oVerticeData.size() > 0
-			&& m_iVerticeCount == m_oVerticeData.size() / m_oVertexDescription.GetVertexElementCount()
-			&& m_iVertexToDrawCount > 0;
+			&& m_iVerticeCount > 0
+			&& m_iVertexToDrawCount > 0
+			&& m_iVbo != 0
+			&& IsHandled();
 	}
 
-	// voir comment utiliser les propriétés pour assigner efficacement les valeurs correspondantes
-	// pour le moment, flemme
-	ErrorCode	MeshData::MakePrimitiveQuad(uint32 /*iVertexProperties*/)
+	ErrorCode	MeshResource::Load(ResourceManager& /*oResourceManager*/, const MeshResourceInfos& oInfos)
 	{
-		static const float32 oVert[] =
+		// Initialise les données
+		switch (oInfos.eSource)
+		{
+		case E_PRIMITIVE_QUAD:		{ FT_TEST_RETURN(LoadPrimitiveQuad(oInfos.iVertexProperties) == FT_OK, FT_FAIL); break; }
+		case E_PRIMITIVE_CUBE:		{ FT_TEST_RETURN(LoadPrimitiveCube(oInfos.iVertexProperties) == FT_OK, FT_FAIL); break; }
+		case E_PRIMITIVE_AXIS:		{ FT_TEST_RETURN(LoadPrimitiveMatrixAxis(oInfos.iVertexProperties) == FT_OK, FT_FAIL); break; }
+		case E_ASSIMP_MESH:			{ FT_TEST_RETURN(LoadAssimpMesh(oInfos.pAiMesh) == FT_OK, FT_FAIL); break; }
+		default:					{ return FT_FAIL; }
+		}
+
+		// Chargement en mémoire vidéo
+		FT_GL_ASSERT( glGenVertexArrays(1, &m_iHandle) );
+		FT_GL_ASSERT( glBindVertexArray(m_iHandle) );
+
+		if (m_oIndice.size() > 0)
+		{
+			FT_GL_ASSERT( glGenBuffers(1, &m_iEbo) );
+			FT_GL_ASSERT( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_iEbo) );
+			FT_GL_ASSERT( glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_oIndice.size() * sizeof(GLuint), (GLuint*)m_oIndice.data(), GL_STATIC_DRAW) );
+		}
+
+		FT_GL_ASSERT( glGenBuffers(1, &m_iVbo) );
+		FT_GL_ASSERT( glBindBuffer(GL_ARRAY_BUFFER, m_iVbo) );
+		FT_GL_ASSERT( glBufferData(GL_ARRAY_BUFFER, m_oVerticeData.size() * sizeof(GLfloat), (GLfloat*)m_oVerticeData.data(), GL_STATIC_DRAW) );
+
+		uint32 iProperties = m_oVertexDescription.GetProperties();
+		uint32 iVertexSize = m_oVertexDescription.GetVertexSize();
+		uint32 iPropertyElementCount = 0;
+		uint64 iCurrentStride = 0;
+		for (uint32 i = 0; i < FT_VERTEX_LOCATION_COUNT; ++i)
+		{
+			if (iProperties & VERTEX_PROPERTY_FROM_LOCATION(i))
+			{
+				FT_ASSERT(iCurrentStride == m_oVertexDescription.GetPropertyStride((EVertexProperty)VERTEX_PROPERTY_FROM_LOCATION(i)));
+				iPropertyElementCount = VertexDescription::s_iElementCount[i];
+				FT_GL_ASSERT( glVertexAttribPointer(i, iPropertyElementCount, GL_FLOAT, GL_FALSE, iVertexSize, (GLvoid*)iCurrentStride) );
+				FT_GL_ASSERT( glEnableVertexAttribArray(i) );
+				iCurrentStride += iPropertyElementCount * sizeof(GLfloat);
+			}
+		}
+
+		FT_GL_ASSERT( glBindVertexArray(0) );
+
+		// Libération de mémoire
+		m_oIndice.clear();
+		m_oVerticeData.clear();
+
+		return FT_OK;
+	}
+
+	ErrorCode	MeshResource::Unload()
+	{
+		FT_GL_ASSERT( glDeleteBuffers(1, &m_iVbo) );
+		FT_GL_ASSERT( glDeleteBuffers(1, &m_iEbo) );
+		FT_GL_ASSERT( glDeleteVertexArrays(1, &m_iHandle) );
+		m_iVbo = 0;
+		m_iEbo = 0;
+
+		return Handled::Destroy();
+	}
+
+	// Voir comment utiliser les propriétés pour assigner efficacement les valeurs correspondantes.
+	// Pour le moment, flemme.
+
+	ErrorCode	MeshResource::LoadPrimitiveQuad(uint32 /*iVertexProperties*/)
+	{
+		const float32 oVert[] =
 		{
 			// pos				   uv
 			 1.0f,  1.0f,  0.0f,   0.0f, 0.0f,
@@ -43,7 +108,7 @@ namespace ft
 			-1.0f, -1.0f,  0.0f,   1.0f, 1.0f
 		};
 
-		static const uint32 oId[] =
+		const uint32 oId[] =
 		{
 			0, 1, 2, 1, 2, 3
 		};
@@ -59,11 +124,9 @@ namespace ft
 		return FT_OK;
 	}
 
-	// voir comment utiliser les propriétés pour assigner efficacement les valeurs correspondantes
-	// pour le moment, flemme
-	ErrorCode	MeshData::MakePrimitiveCube(uint32 /*iVertexProperties*/)
+	ErrorCode	MeshResource::LoadPrimitiveCube(uint32 /*iVertexProperties*/)
 	{
-		static const float32 oVert[] =
+		const float32 oVert[] =
 		{
 			// pos				   uv
 			 0.5f, -0.5f, -0.5f,   0.0f, 0.0f,
@@ -97,7 +160,7 @@ namespace ft
 			-0.5f,  0.5f, -0.5f,   0.0f, 1.0f
 		};
 
-		static const uint32 oId[] =
+		const uint32 oId[] =
 		{
 			 0,  1,  2,  0,  2,  3,
 			 4,  5,  6,  4,  6,  7,
@@ -118,11 +181,9 @@ namespace ft
 		return FT_OK;
 	}
 
-	// voir comment utiliser les propriétés pour assigner efficacement les valeurs correspondantes
-	// pour le moment, flemme
-	ErrorCode	MeshData::MakePrimitiveMatrixAxis(uint32 /*iVertexProperties*/)
+	ErrorCode	MeshResource::LoadPrimitiveMatrixAxis(uint32 /*iVertexProperties*/)
 	{
-		static const float32 oVert[] =
+		const float32 oVert[] =
 		{
 			// pos				color
 			0.0f, 0.0f, 0.0f,	1.0f, 0.0f, 0.0f, 1.0f,
@@ -146,12 +207,12 @@ namespace ft
 		return FT_OK;
 	}
 
-	ErrorCode	MeshData::MakeFromAssimpMesh(const aiMesh* pMesh)
+	ErrorCode	MeshResource::LoadAssimpMesh(const aiMesh* pMesh)
 	{
 		FT_ASSERT(pMesh != nullptr);
 
 		// S'il n'y a rien à récupérer, on sort
-		if (pMesh->mNumVertices == 0)
+		if (pMesh == nullptr || pMesh->mNumVertices == 0)
 			return FT_FAIL;
 
 		// Récupération du type de primitive à laquelle correspondent les données
@@ -212,6 +273,7 @@ namespace ft
 			m_oIndice.push_back(oFace.mIndices[2]);
 		}
 
+		// Infos supplémentaires
 		m_iVerticeCount = m_oVerticeData.size() / m_oVertexDescription.GetVertexElementCount();
 		if (m_oIndice.size() > 0)
 			m_iVertexToDrawCount = m_oIndice.size();

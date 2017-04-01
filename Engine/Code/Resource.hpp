@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ErrorCode.hpp"
 #include "StrongPointer.hpp"
 #include "Hash.hpp"
 

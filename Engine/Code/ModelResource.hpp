@@ -1,34 +1,62 @@
 #pragma once
 
-#include "MeshData.hpp"
-#include "HierarchyNode.hpp"
 #include "Matrix44.hpp"
-#include "Namable.hpp"
+#include "Resource.hpp"
+#include "MeshResource.hpp"
+#include "Path.hpp"
 
 namespace ft
 {
 	// fw
-	class Path;
+	template <typename TResourceType> class SpecificResourceManager;
 
-	struct ModelNodeResource : public HierarchyNode, public Namable
+	struct ModelResourceInfos
 	{
-		typedef HierarchyNodeIterator<		ModelNodeResource>	iterator;
-		typedef HierarchyNodeIterator<const ModelNodeResource>	const_iterator;
-
-		Matrix44				mLocalTransform;
-		int32					iParentIndex;
-		std::vector<uint32>		oMeshIndice;
-
-		ModelNodeResource() : HierarchyNode(), mLocalTransform(1), oMeshIndice() {}
+		Path oFilePath;
 	};
 
-	// Utiliser une classe générique de ressource, plus tard, quand elle existera, bitch
-	struct ModelResource : public CountableSPtr
+	class ModelResource : public Resource<ModelResourceInfos>
 	{
-		SPtr<ModelNodeResource>				xRootNode;
-		std::vector<ModelNodeResource*>		oNodes;
-		std::vector< SPtr<MeshData> >	oMeshResources;
+	public:
 
-		ErrorCode	LoadFromFile(const Path& oModelFilePath);
+		struct Node
+		{
+			Matrix44			mLocalTransform;
+			int32				iParentIndex;
+			std::vector<uint32>	oMeshIndice;
+
+			Node() : mLocalTransform(1.f) {}
+		};
+
+		virtual ~ModelResource();
+
+		virtual bool	IsLoadedAndValid() const override;
+
+	protected:
+		friend class Model;
+
+		ModelResource();
+
+		ModelResourceInfos					m_oResourceInfos;
+		std::vector<Node>					m_oNodes;
+		std::vector< SPtr<MeshResource> >	m_oMeshResources;
+
+	private:
+		friend SpecificResourceManager<ModelResource>;
+
+		virtual ErrorCode	Load(ResourceManager& oResourceManager, const ModelResourceInfos& oInfos) override;
+		virtual ErrorCode	Unload() override;
+	};
+}
+
+// Nécessaire pour SpecificResourceManager
+namespace std
+{
+	template <> struct hash<ft::ModelResourceInfos>
+	{
+		size_t	operator ()	(const ft::ModelResourceInfos& oObj) const
+		{
+			return hash<std::string>()(oObj.oFilePath.GetFullPath());
+		}
 	};
 }

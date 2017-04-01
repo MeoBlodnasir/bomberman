@@ -62,7 +62,7 @@ namespace ft
 #	define FT_FAILED_ASSERTION(expr)
 #	define FT_ASSERT(expr)
 #	define FT_STATIC_ASSERT(expr)
-#	define FT_TEST(expr)				expr
+#	define FT_TEST(expr)				((void)(expr))
 
 #endif
 

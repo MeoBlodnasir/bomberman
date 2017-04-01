@@ -13,10 +13,10 @@ namespace ft
 		Handled() : m_iHandle(0)						{}
 		virtual ~Handled()								{}
 
-		inline virtual ErrorCode	Destroy()			{ m_iHandle = 0; return FT_OK; }
-		inline virtual bool			IsHandled() const	{ return m_iHandle != 0; }
+		inline virtual	ErrorCode	Destroy()			{ m_iHandle = 0; return FT_OK; }
 
-		inline uint32				GetHandle() const	{ return m_iHandle; }
+		inline			bool		IsHandled() const	{ return m_iHandle != 0; }
+		inline			uint32		GetHandle() const	{ return m_iHandle; }
 
 	protected:
 
