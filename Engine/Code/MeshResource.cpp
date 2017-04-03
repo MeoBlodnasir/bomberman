@@ -1,7 +1,11 @@
 
 #include "MeshResource.hpp"
 
+#include "ResourceManager.hpp"
 #include "OpenGL.hpp"
+#include "AssimpConversions.hpp"
+#include "MaterialResource.hpp"
+#include "ShaderProgram.hpp"
 
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
@@ -14,6 +18,8 @@ namespace ft
 		, m_iVertexToDrawCount(0)
 		, m_iVbo(0)
 		, m_iEbo(0)
+		, m_xMaterialResource(nullptr)
+		, m_xShaderProgramResource(nullptr)
 	{
 	}
 
@@ -31,17 +37,21 @@ namespace ft
 			&& IsHandled();
 	}
 
-	ErrorCode	MeshResource::Load(ResourceManager& /*oResourceManager*/, const MeshResourceInfos& oInfos)
+	ErrorCode	MeshResource::Load(ResourceManager& oResourceManager, const MeshResourceInfos& oInfos)
 	{
 		// Initialise les données
 		switch (oInfos.eSource)
 		{
-		case E_PRIMITIVE_QUAD:		{ FT_TEST_RETURN(LoadPrimitiveQuad(oInfos.iVertexProperties) == FT_OK, FT_FAIL); break; }
-		case E_PRIMITIVE_CUBE:		{ FT_TEST_RETURN(LoadPrimitiveCube(oInfos.iVertexProperties) == FT_OK, FT_FAIL); break; }
-		case E_PRIMITIVE_AXIS:		{ FT_TEST_RETURN(LoadPrimitiveMatrixAxis(oInfos.iVertexProperties) == FT_OK, FT_FAIL); break; }
-		case E_ASSIMP_MESH:			{ FT_TEST_RETURN(LoadAssimpMesh(oInfos.pAiMesh) == FT_OK, FT_FAIL); break; }
-		default:					{ return FT_FAIL; }
+		case E_PRIMITIVE_QUAD:	{ FT_TEST_RETURN(LoadPrimitiveQuad(oResourceManager, oInfos.iVertexProperties) == FT_OK, FT_FAIL); break; }
+		case E_PRIMITIVE_CUBE:	{ FT_TEST_RETURN(LoadPrimitiveCube(oResourceManager, oInfos.iVertexProperties) == FT_OK, FT_FAIL); break; }
+		case E_PRIMITIVE_AXIS:	{ FT_TEST_RETURN(LoadPrimitiveMatrixAxis(oResourceManager, oInfos.iVertexProperties) == FT_OK, FT_FAIL); break; }
+		case E_ASSIMP_MESH:		{ FT_TEST_RETURN(LoadAssimpMesh(oResourceManager, oInfos) == FT_OK, FT_FAIL); break; }
+		default:				{ return FT_FAIL; }
 		}
+
+		ShaderProgramResourceInfos oShaderProgramResourceInfos;
+		oShaderProgramResourceInfos.sName = "BlinnPhongShader";
+		FT_TEST(oResourceManager.GetShaderProgramResourceManager()->Get(oShaderProgramResourceInfos, m_xShaderProgramResource) == FT_OK);
 
 		// Chargement en mémoire vidéo
 		FT_GL_ASSERT( glGenVertexArrays(1, &m_iHandle) );
@@ -91,13 +101,16 @@ namespace ft
 		m_iVbo = 0;
 		m_iEbo = 0;
 
+		m_xMaterialResource = nullptr;
+		m_xShaderProgramResource = nullptr;
+
 		return Handled::Destroy();
 	}
 
 	// Voir comment utiliser les propriétés pour assigner efficacement les valeurs correspondantes.
 	// Pour le moment, flemme.
 
-	ErrorCode	MeshResource::LoadPrimitiveQuad(uint32 /*iVertexProperties*/)
+	ErrorCode	MeshResource::LoadPrimitiveQuad(ResourceManager& oResourceManager, uint32 /*iVertexProperties*/)
 	{
 		const float32 oVert[] =
 		{
@@ -121,10 +134,13 @@ namespace ft
 		m_iVerticeCount = m_oVerticeData.size() / m_oVertexDescription.GetVertexElementCount();
 		m_iVertexToDrawCount = m_oIndice.size();
 
+		FT_TEST(oResourceManager.GetMaterialResourceManager()->GetDefault(m_xMaterialResource) == FT_OK);
+		FT_TEST(oResourceManager.GetShaderProgramResourceManager()->GetDefault(m_xShaderProgramResource) == FT_OK);
+
 		return FT_OK;
 	}
 
-	ErrorCode	MeshResource::LoadPrimitiveCube(uint32 /*iVertexProperties*/)
+	ErrorCode	MeshResource::LoadPrimitiveCube(ResourceManager& oResourceManager, uint32 /*iVertexProperties*/)
 	{
 		const float32 oVert[] =
 		{
@@ -178,10 +194,13 @@ namespace ft
 		m_iVerticeCount = m_oVerticeData.size() / m_oVertexDescription.GetVertexElementCount();
 		m_iVertexToDrawCount = m_oIndice.size();
 
+		FT_TEST(oResourceManager.GetMaterialResourceManager()->GetDefault(m_xMaterialResource) == FT_OK);
+		FT_TEST(oResourceManager.GetShaderProgramResourceManager()->GetDefault(m_xShaderProgramResource) == FT_OK);
+
 		return FT_OK;
 	}
 
-	ErrorCode	MeshResource::LoadPrimitiveMatrixAxis(uint32 /*iVertexProperties*/)
+	ErrorCode	MeshResource::LoadPrimitiveMatrixAxis(ResourceManager& oResourceManager, uint32 /*iVertexProperties*/)
 	{
 		const float32 oVert[] =
 		{
@@ -204,12 +223,20 @@ namespace ft
 		m_iVerticeCount = m_oVerticeData.size() / m_oVertexDescription.GetVertexElementCount();
 		m_iVertexToDrawCount = m_iVerticeCount;
 
+		m_xMaterialResource = nullptr;
+
+		ShaderProgramResourceInfos	oShaderProgramResInfos;
+		oShaderProgramResInfos.sName = "ColorShader";
+		FT_TEST(oShaderProgramResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/Position.vs.glsl"));
+		FT_TEST(oShaderProgramResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/Color.fs.glsl"));
+		FT_TEST(oResourceManager.GetShaderProgramResourceManager()->Load(oShaderProgramResInfos, m_xShaderProgramResource) == FT_OK);
+
 		return FT_OK;
 	}
 
-	ErrorCode	MeshResource::LoadAssimpMesh(const aiMesh* pMesh)
+	ErrorCode	MeshResource::LoadAssimpMesh(ResourceManager& oResourceManager, const MeshResourceInfos& oInfos)
 	{
-		FT_ASSERT(pMesh != nullptr);
+		const aiMesh* pMesh = oInfos.pAiMesh;
 
 		// S'il n'y a rien à récupérer, on sort
 		if (pMesh == nullptr || pMesh->mNumVertices == 0)
@@ -279,6 +306,30 @@ namespace ft
 			m_iVertexToDrawCount = m_oIndice.size();
 		else
 			m_iVertexToDrawCount = m_iVerticeCount;
+
+		// Matériau
+		if (oInfos.pAiMaterial != nullptr)
+		{
+			MaterialResourceInfos	oMaterialResourceInfos;
+			aiString				oAiString;
+
+			if (oInfos.pAiMaterial->Get(AI_MATKEY_NAME, oAiString) == AI_SUCCESS)
+			{
+				oMaterialResourceInfos.sName = oAiString.C_Str();
+				oMaterialResourceInfos.eSource = E_ASSIMP_MATERIAL;
+				oMaterialResourceInfos.oLocalPath = oInfos.oLocalPath;
+				oMaterialResourceInfos.pAiMaterial = oInfos.pAiMaterial;
+				if (oResourceManager.GetMaterialResourceManager()->Load(oMaterialResourceInfos, m_xMaterialResource) != FT_OK)
+				{
+					FT_FAILED_ASSERTION("Chargement materiau");
+					FT_TEST_RETURN(oResourceManager.GetMaterialResourceManager()->GetDefault(m_xMaterialResource) == FT_OK, FT_FAIL);
+				}
+			}
+		}
+		else
+		{
+			FT_TEST_RETURN(oResourceManager.GetMaterialResourceManager()->GetDefault(m_xMaterialResource) == FT_OK, FT_FAIL);
+		}
 
 		return FT_OK;
 	}

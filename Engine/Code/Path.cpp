@@ -124,7 +124,7 @@ namespace ft
 	{
 		m_sFullPath = sPath;
 		Normalize();
-		return IsValid();
+		return IsEmpty() || IsValid();
 	}
 
 	bool	Path::Set(const char* csPath)

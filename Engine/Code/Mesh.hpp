@@ -2,9 +2,14 @@
 
 #include "Handled.hpp"
 #include "MeshResource.hpp"
+#include "RenderTechnique.hpp"
+#include "Matrix44.hpp"
 
 namespace ft
 {
+	// fw
+	struct RenderContext;
+
 	class Mesh : public Handled, public CountableSPtr
 	{
 	public:
@@ -12,14 +17,18 @@ namespace ft
 				Mesh();
 		virtual ~Mesh();
 
-		virtual ErrorCode	Create(const SPtr<MeshResource>& xResource);
-		virtual ErrorCode	Destroy() override;
+		virtual ErrorCode		Create(const SPtr<MeshResource>& xResource);
+		virtual ErrorCode		Destroy() override;
 
-		virtual void		Draw() const;
+		virtual	void			Render(const RenderContext& oRenderContext, const Matrix44& mModel) const;
+		virtual	void			Draw() const;
+
+		RenderTechnique&		GetRenderTechnique()					{ return m_oRenderTechnique; }
 
 	protected:
 
-		SPtr<MeshResource>	m_xResource;
+		SPtr<MeshResource>		m_xResource;
+		RenderTechnique			m_oRenderTechnique;
 
 	private:
 

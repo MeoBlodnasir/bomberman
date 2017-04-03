@@ -10,6 +10,12 @@ namespace ft
 	// fw
 	class TextureResource;
 
+	enum ETextureTarget
+	{
+		E_TEXTURE_INVALID = -1,
+		E_TEXTURE_2D = 0,
+	};
+
 	class Texture : public CountableSPtr
 	{
 	public:
@@ -40,11 +46,11 @@ namespace ft
 
 	struct TextureResourceInfos
 	{
-		Path	oFilePath;
-		uint32	iTextureTarget;
+		Path			oFilePath;
+		ETextureTarget	eTextureTarget;
 
 		TextureResourceInfos()
-			: iTextureTarget((uint32)-1)
+			: eTextureTarget(E_TEXTURE_INVALID)
 		{}
 	};
 
@@ -57,8 +63,10 @@ namespace ft
 		virtual bool				IsLoadedAndValid() const override;
 
 		inline	const Path&			GetFilePath() const			{ return m_oResourceInfos.oFilePath; }
-		inline	uint32				GetTextureTarget() const	{ return m_oResourceInfos.iTextureTarget; }
+		inline	ETextureTarget		GetTextureTarget() const	{ return m_oResourceInfos.eTextureTarget; }
 		inline	const Vector2&		GetSize() const				{ return m_vImageSize; }
+
+		static	uint32				GLTextureTarget(ETextureTarget eTextureTarget);
 
 	protected:
 

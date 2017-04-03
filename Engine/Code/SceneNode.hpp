@@ -5,6 +5,9 @@
 
 namespace ft
 {
+	// fw
+	struct RenderContext;
+
 	enum ESceneNodeFlag
 	{
 		E_NONE = 0,
@@ -28,6 +31,8 @@ namespace ft
 		virtual void			Update();
 		static	void			UpdateHierarchy(SceneNode* pNode);
 
+		virtual void			Render(const RenderContext&) const					{}
+
 		// Transformations
 		inline	const Matrix44&	GetLocalTransform() const						{ FT_ASSERT(!(m_iFlags & E_OUTDATED_LOCAL_TRANSFORM)); return m_mLocal; }
 		inline	const Matrix44&	GetWorldTransform() const						{ FT_ASSERT(!(m_iFlags & E_OUTDATED_WORLD_TRANSFORM)); return m_mWorld; }
@@ -38,7 +43,7 @@ namespace ft
 				void			SetAsChildOf(SceneNode* pParent, bool bPreserveWorldTransform);
 
 		// Etat
-		inline	uint32			GetFlags() const									{ return m_iFlags; }
+		inline	uint32			GetFlags() const								{ return m_iFlags; }
 				void			SetFlag(uint32 iFlag, bool bPropagate = false);
 				void			UnsetFlag(uint32 iFlag, bool bPropagate = false);
 

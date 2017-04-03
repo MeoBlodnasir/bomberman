@@ -3,6 +3,7 @@
 
 #include "Path.hpp"
 #include "ResourceManager.hpp"
+#include "AssimpConversions.hpp"
 
 //#include "ProfilerBlock.hpp"
 #include "Output.hpp"// tests
@@ -13,13 +14,6 @@
 #include <assimp/mesh.h>
 
 #include <stack>
-
-// Vérification, car la copie de l'un vers l'autre se fait par memcpy,
-// assumant que les deux utilisent la même quantité d'espace mémoire.
-// Mais il faut la transposer avant:
-// aiMatrix4x4	=> row-major
-// ft::Matrix44	=> column-major
-FT_STATIC_ASSERT(sizeof(ft::Matrix44) == sizeof(aiMatrix4x4));
 
 namespace ft
 {
@@ -84,43 +78,6 @@ namespace ft
 			FT_CERR << "Assimp WARNING: " << oAssimpImporter.GetErrorString() << std::endl;
 		}
 
-		// Tests matériaux
-		{
-			FT_COUT << oInfos.oFilePath.GetFullPath() << std::endl;
-			FT_COUT << pScene->mNumMaterials << " materiaux" << std::endl;
-			for (uint32 i = 0, iCount = pScene->mNumMaterials; i < iCount; ++i)
-			{
-				const aiMaterial* pMat = pScene->mMaterials[i];
-				aiString	oString;
-				aiColor3D	oColor;
-				float		fFloat;
-				FT_COUT << "\tMat " << i << " : " << std::endl;
-				if (pMat->Get(AI_MATKEY_NAME, oString) == AI_SUCCESS)
-					FT_COUT << "\t\tName : " << oString.C_Str() << std::endl;
-				if (pMat->Get(AI_MATKEY_COLOR_DIFFUSE, oColor) == AI_SUCCESS)
-					FT_COUT << "\t\tDiffuse Color :  " << oColor.r << ',' << oColor.g << ',' << oColor.b << std::endl;
-				if (pMat->Get(AI_MATKEY_COLOR_AMBIENT, oColor) == AI_SUCCESS)
-					FT_COUT << "\t\tAmbient Color :  " << oColor.r << ',' << oColor.g << ',' << oColor.b << std::endl;
-				if (pMat->Get(AI_MATKEY_COLOR_SPECULAR, oColor) == AI_SUCCESS)
-					FT_COUT << "\t\tSpecular Color : " << oColor.r << ',' << oColor.g << ',' << oColor.b << std::endl;
-				if (pMat->Get(AI_MATKEY_COLOR_EMISSIVE, oColor) == AI_SUCCESS)
-					FT_COUT << "\t\tEmissive Color : " << oColor.r << ',' << oColor.g << ',' << oColor.b << std::endl;
-				if (pMat->Get(AI_MATKEY_SHININESS, fFloat) == AI_SUCCESS)
-					FT_COUT << "\t\tShininess : " << fFloat << std::endl;
-				if (pMat->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), oString) == AI_SUCCESS)
-					FT_COUT << "\t\tTexture Diffuse :  " << oString.C_Str() << std::endl;
-				if (pMat->Get(AI_MATKEY_TEXTURE(aiTextureType_AMBIENT, 0), oString) == AI_SUCCESS)
-					FT_COUT << "\t\tTexture Ambient :  " << oString.C_Str() << std::endl;
-				if (pMat->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), oString) == AI_SUCCESS)
-					FT_COUT << "\t\tTexture Specular : " << oString.C_Str() << std::endl;
-				if (pMat->Get(AI_MATKEY_TEXTURE(aiTextureType_EMISSIVE, 0), oString) == AI_SUCCESS)
-					FT_COUT << "\t\tTexture Emissive : " << oString.C_Str() << std::endl;
-				if (pMat->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), oString) == AI_SUCCESS)
-					FT_COUT << "\t\tTexture Normals :  " << oString.C_Str() << std::endl;
-			}
-		}
-		//
-
 		// Récupération du premier noeud contenant un maillage
 		const aiNode* itAiNode = pScene->mRootNode;
 		while (itAiNode->mMetaData == nullptr && itAiNode->mNumMeshes == 0)
@@ -137,9 +94,11 @@ namespace ft
 		MeshResourceInfos oMeshResourceInfos;
 		SPtr<MeshResource> xMeshResource = nullptr;
 		oMeshResourceInfos.eSource = E_ASSIMP_MESH;
+		oMeshResourceInfos.oLocalPath = Path(oInfos.oFilePath.GetDirPath());
 		for (uint32 i = 0, iCount = pScene->mNumMeshes; i < iCount; ++i)
 		{
 			oMeshResourceInfos.pAiMesh = pScene->mMeshes[i];
+			oMeshResourceInfos.pAiMaterial = pScene->mMaterials[pScene->mMeshes[i]->mMaterialIndex];
 			FT_TEST(oResourceManager.GetMeshResourceManager()->Load(oMeshResourceInfos, xMeshResource) == FT_OK);
 			m_oMeshResources.push_back(xMeshResource);
 		}
@@ -164,8 +123,7 @@ namespace ft
 				m_oNodes.back().iParentIndex = oParentNodesInfos.iIndex;
 				FT_ASSERT(m_oNodes.back().iParentIndex < (int32)m_oNodes.size() - 1);
 
-				::memcpy((void*)&m_oNodes.back().mLocalTransform, (void*)&itAiNode->mTransformation, sizeof(Matrix44));
-				m_oNodes.back().mLocalTransform = glm::transpose(m_oNodes.back().mLocalTransform);
+				FromAssimp(m_oNodes.back().mLocalTransform, itAiNode->mTransformation);
 
 				for (uint32 i = 0, iCount = itAiNode->mNumMeshes; i < iCount; ++i)
 					m_oNodes.back().oMeshIndice.push_back(itAiNode->mMeshes[i]);
@@ -180,7 +138,6 @@ namespace ft
 				// remontée
 				oParentStack.pop();
 		}
-
 
 		m_oResourceInfos = oInfos;
 

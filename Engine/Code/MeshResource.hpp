@@ -4,17 +4,21 @@
 #include "VertexDescription.hpp"
 #include "Resource.hpp"
 #include "Handled.hpp"
+#include "Path.hpp"
 
 #include <vector>
 
 // fw
-struct aiNode;
 struct aiMesh;
+struct aiMaterial;
 
 namespace ft
 {
 	// fw
 	template <typename TResourceType> class SpecificResourceManager;
+	class MaterialResource;
+	class ShaderProgramResource;
+	class RenderTechnique;
 
 	enum EMeshResourceSource
 	{
@@ -29,11 +33,21 @@ namespace ft
 	struct MeshResourceInfos
 	{
 		EMeshResourceSource	eSource;
-		union
-		{
-			uint32			iVertexProperties;
-			const aiMesh*	pAiMesh;
-		};
+		// E_PRIMITIVE_MESH
+		uint32					iVertexProperties;
+		const RenderTechnique*	pRenderTechnique;
+		// E_ASSIMP_MESH
+		Path					oLocalPath;
+		const aiMesh*			pAiMesh;
+		const aiMaterial*		pAiMaterial;
+
+		MeshResourceInfos()
+			: eSource(E_PRIMITIVE_MESH)
+			, iVertexProperties(0)
+			, pRenderTechnique(nullptr)
+			, pAiMesh(nullptr)
+			, pAiMaterial(nullptr)
+		{}
 	};
 
 	class MeshResource : public Handled, public Resource<MeshResourceInfos>
@@ -45,10 +59,7 @@ namespace ft
 		virtual bool	IsLoadedAndValid() const override;
 
 	protected:
-
 		friend class Mesh;
-
-		MeshResource();
 
 		MeshResourceInfos		m_oResourceInfos;
 		VertexDescription		m_oVertexDescription;
@@ -60,11 +71,16 @@ namespace ft
 		uint32					m_iVbo;
 		uint32					m_iEbo;
 
-		ErrorCode				LoadPrimitiveQuad(uint32 iVertexProperties);
-		ErrorCode				LoadPrimitiveCube(uint32 iVertexProperties);
-		ErrorCode				LoadPrimitiveMatrixAxis(uint32 iVertexProperties);
+		SPtr<MaterialResource>		m_xMaterialResource;
+		SPtr<ShaderProgramResource>	m_xShaderProgramResource;
+		
+		MeshResource();
 
-		ErrorCode				LoadAssimpMesh(const aiMesh* pMesh);
+		ErrorCode				LoadPrimitiveQuad(ResourceManager& oResourceManager, uint32 iVertexProperties);
+		ErrorCode				LoadPrimitiveCube(ResourceManager& oResourceManager, uint32 iVertexProperties);
+		ErrorCode				LoadPrimitiveMatrixAxis(ResourceManager& oResourceManager, uint32 iVertexProperties);
+
+		ErrorCode				LoadAssimpMesh(ResourceManager& oResourceManager, const MeshResourceInfos& oInfos);
 
 	private:
 		friend SpecificResourceManager<MeshResource>;

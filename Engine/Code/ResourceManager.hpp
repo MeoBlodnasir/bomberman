@@ -10,24 +10,28 @@
 #	include <type_traits>	// std::is_base_of
 #endif
 
+#define ENGINE_DEFAULT_RESOURCE_NAME	"__EngineDefault"
+
 namespace ft
 {
 	// fw
 	template <typename TResourceType> class SpecificResourceManager;
+	class ShaderResource;
+	class TextureResource;
+	class ShaderProgramResource;
+	class MaterialResource;
 	class MeshResource;
 	class ModelResource;
-	class TextureResource;
-	class ShaderResource;
-	class ShaderProgramResource;
 
 
 	// Classe générale qui gère tous les SpecificResourceManager
 
+	typedef SpecificResourceManager<ShaderResource>			ShaderResourceManager;
+	typedef SpecificResourceManager<TextureResource>		TextureResourceManager;
+	typedef SpecificResourceManager<ShaderProgramResource>	ShaderProgramResourceManager;
+	typedef SpecificResourceManager<MaterialResource>		MaterialResourceManager;
 	typedef SpecificResourceManager<MeshResource>			MeshResourceManager;
 	typedef SpecificResourceManager<ModelResource>			ModelResourceManager;
-	typedef SpecificResourceManager<TextureResource>		TextureResourceManager;
-	typedef SpecificResourceManager<ShaderResource>			ShaderResourceManager;
-	typedef SpecificResourceManager<ShaderProgramResource>	ShaderProgramResourceManager;
 
 	class ResourceManager
 	{
@@ -39,19 +43,23 @@ namespace ft
 		ErrorCode	Create();
 		ErrorCode	Destroy();
 
+		ShaderResourceManager*			GetShaderResourceManager() const		{ FT_ASSERT(m_pShaderResourceManager != nullptr); return m_pShaderResourceManager; }
+		TextureResourceManager*			GetTextureResourceManager() const		{ FT_ASSERT(m_pTextureResourceManager != nullptr); return m_pTextureResourceManager; }
+		ShaderProgramResourceManager*	GetShaderProgramResourceManager() const	{ FT_ASSERT(m_pShaderProgramResourceManager != nullptr); return m_pShaderProgramResourceManager; }
+		MaterialResourceManager*		GetMaterialResourceManager() const		{ FT_ASSERT(m_pMaterialResourceManager != nullptr); return m_pMaterialResourceManager; }
 		MeshResourceManager*			GetMeshResourceManager() const			{ FT_ASSERT(m_pMeshResourceManager != nullptr); return m_pMeshResourceManager; }
 		ModelResourceManager*			GetModelResourceManager() const			{ FT_ASSERT(m_pModelResourceManager != nullptr); return m_pModelResourceManager; }
-		TextureResourceManager*			GetTextureResourceManager() const		{ FT_ASSERT(m_pTextureResourceManager != nullptr); return m_pTextureResourceManager; }
-		ShaderResourceManager*			GetShaderResourceManager() const		{ FT_ASSERT(m_pShaderResourceManager != nullptr); return m_pShaderResourceManager; }
-		ShaderProgramResourceManager*	GetShaderProgramResourceManager() const	{ FT_ASSERT(m_pShaderProgramResourceManager != nullptr); return m_pShaderProgramResourceManager; }
+
+		ErrorCode	LoadDefaultResources();
 
 	private:
 
+		ShaderResourceManager*			m_pShaderResourceManager;
+		TextureResourceManager*			m_pTextureResourceManager;
+		ShaderProgramResourceManager*	m_pShaderProgramResourceManager;
+		MaterialResourceManager*		m_pMaterialResourceManager;
 		MeshResourceManager*			m_pMeshResourceManager;
 		ModelResourceManager*			m_pModelResourceManager;
-		TextureResourceManager*			m_pTextureResourceManager;
-		ShaderResourceManager*			m_pShaderResourceManager;
-		ShaderProgramResourceManager*	m_pShaderProgramResourceManager;
 
 		ResourceManager(const ResourceManager&) FT_DELETED;
 		ResourceManager& operator = (const ResourceManager&) FT_DELETED;
@@ -77,7 +85,7 @@ namespace ft
 
 		SpecificResourceManager<TResourceType>(ResourceManager& oOwner)
 			: m_oOwner(oOwner)
-			, m_oResources()
+			, m_xDefault(nullptr)
 		{
 		}
 
@@ -128,6 +136,22 @@ namespace ft
 			return eRet;
 		}
 
+		// Récupère la ressource par défaut,
+		// FT_OK si tout s'est bien passé,
+		// FT_FAIL si la ressource n'existe pas (pas de modification de xOutResource).
+		ErrorCode	GetDefault(SPtr<ResourceType>& xOutResource)
+		{
+			ErrorCode eRet = FT_FAIL;
+
+			if (m_xDefault != nullptr)
+			{
+				xOutResource == m_xDefault;
+				eRet = FT_OK;
+			}
+
+			return eRet;
+		}
+
 		// Voir UnloadByHash
 		ErrorCode	Unload(const ResourceInfosType& oInfos)
 		{
@@ -140,6 +164,8 @@ namespace ft
 		ErrorCode	UnloadAll()
 		{
 			ErrorCode eRet = FT_OK;
+
+			m_xDefault = nullptr;
 
 			while (!m_oResources.empty())
 				if (UnloadByHash(m_oResources.begin()->first) == FT_FAIL)
@@ -174,9 +200,19 @@ namespace ft
 			return eRet;
 		}
 
+		// Charge la ressource correspondante et l'assigne à la ressource par défaut
+		// FT_OK si tout s'est bien passé,
+		// FT_FAIL si la ressource n'a pas pu être chargée (pas de modification de m_xDefault).
+		friend class ResourceManager;
+		ErrorCode	SetAsDefault(const ResourceInfosType& oInfos)
+		{
+			return Load(oInfos, m_xDefault);
+		}
+
 	protected:
 
 		ResourceManager&	m_oOwner;
+		SPtr<ResourceType>	m_xDefault;
 
 	private:
 

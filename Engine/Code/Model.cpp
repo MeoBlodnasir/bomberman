@@ -1,6 +1,10 @@
 
 #include "Model.hpp"
 
+#include "RenderTechnique.hpp"
+#include "ShaderProgram.hpp"
+#include "Renderer.hpp"
+
 namespace ft
 {
 	Model::Model()
@@ -16,8 +20,6 @@ namespace ft
 	{
 		FT_TEST_RETURN(pDesc != nullptr, FT_FAIL);
 		FT_TEST_RETURN(xResource != nullptr && xResource->IsLoadedAndValid(), FT_FAIL);
-
-		FT_TEST_RETURN(SceneNode::Create(pDesc) == FT_OK, FT_FAIL);
 
 		// Chargement de la ressource
 		std::vector<InternalNode*>	oInternalNodes;
@@ -45,6 +47,9 @@ namespace ft
 		}
 
 		m_xRootNode = oInternalNodes.front();
+
+		FT_TEST_RETURN(SceneNode::Create(static_cast<const SceneNode::Desc*>(pDesc)) == FT_OK, FT_FAIL);
+		
 		m_xRootNode->SetWorldTransform(GetWorldTransform());
 		SceneNode::UpdateHierarchy(m_xRootNode.Ptr());
 
@@ -58,5 +63,32 @@ namespace ft
 		m_xModelResource = nullptr;
 		m_xRootNode = nullptr;
 		return SceneNode::Destroy();
+	}
+
+	void	Model::Update()
+	{
+		SceneNode::Update();
+		
+		if (m_xRootNode != nullptr)
+		{
+			m_xRootNode->SetWorldTransform(GetWorldTransform());
+			UpdateHierarchy(m_xRootNode.Ptr());
+		}
+	}
+
+	void	Model::InternalNode::Render(const RenderContext& oRenderContext) const 
+	{
+		for (const SPtr<Mesh>& xMesh : m_oMeshes)
+			xMesh->Render(oRenderContext, GetWorldTransform());
+	}
+
+	void	Model::Render(const RenderContext& oRenderContext) const 
+	{
+		SceneNodeConstIt itSceneNode(m_xRootNode);
+		while (itSceneNode != nullptr)
+		{
+			itSceneNode->Render(oRenderContext);
+			itSceneNode.Next();
+		}
 	}
 }

@@ -1,5 +1,7 @@
 
 #include "Camera.hpp"
+#include "Renderer.hpp"
+#include "Vector3.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -22,26 +24,30 @@ namespace ft
 
 	ErrorCode	Camera::Create(const Camera::Desc* pDesc)
 	{
-		const Camera::Desc& oDesc = *pDesc;
-		m_eProjectionType = oDesc.eProjectionType;
-		m_fFov	 = oDesc.fFov;
-		m_fNear	 = oDesc.fNear;
-		m_fFar	 = oDesc.fFar;
-		m_fWidth = oDesc.fWidth;
-		m_fRatio = oDesc.fRatio;
+		FT_TEST_RETURN(SceneNode::Create(static_cast<const SceneNode::Desc*>(pDesc)) == FT_OK, FT_FAIL);
+
+		m_eProjectionType = pDesc->eProjectionType;
+		m_fFov	 = pDesc->fFov;
+		m_fNear	 = pDesc->fNear;
+		m_fFar	 = pDesc->fFar;
+		m_fWidth = pDesc->fWidth;
+		m_fRatio = pDesc->fRatio;
 
 		return FT_OK;
 	}
 
 	ErrorCode	Camera::Destroy()
 	{
-		return FT_OK;
+		return SceneNode::Destroy();
 	}
 
 	void		Camera::MakeViewContext(ViewContext* pOutViewContext) const
 	{
 		FT_ASSERT(pOutViewContext != nullptr);
-		pOutViewContext->mView = glm::inverse(mWorldTransform);
+
+		pOutViewContext->vViewPosition = Vector3(GetWorldTransform()[3]);
+		pOutViewContext->mView = glm::inverse(GetWorldTransform());
+
 		if (m_eProjectionType == E_PROJECTION_PERSPECTIVE)
 			pOutViewContext->mProjection = glm::perspective(m_fFov, m_fRatio, m_fNear, m_fFar);
 		else if (m_eProjectionType == E_PROJECTION_ORTHOGRAPHIC)

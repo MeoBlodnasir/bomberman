@@ -16,8 +16,8 @@ namespace ft
 
 		typedef typename TResourceInfos		InfosType;
 
-		Resource() {}
-		virtual ~Resource() {}
+		Resource()			{}
+		virtual ~Resource()	{}
 
 	private:
 

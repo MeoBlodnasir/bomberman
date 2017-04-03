@@ -48,7 +48,7 @@ namespace ft
 		FT_ASSERT(m_xResource != nullptr);
 		FT_ASSERT(m_xResource->IsLoadedAndValid());
 		FT_GL_ASSERT( glActiveTexture(GL_TEXTURE0 + iTextureUnit) );
-		FT_GL_ASSERT( glBindTexture(m_xResource->GetTextureTarget(), m_xResource->GetHandle()) );
+		FT_GL_ASSERT( glBindTexture(TextureResource::GLTextureTarget(m_xResource->GetTextureTarget()), m_xResource->GetHandle()) );
 	}
 
 	TextureResource::TextureResource()
@@ -66,6 +66,19 @@ namespace ft
 		return !m_oResourceInfos.oFilePath.IsEmpty() && IsHandled() && m_vImageSize.x > 0.f && m_vImageSize.y > 0.f;
 	}
 
+	uint32	TextureResource::GLTextureTarget(ETextureTarget eTextureTarget)
+	{
+		uint32	iRet = (uint32)-1;
+
+		switch (eTextureTarget)
+		{
+		case E_TEXTURE_2D:	{ iRet = GL_TEXTURE_2D; break; }
+		default:			{ FT_FAILED_ASSERTION(eTextureTarget); break; }
+		}
+
+		return iRet;
+	}
+
 	ErrorCode	TextureResource::Load(ResourceManager& /*oResourceManager*/, const TextureResourceInfos& oInfos)
 	{
 		// Chargement de l'image en mémoire
@@ -80,10 +93,10 @@ namespace ft
 		m_vImageSize = FromSFML(pImage->getSize());
 
 		// Chargement de la texture dans la mémoire vidéo uniquement si la cible est définie
-		if (oInfos.iTextureTarget != (uint32)-1)
+		if (oInfos.eTextureTarget != (uint32)-1)
 		{
 			GLuint	iHandle;
-			GLenum	eTextureTarget = oInfos.iTextureTarget;
+			GLenum	eTextureTarget = GLTextureTarget(oInfos.eTextureTarget);
 
 			FT_GL_ASSERT( glGenTextures(1, &iHandle) );
 			FT_GL_ASSERT( glBindTexture(eTextureTarget, iHandle) );

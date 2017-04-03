@@ -17,6 +17,8 @@ namespace ft
 			typedef HierarchyNodeIterator<		InternalNode>	iterator;
 			typedef HierarchyNodeIterator<const InternalNode>	const_iterator;
 
+			virtual void	Render(const RenderContext& oRenderContext) const override;
+
 		//private:
 		//	friend class Model;
 
@@ -28,6 +30,10 @@ namespace ft
 
 		virtual ErrorCode	Create(const Model::Desc* pDesc, const SPtr<ModelResource>& xModelResource);
 		virtual ErrorCode	Destroy() override;
+
+		virtual void		Update() override;
+
+		virtual void		Render(const RenderContext& oRenderContext) const override;
 
 	protected:
 

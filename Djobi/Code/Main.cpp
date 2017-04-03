@@ -15,6 +15,7 @@
 #include <Camera.hpp>
 #include <Quaternion.hpp>
 #include <ResourceManager.hpp>
+#include <Renderer.hpp>
 
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Event.hpp>
@@ -77,6 +78,15 @@ int		main()
 		oSFClock.restart();
 		float fDt;
 
+		FT_TEST(oResourceManager.LoadDefaultResources() == FT_OK);
+
+		Renderer oRenderer;
+		FT_TEST(oRenderer.Create(oResourceManager) == FT_OK);
+
+		SPtr<SceneNode>	xSceneRoot = new SceneNode;
+		SceneNode::Desc oSceneRootDesc;
+		oSceneRootDesc.pParent = nullptr;
+		FT_TEST(xSceneRoot->Create(&oSceneRootDesc) == FT_OK);
 		
 		SPtr<Model>	xBombermanModel = new Model;
 		{
@@ -88,7 +98,7 @@ int		main()
 
 			oModelResourceInfos.oFilePath = Path("./Djobi/Assets/Models/Bomberman.FBX");
 			FT_TEST(oResourceManager.GetModelResourceManager()->Load(oModelResourceInfos, xModelResource) == FT_OK);
-			oModelDesc.pParent = nullptr;
+			oModelDesc.pParent = xSceneRoot.Ptr();
 			FT_TEST(xBombermanModel->Create(&oModelDesc, xModelResource) == FT_OK);
 		}
 		
@@ -96,14 +106,14 @@ int		main()
 		SPtr<Model>	xCubeSphereModel = new Model;
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement CubeSphere.FBX");
-
+			
 			ModelResourceInfos oModelResourceInfos;
 			SPtr<ModelResource> xModelResource;
 			Model::Desc oModelDesc;
-
+			
 			oModelResourceInfos.oFilePath = Path("./Djobi/Assets/Models/CubeSphere.FBX");
 			FT_TEST(oResourceManager.GetModelResourceManager()->Load(oModelResourceInfos, xModelResource) == FT_OK);
-			oModelDesc.pParent = nullptr;
+			oModelDesc.pParent = xSceneRoot.Ptr();
 			FT_TEST(xCubeSphereModel->Create(&oModelDesc, xModelResource) == FT_OK);
 		}
 		
@@ -123,6 +133,7 @@ int		main()
 		SPtr<Camera>	xCamera = new Camera;
 		Camera::Desc	oCameraDesc;
 		ViewContext		oViewContext;
+		oCameraDesc.pParent = xSceneRoot.Ptr();
 		oCameraDesc.eProjectionType = E_PROJECTION_PERSPECTIVE;
 		oCameraDesc.fFov = glm::radians(60.f);
 		oCameraDesc.fNear = 0.1f;
@@ -130,12 +141,12 @@ int		main()
 		oCameraDesc.fWidth = (float)pWindow->getSize().x;
 		oCameraDesc.fRatio = oCameraDesc.fWidth / (float)pWindow->getSize().y;
 		FT_TEST(xCamera->Create(&oCameraDesc) == FT_OK);
+		oRenderer.SetActive3DCamera(xCamera);
 
-
-		SPtr<ShaderProgram> xTextureShaderProgram		= new ShaderProgram;
-		SPtr<ShaderProgram> xColorShaderProgram			= new ShaderProgram;
-		SPtr<ShaderProgram> xColorValueShaderProgram	= new ShaderProgram;
-		SPtr<ShaderProgram> xBlinnPhongShaderProgram	= new ShaderProgram;
+		SPtr<ShaderProgram> xTextureShaderProgram	 = new ShaderProgram;
+		SPtr<ShaderProgram> xColorShaderProgram		 = new ShaderProgram;
+		SPtr<ShaderProgram> xColorValueShaderProgram = new ShaderProgram;
+		SPtr<ShaderProgram> xBlinnPhongShaderProgram = new ShaderProgram;
 		{
 			ProfilerBlockPrint oProfilerBlock("Chargement Shaders");
 
@@ -143,24 +154,26 @@ int		main()
 			SPtr<ShaderProgramResource>	xShaderProgramResource;
 
 			oShaderProgramResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
+
+			oShaderProgramResInfos.sName = "TextureShader";
 			FT_TEST(oShaderProgramResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/PositionUV.vs.glsl"));
 			FT_TEST(oShaderProgramResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/Texture.fs.glsl"));
 			FT_TEST(oResourceManager.GetShaderProgramResourceManager()->Load(oShaderProgramResInfos, xShaderProgramResource) == FT_OK);
 			FT_TEST(xTextureShaderProgram->Create(xShaderProgramResource) == FT_OK);
 
-			oShaderProgramResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
+			oShaderProgramResInfos.sName = "ColorShader";
 			FT_TEST(oShaderProgramResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/PositionColor.vs.glsl"));
 			FT_TEST(oShaderProgramResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/Color.fs.glsl"));
 			FT_TEST(oResourceManager.GetShaderProgramResourceManager()->Load(oShaderProgramResInfos, xShaderProgramResource) == FT_OK);
 			FT_TEST(xColorShaderProgram->Create(xShaderProgramResource) == FT_OK);
 
-			oShaderProgramResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
+			oShaderProgramResInfos.sName = "ColorValueShader";
 			FT_TEST(oShaderProgramResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/Position.vs.glsl"));
 			FT_TEST(oShaderProgramResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/ColorValue.fs.glsl"));
 			FT_TEST(oResourceManager.GetShaderProgramResourceManager()->Load(oShaderProgramResInfos, xShaderProgramResource) == FT_OK);
 			FT_TEST(xColorValueShaderProgram->Create(xShaderProgramResource) == FT_OK);
 
-			oShaderProgramResInfos.iShaderTypesFlags = SHADER_TYPE_FLAG(E_VERTEX_SHADER) | SHADER_TYPE_FLAG(E_FRAGMENT_SHADER);
+			oShaderProgramResInfos.sName = "BlinnPhongShader";
 			FT_TEST(oShaderProgramResInfos.oVertexShaderFilePath.Set("./Engine/Assets/Shaders/BlinnPhong.vs.glsl"));
 			FT_TEST(oShaderProgramResInfos.oFragmentShaderFilePath.Set("./Engine/Assets/Shaders/BlinnPhong.fs.glsl"));
 			FT_TEST(oResourceManager.GetShaderProgramResourceManager()->Load(oShaderProgramResInfos, xShaderProgramResource) == FT_OK);
@@ -178,22 +191,22 @@ int		main()
 			TextureResourceInfos oTextureResInfos;
 
 			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/CubeSphere_d.png");
-			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
+			oTextureResInfos.eTextureTarget = E_TEXTURE_2D;
 			FT_TEST(oResourceManager.GetTextureResourceManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
 			FT_TEST(xCubeSphereDiffuse->Create(xTextureResource) == FT_OK);
 
 			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/CubeSphere_am.png");
-			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
+			oTextureResInfos.eTextureTarget = E_TEXTURE_2D;
 			FT_TEST(oResourceManager.GetTextureResourceManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
 			FT_TEST(xCubeSphereAmbient->Create(xTextureResource) == FT_OK);
 
 			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/CubeSphere_s.png");
-			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
+			oTextureResInfos.eTextureTarget = E_TEXTURE_2D;
 			FT_TEST(oResourceManager.GetTextureResourceManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
 			FT_TEST(xCubeSphereSpecular->Create(xTextureResource) == FT_OK);
 
 			oTextureResInfos.oFilePath = Path("./Djobi/Assets/Textures/CubeSphere_e.png");
-			oTextureResInfos.iTextureTarget = GL_TEXTURE_2D;
+			oTextureResInfos.eTextureTarget = E_TEXTURE_2D;
 			FT_TEST(oResourceManager.GetTextureResourceManager()->Load(oTextureResInfos, xTextureResource) == FT_OK);
 			FT_TEST(xCubeSphereEmissive->Create(xTextureResource) == FT_OK);
 		}
@@ -259,7 +272,7 @@ int		main()
 			}
 
 			//xCamera->mWorldTransform = glm::translate(Matrix44(1.f), vCamControllerPos) * glm::mat4_cast(qCamControllerRot);
-			xCamera->mWorldTransform = glm::inverse(glm::lookAt(vCamControllerPos, vCamControllerPos + (qCamControllerRot * Vector3(0.f, 0.f, -1.f)), Vector3(0.f, 0.f, 1.f)));
+			xCamera->SetLocalTransform(glm::inverse(glm::lookAt(vCamControllerPos, vCamControllerPos + (qCamControllerRot * Vector3(0.f, 0.f, -1.f)), Vector3(0.f, 0.f, 1.f))));
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Z) || sf::Keyboard::isKeyPressed(sf::Keyboard::E))
 			{
@@ -293,7 +306,8 @@ int		main()
 												   (sf::Keyboard::isKeyPressed(sf::Keyboard::Y) ? fRotationSpeed : -fRotationSpeed) * 3.f * fDt,
 												   Vector3(0.f, 0.f, 1.f)));
 			}
-			xCubeSphereModel->Update();
+
+			SceneNode::UpdateHierarchy(xSceneRoot);
 
 			{
 				//ProfilerBlockPrint oProfilerBlockRender("Boucle de rendu");
@@ -301,55 +315,16 @@ int		main()
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glEnable(GL_DEPTH_TEST);
 
-				xCamera->MakeViewContext(&oViewContext);
-
-				xBlinnPhongShaderProgram->Use();
-				xBlinnPhongShaderProgram->SetUniform("mView", oViewContext.mView);
-				xBlinnPhongShaderProgram->SetUniform("mProjection", oViewContext.mProjection);
-
-				xBlinnPhongShaderProgram->SetUniform("oMaterial.oDiffuseTexture",		xCubeSphereDiffuse, 0);
-				xBlinnPhongShaderProgram->SetUniform("oMaterial.bHasDiffuseTexture",	GL_TRUE);
-				xBlinnPhongShaderProgram->SetUniform("oMaterial.oSpecularTexture",		xCubeSphereSpecular, 1);
-				xBlinnPhongShaderProgram->SetUniform("oMaterial.bHasSpecularTexture",	GL_TRUE);
-				xBlinnPhongShaderProgram->SetUniform("oMaterial.oEmissiveTexture",		xCubeSphereEmissive, 2);
-				xBlinnPhongShaderProgram->SetUniform("oMaterial.bHasEmissiveTexture",	GL_TRUE);
-				xBlinnPhongShaderProgram->SetUniform("oMaterial.fAmbient",				0.2f);
-				xBlinnPhongShaderProgram->SetUniform("oMaterial.fShininess",			32.f);
-
-				xBlinnPhongShaderProgram->SetUniform("vViewPosition",	Vector3(xCamera->mWorldTransform[3]));
-
 				
-				Model::InternalNode::const_iterator itNode(xCubeSphereModel->m_xRootNode);
-				while (*itNode != nullptr)
-				{
-					for (const Mesh* pMesh : itNode->m_oMeshes)
-					{
-						xTextureShaderProgram->SetUniform("mModel", xCubeSphereModel->GetWorldTransform() * itNode->GetWorldTransform());
-						pMesh->Draw();
-					}
-					itNode.Next();
-				}
-				
-				/*
-				ModelNode::const_iterator itNode(xBombermanModel->m_xRootNode);
-				while (*itNode != nullptr)
-				{
-					for (const Mesh* pMesh : itNode->m_oMeshes)
-					{
-						xTextureShader->SetUniform("mModel", xBombermanModel->GetWorldTransform() * itNode->GetWorldTransform());
-						pMesh->Draw();
-					}
-					itNode.Next();
-				}
-				*/
+				oRenderer.RenderScene(xSceneRoot.Ptr());
 				
 
-				glDisable(GL_DEPTH_TEST);
-				xColorShaderProgram->Use();
-				xColorShaderProgram->SetUniform("mModel", Matrix44(1));
-				xColorShaderProgram->SetUniform("mView", oViewContext.mView);
-				xColorShaderProgram->SetUniform("mProjection", oViewContext.mProjection);
-				xAxisMesh->Draw();
+				//glDisable(GL_DEPTH_TEST);
+				//xColorShaderProgram->Use();
+				//xColorShaderProgram->SetUniform("mModel", Matrix44(1));
+				//xColorShaderProgram->SetUniform("mView", oViewContext.mView);
+				//xColorShaderProgram->SetUniform("mProjection", oViewContext.mProjection);
+				//xAxisMesh->Draw();
 			}
 
 			{
@@ -357,6 +332,9 @@ int		main()
 				pWindow->display();
 			}
 		}
+
+		xSceneRoot = nullptr;
+		FT_TEST(oRenderer.Destroy() == FT_OK);
 	}
 
 	FT_TEST(oResourceManager.Destroy() == FT_OK);

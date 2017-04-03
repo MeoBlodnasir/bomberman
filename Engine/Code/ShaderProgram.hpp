@@ -52,9 +52,10 @@ namespace ft
 
 	struct ShaderProgramResourceInfos
 	{
-		uint32	iShaderTypesFlags;
-		Path	oVertexShaderFilePath;
-		Path	oFragmentShaderFilePath;
+		std::string	sName;
+		uint32		iShaderTypesFlags;
+		Path		oVertexShaderFilePath;
+		Path		oFragmentShaderFilePath;
 	};
 
 	// Ressource de programme lié
@@ -88,8 +89,7 @@ namespace std
 	{
 		size_t	operator ()	(const ft::ShaderProgramResourceInfos& oObj) const
 		{
-			return hash<std::string>()(oObj.oVertexShaderFilePath.GetFullPath()
-									+ oObj.oFragmentShaderFilePath.GetFullPath());
+			return hash<std::string>()(oObj.sName);
 		}
 	};
 }

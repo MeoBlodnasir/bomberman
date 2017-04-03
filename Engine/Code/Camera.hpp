@@ -4,32 +4,28 @@
 #include "ErrorCode.hpp"
 #include "StrongPointer.hpp"
 #include "Matrix44.hpp"
+#include "SceneNode.hpp"
 
 namespace ft
 {
+	// fw
+	struct ViewContext;
+
 	enum EProjectionType
 	{
 		E_PROJECTION_PERSPECTIVE,
 		E_PROJECTION_ORTHOGRAPHIC
 	};
 
-	struct ViewContext
-	{
-		Matrix44	mView;
-		Matrix44	mProjection;
-	};
-
-	class Camera : public CountableSPtr
+	class Camera : public SceneNode
 	{
 	public:
 
-		// Temporaire, en attendant de brancher ça autrement
-		Matrix44			mWorldTransform;
-
-		struct Desc
+		struct Desc : public SceneNode::Desc
 		{
 			Desc()
-				: eProjectionType(E_PROJECTION_ORTHOGRAPHIC)
+				: SceneNode::Desc()
+				, eProjectionType(E_PROJECTION_ORTHOGRAPHIC)
 				, fFov(0.f)
 				, fNear(0.f)
 				, fFar(0.f)
