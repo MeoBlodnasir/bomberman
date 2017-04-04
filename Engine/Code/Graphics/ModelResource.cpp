@@ -5,7 +5,7 @@
 #include "Core/Output.hpp"// tests
 #include "Core/Path.hpp"
 #include "Resource/ResourceManager.hpp"
-#include "External/AssimpConversions.hpp"
+#include "Utilities/AssimpConversions.hpp"
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>

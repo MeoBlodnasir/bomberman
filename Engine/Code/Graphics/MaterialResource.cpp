@@ -3,7 +3,7 @@
 
 #include "Resource/ResourceManager.hpp"
 #include "Graphics/Texture.hpp"
-#include "External/AssimpConversions.hpp"
+#include "Utilities/AssimpConversions.hpp"
 
 #include <assimp/material.h>
 

@@ -5,7 +5,7 @@
 #include "Graphics/OpenGL.hpp"
 #include "Graphics/MaterialResource.hpp"
 #include "Graphics/ShaderProgram.hpp"
-#include "External/AssimpConversions.hpp"
+#include "Utilities/AssimpConversions.hpp"
 
 #include <assimp/scene.h>
 #include <assimp/mesh.h>

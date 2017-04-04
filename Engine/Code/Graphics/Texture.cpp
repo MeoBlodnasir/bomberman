@@ -3,7 +3,7 @@
 
 #include "Core/Output.hpp"
 #include "Graphics/OpenGL.hpp"
-#include "External/SfmlConversions.hpp"
+#include "Utilities/SfmlConversions.hpp"
 
 #include <SFML/Graphics/Image.hpp>
 
