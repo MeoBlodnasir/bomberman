@@ -3,19 +3,19 @@
 #	include <crtdbg.h>
 #endif
 
-#include <Output.hpp>
-#include <OpenGL.hpp>
-#include <ProfilerBlock.hpp>
-#include <Mesh.hpp>
-#include <Model.hpp>
-#include <Shader.hpp>
-#include <ShaderProgram.hpp>
-#include <Texture.hpp>
-#include <Color.hpp>
-#include <Camera.hpp>
-#include <Quaternion.hpp>
-#include <ResourceManager.hpp>
-#include <Renderer.hpp>
+#include <Core/Output.hpp>
+#include <Core/ProfilerBlock.hpp>
+#include <Math/Quaternion.hpp>
+#include <Resource/ResourceManager.hpp>
+#include <Graphics/OpenGL.hpp>
+#include <Graphics/Mesh.hpp>
+#include <Graphics/Model.hpp>
+#include <Graphics/Shader.hpp>
+#include <Graphics/ShaderProgram.hpp>
+#include <Graphics/Texture.hpp>
+#include <Graphics/Color.hpp>
+#include <Graphics/Camera.hpp>
+#include <Graphics/Renderer.hpp>
 
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Event.hpp>

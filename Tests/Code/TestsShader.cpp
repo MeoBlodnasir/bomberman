@@ -1,10 +1,10 @@
 
 #include "TestsShader.hpp"
 
-#include <File.hpp>
-#include <Output.hpp>
-#include <Path.hpp>
-#include <ShaderFile.hpp>
+#include <Core/File.hpp>
+#include <Core/Output.hpp>
+#include <Core/Path.hpp>
+#include <Graphics/ShaderFile.hpp>
 
 namespace ft
 {

@@ -1,7 +1,7 @@
 #ifndef _LAYOUTLOCATION_H_
 #	define _LAYOUTLOCATION_H_
 
-#include "../../Code/VertexLocation.h"
+#include "../../Code/Graphics/VertexLocation.h"
 
 #	define LAYOUT_LOCATION_POSITION		layout (location = FT_VERTEX_LOCATION_POSITION)
 #	define LAYOUT_LOCATION_NORMAL		layout (location = FT_VERTEX_LOCATION_NORMAL)

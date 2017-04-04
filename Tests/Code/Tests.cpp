@@ -1,7 +1,7 @@
 
 #include "Tests.hpp"
 
-#include <Output.hpp>
+#include <Core/Output.hpp>
 
 namespace ft
 {

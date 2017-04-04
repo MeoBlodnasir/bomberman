@@ -3,8 +3,8 @@
 #	include <crtdbg.h>
 #endif
 
-#include <Output.hpp>
-#include <OpenGL.hpp>
+#include <Core/Output.hpp>
+#include <Graphics/OpenGL.hpp>
 
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Event.hpp>

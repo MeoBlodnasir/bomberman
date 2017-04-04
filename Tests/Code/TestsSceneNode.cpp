@@ -1,9 +1,9 @@
 
 #include "TestsSceneNode.hpp"
 
-#include <SceneNode.hpp>
-#include <Output.hpp>
-#include <MathStructOutput.hpp>
+#include <Core/Output.hpp>
+#include <Math/MathStructOutput.hpp>
+#include <Graphics/SceneNode.hpp>
 
 //#define FT_TESTS_LOCAL_VERBOSE
 

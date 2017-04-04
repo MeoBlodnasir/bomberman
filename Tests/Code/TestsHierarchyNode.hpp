@@ -2,8 +2,8 @@
 
 #include "Tests.hpp"
 
-#include <HierarchyNode.hpp>
-#include <Namable.hpp>
+#include <Core/HierarchyNode.hpp>
+#include <Core/Namable.hpp>
 
 namespace ft
 {

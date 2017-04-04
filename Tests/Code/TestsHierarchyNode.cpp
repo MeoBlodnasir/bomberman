@@ -1,7 +1,7 @@
 
 #include "TestsHierarchyNode.hpp"
 
-#include <Output.hpp>
+#include <Core/Output.hpp>
 
 //#define FT_TESTS_LOCAL_VERBOSE
 

@@ -1,8 +1,8 @@
 
 #include "TestsPath.hpp"
 
-#include <Path.hpp>
-#include <Output.hpp>
+#include <Core/Path.hpp>
+#include <Core/Output.hpp>
 
 namespace ft
 {

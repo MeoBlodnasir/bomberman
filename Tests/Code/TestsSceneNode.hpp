@@ -2,8 +2,8 @@
 
 #include "Tests.hpp"
 
-#include <Namable.hpp>
-#include <SceneNode.hpp>
+#include <Core/Namable.hpp>
+#include <Graphics/SceneNode.hpp>
 
 namespace ft
 {

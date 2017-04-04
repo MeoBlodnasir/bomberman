@@ -2,7 +2,7 @@
 
 #include "Tests.hpp"
 
-#include <StrongPointer.hpp>
+#include <Core/StrongPointer.hpp>
 
 namespace ft
 {
