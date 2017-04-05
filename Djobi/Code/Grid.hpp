@@ -41,6 +41,7 @@ namespace ft
 		void	RegisterGridObject(GridObject* pObject)						{ m_oObjects.insert(pObject); }
 		void	UnregisterGridObject(GridObject* pObject)					{ m_oObjects.erase(pObject); }
 
+		void	Update(float32 fDt);
 		void	Draw(sf::RenderWindow& oRenderWindow) const;
 
 	private:

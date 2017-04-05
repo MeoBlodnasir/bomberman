@@ -137,9 +137,9 @@ namespace ft
 
 #else
 
-		struct stat buf;
-		stat(m_sFullPath.c_str(), &buf);
-		return (S_ISDIR(buf.st_mode));
+		struct stat oStats;
+		stat(m_sFullPath.c_str(), &oStats);
+		return (S_ISDIR(oStats.st_mode));
 
 #endif
 	}
@@ -159,8 +159,8 @@ namespace ft
 
 #else
 
-		struct stat buf;
-		return (stat(m_sFullPath.c_str(), &buf) < 0) ? false : true;
+		struct stat oStats;
+		return (stat(m_sFullPath.c_str(), &oStats) < 0) ? false : true;
 
 #endif
 	}
@@ -186,11 +186,11 @@ namespace ft
 
 #else
 
-		char *ptr;
-		char buf[PATH_MAX];
-		ptr = realpath(m_sFullPath.c_str(), buf); 
-		FT_ASSERT(ptr != nullptr);
-		m_sFullPath = std::string(ptr);
+		char *csFullPathPtr;
+		char csFullPathBuffer[PATH_MAX];
+		csFullPathPtr = realpath(m_sFullPath.c_str(), csFullPathBuffer); 
+		FT_ASSERT(csFullPathPtr != nullptr);
+		m_sFullPath = std::string(csFullPathPtr);
 
 #endif
 

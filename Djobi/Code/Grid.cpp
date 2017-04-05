@@ -18,9 +18,18 @@ namespace ft
 		m_oCellShape.setOutlineColor(sf::Color(50, 50, 50, 255));
 		Adjust();
 	}
+
 	Grid::~Grid()
 	{
 		FT_ASSERT(m_oObjects.size() == 0);
+	}
+
+	void	Grid::Update(float32 fDt)
+	{
+		std::set<GridObject*> oGridObjects(m_oObjects); // nul
+
+		for (GridObject* pObject : oGridObjects)
+			pObject->Update(fDt);
 	}
 
 	void	Grid::Draw(sf::RenderWindow& oRenderWindow) const

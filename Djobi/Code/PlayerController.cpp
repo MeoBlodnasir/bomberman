@@ -1,26 +1,37 @@
 
-#include "GridObjectController.hpp"
+#include "PlayerController.hpp"
 
 #include "GridObject.hpp"
 
-#include <SFML\Window\Keyboard.hpp>
+#include <SFML\Window\Event.hpp>
 
 #include <glm\detail\func_geometric.hpp>
 
 namespace ft
 {
 
-	GridObjectController::GridObjectController(GridObject& oGridObject)
-		: m_oPawn(oGridObject)
+	PlayerController::PlayerController(Player& oPlayer)
+		: m_oPawn(oPlayer)
 		, m_fMoveSpeed(1.f)
 	{
 	}
 
-	GridObjectController::~GridObjectController()
+	PlayerController::~PlayerController()
 	{
 	}
 
-	void GridObjectController::Update(float32 fDt)
+	void	PlayerController::GetEvent(const sf::Event& oEvent)
+	{
+		if (oEvent.type == sf::Event::KeyPressed)
+		{
+			if (oEvent.key.code == sf::Keyboard::Space)
+			{
+				m_oPawn.DropBomb();
+			}
+		}
+	}
+
+	void PlayerController::Update(float32 fDt)
 	{
 		Vector2 vMovement(0.f, 0.f);
 
