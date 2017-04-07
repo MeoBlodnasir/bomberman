@@ -25,7 +25,7 @@ namespace ft
 
 	ErrorCode	Camera::Create(const Camera::Desc* pDesc)
 	{
-		FT_TEST_RETURN(SceneNode::Create(static_cast<const SceneNode::Desc*>(pDesc)) == FT_OK, FT_FAIL);
+		FT_TEST_RETURN(SceneNode::Create(dynamic_cast<const SceneNode::Desc*>(pDesc)) == FT_OK, FT_FAIL);
 
 		m_eProjectionType = pDesc->eProjectionType;
 		m_fFov	 = pDesc->fFov;

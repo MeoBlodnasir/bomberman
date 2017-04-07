@@ -30,7 +30,7 @@ namespace ft
 				Model();
 		virtual ~Model();
 
-		virtual ErrorCode	Create(const Model::Desc* pDesc, const SPtr<ModelResource>& xModelResource);
+		virtual ErrorCode	Create(const Desc* pDesc, const SPtr<ModelResource>& xModelResource);
 		virtual ErrorCode	Destroy() override;
 
 		virtual void		Update() override;

@@ -1,32 +1,34 @@
 
-#include "Core/HierarchyNode.hpp"
-
 namespace ft
 {
-	HierarchyNode::HierarchyNode()
+	template <typename TNode>
+	HierarchyNode<TNode>::HierarchyNode()
 		: m_pParent(nullptr)
 		, m_xChild(nullptr)
 		, m_xSibling(nullptr)
 	{
 	}
 
-	HierarchyNode::~HierarchyNode()
+	template <typename TNode>
+	HierarchyNode<TNode>::~HierarchyNode()
 	{
 		FT_TEST(Destroy() == FT_OK);
 	}
 
-	ErrorCode	HierarchyNode::Create(const Desc* pDesc)
+	template <typename TNode>
+	ErrorCode	HierarchyNode<TNode>::Create(const Desc* pDesc)
 	{
 		FT_TEST_RETURN(pDesc != nullptr, FT_FAIL);
-		SetAsChildOf(pDesc->pParent);
+		SetParent(pDesc->pParent);
 		return FT_OK;
 	}
 
-	ErrorCode	HierarchyNode::Destroy()
+	template <typename TNode>
+	ErrorCode	HierarchyNode<TNode>::Destroy()
 	{
 		// Détacher les noeuds enfants
-		HierarchyNode* pChild = m_xChild;
-		HierarchyNode* pChildSibling = nullptr;
+		TNode* pChild = m_xChild;
+		TNode* pChildSibling = nullptr;
 		while (pChild != nullptr)
 		{
 			pChildSibling = pChild->m_xSibling;
@@ -40,23 +42,34 @@ namespace ft
 		return FT_OK;
 	}
 
-	uint32		HierarchyNode::GetHierarchyCount()
+	template <typename TNode>
+	TNode*		HierarchyNode<TNode>::GetRootNode()
 	{
-		FT_TODO("HierarchyNode::GetHierarchyCount() : Faire avec HierarchyNodeIterator const");
+		TNode* pRootNode = this;
 
-		uint32 iChildCount = 1;
-		HierarchyNode* pChild = m_xChild;
+		while (pRootNode->m_pParent != nullptr)
+			pRootNode = pRootNode->m_pParent;
 
-		while (pChild != nullptr)
-		{
-			iChildCount += pChild->GetHierarchyCount();
-			pChild = pChild->m_xSibling;
-		}
-
-		return iChildCount;
+		return pRootNode;
 	}
 
-	void		HierarchyNode::SetAsChildOf(HierarchyNode* pParent)
+	template <typename TNode>
+	uint32		HierarchyNode<TNode>::GetHierarchyCount() const
+	{
+		uint32 iHierarchyCount = 1;
+		const_iterator it(m_xChild.Ptr());
+
+		while (it != nullptr)
+		{
+			++iHierarchyCount;
+			it.Next();
+		}
+
+		return iHierarchyCount;
+	}
+
+	template <typename TNode>
+	void		HierarchyNode<TNode>::SetParent(TNode* pParent)
 	{
 		FT_ASSERT(pParent != this);
 		if (pParent != m_pParent)
@@ -69,13 +82,14 @@ namespace ft
 				FT_ASSERT(m_xSibling == nullptr);
 				m_pParent = pParent;
 				m_xSibling = pParent->m_xChild;
-				pParent->m_xChild = this;
+				pParent->m_xChild = dynamic_cast<TNode*>(this);
 			}
 			ReleaseReference();
 		}
 	}
 
-	void		HierarchyNode::UnlinkFromParent()
+	template <typename TNode>
+	void		HierarchyNode<TNode>::UnlinkFromParent()
 	{
 		// Détacher du parent
 		if (m_pParent != nullptr)
@@ -90,7 +104,7 @@ namespace ft
 			else
 			{
 				// Récupérer le noeud dont le frère direct est le noeud courant
-				HierarchyNode* pTemp = m_pParent->m_xChild;
+				TNode* pTemp = m_pParent->m_xChild;
 				FT_ASSERT(pTemp != nullptr);
 				while (pTemp->m_xSibling != this)
 				{

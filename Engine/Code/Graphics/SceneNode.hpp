@@ -15,17 +15,14 @@ namespace ft
 		E_OUTDATED_LOCAL_TRANSFORM = (1 << 1)
 	};
 
-	class SceneNode : public HierarchyNode
+	class SceneNode : public HierarchyNode<SceneNode>
 	{
 	public:
-
-		typedef HierarchyNodeIterator<		SceneNode>	iterator;
-		typedef HierarchyNodeIterator<const SceneNode>	const_iterator;
 
 		SceneNode();
 		virtual ~SceneNode();
 
-		virtual ErrorCode		Create(const HierarchyNode::Desc* pDesc) override;
+		virtual ErrorCode		Create(const SceneNode::Desc* pDesc) override;
 		virtual ErrorCode		Destroy() override;
 
 		virtual void			Update();
@@ -40,7 +37,7 @@ namespace ft
 				void			SetWorldTransform(const Matrix44& m);
 
 		// Hiérarchie
-				void			SetAsChildOf(SceneNode* pParent, bool bPreserveWorldTransform);
+				void			SetParent(SceneNode* pParent, bool bPreserveWorldTransform);
 
 		// Etat
 		inline	uint32			GetFlags() const								{ return m_iFlags; }

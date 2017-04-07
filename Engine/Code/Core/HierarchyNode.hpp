@@ -7,52 +7,56 @@
 
 namespace ft
 {
+	// S'utilise en héritant d'un HierarchyNode templaté de son propre type
+	// Exemple: class SceneNode : public HierarchyNode<SceneNode> {};
+
+	template <typename TNode>
 	class HierarchyNode : public IHierarchyNode, public CountableSPtr
 	{
 	public:
 
-		typedef HierarchyNodeIterator<		HierarchyNode>	iterator;
-		typedef HierarchyNodeIterator<const	HierarchyNode>	const_iterator;
+		typedef TNode	NodeType;
+
+		typedef HierarchyNodeIterator< 		 NodeType >	iterator;
+		typedef HierarchyNodeIterator< const NodeType >	const_iterator;
 
 		struct Desc
 		{
-			HierarchyNode*	pParent;
-
+			NodeType*	pParent;
 			Desc() : pParent(nullptr) {}
 		};
 
-		HierarchyNode();
-		virtual	~HierarchyNode();
+		HierarchyNode<TNode>();
+		virtual	~HierarchyNode<TNode>();
 
 		// Interface IHierarchyNode
-		virtual			IHierarchyNode*	GetParent()			override { return m_pParent; }
-		virtual const	IHierarchyNode*	GetParent() const	override { return m_pParent; }
-		virtual			IHierarchyNode*	GetChild()			override { return m_xChild; }
-		virtual const	IHierarchyNode*	GetChild() const	override { return m_xChild; }
-		virtual			IHierarchyNode*	GetSibling()		override { return m_xSibling; }
-		virtual const	IHierarchyNode*	GetSibling() const	override { return m_xSibling; }
+		virtual		  IHierarchyNode*	GetParent()			override		{ return m_pParent; }
+		virtual const IHierarchyNode*	GetParent() const	override		{ return m_pParent; }
+		virtual		  IHierarchyNode*	GetChild()			override		{ return m_xChild; }
+		virtual const IHierarchyNode*	GetChild() const	override		{ return m_xChild; }
+		virtual		  IHierarchyNode*	GetSibling()		override		{ return m_xSibling; }
+		virtual const IHierarchyNode*	GetSibling() const	override		{ return m_xSibling; }
 
-		virtual ErrorCode		Create(const Desc* pDesc); // Pointeur?
-		virtual ErrorCode		Destroy();
+		virtual ErrorCode				Create(const Desc* pDesc);
+		virtual ErrorCode				Destroy();
 
-				HierarchyNode*	GetRootNode() const				{ return m_pParent == nullptr ? const_cast<HierarchyNode*>(this) : m_pParent->GetRootNode(); }
-				uint32			GetHierarchyCount();
+				TNode*					GetRootNode();
+				uint32					GetHierarchyCount() const;
 			
-		virtual	void			SetAsChildOf(HierarchyNode* pParent);
-		virtual	void			UnlinkFromParent();
+		virtual	void					SetParent(TNode* pParent);
+		virtual	void					UnlinkFromParent();
 
 	protected:
 
-		HierarchyNode*		m_pParent;
-		SPtr<HierarchyNode>	m_xChild;
-		SPtr<HierarchyNode>	m_xSibling;
+		TNode*			m_pParent;
+		SPtr<TNode>		m_xChild;
+		SPtr<TNode>		m_xSibling;
 
 	private:
 
-		HierarchyNode(const HierarchyNode&) FT_DELETED;
-		HierarchyNode& operator = (const HierarchyNode&) FT_DELETED;
+		HierarchyNode<TNode>(const HierarchyNode<TNode>&) FT_DELETED;
+		HierarchyNode<TNode>& operator = (const HierarchyNode<TNode>&) FT_DELETED;
 	};
-
-	typedef HierarchyNode::iterator			HNodeIt;
-	typedef HierarchyNode::const_iterator	HNodeConstIt;
 }
+
+#include "Core/HierarchyNode.tpp"

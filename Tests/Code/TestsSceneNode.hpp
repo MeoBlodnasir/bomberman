@@ -11,8 +11,6 @@ namespace ft
 	{
 		struct Node : public SceneNode, public Namable
 		{
-			typedef HierarchyNodeIterator<		Node>	iterator;
-			typedef HierarchyNodeIterator<const Node>	const_iterator;
 		};
 
 		uint32	All();

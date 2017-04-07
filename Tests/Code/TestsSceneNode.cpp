@@ -40,7 +40,7 @@ namespace ft
 			FT_UTEST_INIT;
 
 			Node::const_iterator	itNode;
-			HierarchyNode::Desc		oDesc;
+			Node::Desc				oDesc;
 
 			SPtr<Node> xRoot, x1, x2, x3, x11, x12, x21, x31, x311, x3111;
 

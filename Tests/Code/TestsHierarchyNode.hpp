@@ -9,10 +9,8 @@ namespace ft
 {
 	namespace TestsHierarchyNode
 	{
-		struct Node : public HierarchyNode, public Namable
+		struct Node : public HierarchyNode<Node>, public Namable
 		{
-			typedef HierarchyNodeIterator<		Node>	iterator;
-			typedef HierarchyNodeIterator<const Node>	const_iterator;
 		};
 
 		uint32	All();

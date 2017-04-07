@@ -17,7 +17,7 @@ namespace ft
 	{
 	}
 
-	ErrorCode	Model::Create(const Model::Desc* pDesc, const SPtr<ModelResource>& xResource)
+	ErrorCode	Model::Create(const Desc* pDesc, const SPtr<ModelResource>& xResource)
 	{
 		FT_TEST_RETURN(pDesc != nullptr, FT_FAIL);
 		FT_TEST_RETURN(xResource != nullptr && xResource->IsLoadedAndValid(), FT_FAIL);
@@ -49,7 +49,7 @@ namespace ft
 
 		m_xRootNode = oInternalNodes.front();
 
-		FT_TEST_RETURN(SceneNode::Create(static_cast<const SceneNode::Desc*>(pDesc)) == FT_OK, FT_FAIL);
+		FT_TEST_RETURN(SceneNode::Create(dynamic_cast<const SceneNode::Desc*>(pDesc)) == FT_OK, FT_FAIL);
 		
 		m_xRootNode->SetWorldTransform(GetWorldTransform());
 		SceneNode::UpdateHierarchy(m_xRootNode.Ptr());

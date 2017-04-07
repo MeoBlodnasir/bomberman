@@ -16,7 +16,7 @@ namespace ft
 	ErrorCode	SceneNode::Create(const Desc* pDesc)
 	{
 		FT_TEST_RETURN(pDesc != nullptr, FT_FAIL);
-		SetAsChildOf(dynamic_cast<SceneNode*>(pDesc->pParent), false);
+		SetParent(pDesc->pParent, false);
 		SetLocalTransform(Matrix44(1));
 		Update();
 		return FT_OK;
@@ -75,7 +75,7 @@ namespace ft
 		if (m_pParent == nullptr)
 			m_mLocal = m_mWorld;
 		else
-			m_mLocal = glm::inverse(dynamic_cast<SceneNode*>(m_pParent)->m_mWorld) * m_mWorld;
+			m_mLocal = glm::inverse(m_pParent->m_mWorld) * m_mWorld;
 
 		UnsetFlag(E_OUTDATED_LOCAL_TRANSFORM);
 	}
@@ -85,18 +85,18 @@ namespace ft
 		if (m_pParent == nullptr)
 			m_mWorld = m_mLocal;
 		else
-			m_mWorld = dynamic_cast<SceneNode*>(m_pParent)->m_mWorld * m_mLocal;
+			m_mWorld = m_pParent->m_mWorld * m_mLocal;
 
 		UnsetFlag(E_OUTDATED_WORLD_TRANSFORM);
 	}
 
-	void	SceneNode::SetAsChildOf(SceneNode* pParent, bool bPreserveWorldTransform)
+	void	SceneNode::SetParent(SceneNode* pParent, bool bPreserveWorldTransform)
 	{
 		FT_ASSERT(pParent != this);
 
 		if (pParent != m_pParent)
 		{
-			HierarchyNode::SetAsChildOf(pParent);
+			HierarchyNode::SetParent(pParent);
 			SetFlag(bPreserveWorldTransform ? E_OUTDATED_LOCAL_TRANSFORM : E_OUTDATED_WORLD_TRANSFORM);
 			PropagateFlag(E_OUTDATED_WORLD_TRANSFORM, true);
 		}
@@ -118,7 +118,7 @@ namespace ft
 
 	void	SceneNode::PropagateFlag(uint32 iFlag, bool bValue)
 	{
-		SceneNode* pChild = dynamic_cast<SceneNode*>(m_xChild.Ptr());
+		SceneNode* pChild = m_xChild.Ptr();
 
 		while (pChild != nullptr)
 		{
@@ -127,7 +127,7 @@ namespace ft
 			else
 				pChild->UnsetFlag(iFlag, true);
 
-			pChild = dynamic_cast<SceneNode*>(pChild->m_xSibling.Ptr());
+			pChild = pChild->m_xSibling.Ptr();
 		}
 	}
 }
