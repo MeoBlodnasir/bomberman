@@ -21,11 +21,11 @@ namespace ft
 		PlayerController(Player& oPlayer);
 		~PlayerController();
 
-		void	GetEvent(const sf::Event& oEvent);
+		void		GetEvent(const sf::Event& oEvent);
 
-		void	Update(float32 fDt);
+		void		Update(float32 fDt);
 
-		void	SetMoveSpeed(float32 fMoveSpeed)						{ m_fMoveSpeed = fMoveSpeed; }
+		void		SetMoveSpeed(float32 fMoveSpeed)						{ m_fMoveSpeed = fMoveSpeed; }
 
 	protected:
 

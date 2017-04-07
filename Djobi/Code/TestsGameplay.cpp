@@ -7,6 +7,7 @@
 #include <Core/ProfilerBlock.hpp>
 #include <Core/Path.hpp>
 #include <Math/MathStructOutput.hpp>
+#include <Utilities/SfmlConversions.hpp>
 
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
@@ -43,6 +44,7 @@ int		TestsGameplay()
 		oText.setCharacterSize(20);
 
 		Grid oGrid(21, 15, 30);
+		oGrid.SetWindowSize(FromSFML(pWindow->getSize()));
 		{
 			Player oPlayer(oGrid);
 			PlayerController oController(oPlayer);
@@ -77,6 +79,7 @@ int		TestsGameplay()
 				pWindow->clear();
 
 				oGrid.Draw(*pWindow);
+				oPlayer.Draw(*pWindow, oGrid.GetGridContext());
 
 				std::stringstream oSS;
 				oSS << "Player: " << oPlayer.GetPosition();

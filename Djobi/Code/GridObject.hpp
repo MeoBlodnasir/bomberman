@@ -1,7 +1,8 @@
 #pragma once
 
+#include "Collider.hpp"
+
 #include <Core/Core.hpp>
-#include <Math/Vector2.hpp>
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
@@ -18,25 +19,20 @@ namespace ft
 	class Grid;
 	struct GridContext;
 
-	class GridObject
+	class GridObject : public Transformable
 	{
 	public:
 
 		GridObject(Grid& oGrid);
 		virtual ~GridObject();
 
-		void			SetPosition(const Vector2& vPos)					{ m_vPosition = vPos; }
-		const Vector2&	GetPosition() const									{ return m_vPosition; }
-
-		void			Move(const Vector2& vPos)							{ m_vPosition += vPos; }
-
-		virtual void	Update(float32 fDt) = 0;
-		virtual void	Draw(sf::RenderWindow&, const GridContext&) const = 0;
+		virtual void				Update(float32 fDt) = 0;
+		virtual void				Draw(sf::RenderWindow&, const GridContext&) const = 0;
+		virtual const Collider*		GetCollider() const	= 0;
 
 	protected:
 
-		Grid&			m_oGrid;
-		Vector2			m_vPosition;
+		Grid&						m_oGrid;
 
 	private:
 
@@ -52,13 +48,15 @@ namespace ft
 		Player(Grid& oGrid);
 		virtual ~Player();
 
-		virtual void	Update(float32 fDt) override;
-		virtual void	Draw(sf::RenderWindow& oRenderWindow, const GridContext& oGridContext) const override;
+		virtual void				Update(float32 fDt) override;
+		virtual void				Draw(sf::RenderWindow& oRenderWindow, const GridContext& oGridContext) const override;
+		virtual const Collider*		GetCollider() const override			{ return &m_oCollider; }
 
-		void			DropBomb() const;
+		void						DropBomb() const;
 
 	protected:
 
+		CircleCollider				m_oCollider;
 		mutable sf::RectangleShape	m_oShape;
 	};
 
@@ -69,17 +67,19 @@ namespace ft
 		Bomb(Grid& oGrid);
 		virtual ~Bomb();
 
-		void			SetLifeTime(float32 fLifeTime)						{ m_fLifeTime = fLifeTime; }
-		float32			GetLifeTime() const									{ return m_fLifeTime; }
+		void						SetLifeTime(float32 fLifeTime)			{ m_fLifeTime = fLifeTime; }
+		float32						GetLifeTime() const						{ return m_fLifeTime; }
 
-		virtual void	Update(float32 fDt) override;
-		virtual void	Draw(sf::RenderWindow& oRenderWindow, const GridContext& oGridContext) const override;
+		virtual void				Update(float32 fDt) override;
+		virtual void				Draw(sf::RenderWindow& oRenderWindow, const GridContext& oGridContext) const override;
+		virtual const Collider*		GetCollider() const override			{ return &m_oCollider; }
 
 	protected:
 
 		float32						m_fLifeTime;
+		RectangleCollider			m_oCollider;
 		mutable sf::CircleShape		m_oShape;
 
-		void			Explode();
+		void						Explode();
 	};
 }

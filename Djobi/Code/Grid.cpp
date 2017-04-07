@@ -2,7 +2,6 @@
 #include "Grid.hpp"
 
 #include "GridObject.hpp"
-#include <Utilities/SfmlConversions.hpp>
 
 #include <SFML\Graphics\RenderWindow.hpp>
 
@@ -16,48 +15,45 @@ namespace ft
 		m_oCellShape.setFillColor(sf::Color(25, 25, 25, 255));
 		m_oCellShape.setOutlineThickness(1.f);
 		m_oCellShape.setOutlineColor(sf::Color(50, 50, 50, 255));
-		Adjust();
+		SetCellSize(iCellSize);
 	}
 
 	Grid::~Grid()
 	{
-		FT_ASSERT(m_oObjects.size() == 0);
 	}
 
-	void	Grid::Update(float32 fDt)
+	void	Grid::SetCellSize(uint32 iCellSize)
 	{
-		std::set<GridObject*> oGridObjects(m_oObjects); // nul
+		m_iCellSize = iCellSize;
+		m_oGridContext.iCellSize = m_iCellSize;
+		AdjustCellShape();
+	}
 
-		for (GridObject* pObject : oGridObjects)
-			pObject->Update(fDt);
+	void	Grid::SetWindowSize(const Vector2& vWindowSize)
+	{
+		m_oGridContext.vOrigin.x = (vWindowSize.x - (m_iWidth * m_iCellSize) + m_iCellSize) * 0.5f;
+		m_oGridContext.vOrigin.y = (vWindowSize.y - (m_iHeight * m_iCellSize) + m_iCellSize) * 0.5f;
+	}
+
+	void	Grid::Update(float32 /*fDt*/)
+	{
 	}
 
 	void	Grid::Draw(sf::RenderWindow& oRenderWindow) const
 	{
-		GridContext oGridContext;
-		Vector2 vWindowSize = FromSFML(oRenderWindow.getSize());
-		Vector2 vGridSize(m_iWidth * m_iCellSize, m_iHeight * m_iCellSize);
-
-		oGridContext.iCellSize = m_iCellSize;
-		oGridContext.vOrigin.x = (vWindowSize.x - vGridSize.x + oGridContext.iCellSize) / 2.f;
-		oGridContext.vOrigin.y = (vWindowSize.y - vGridSize.y + oGridContext.iCellSize) / 2.f;
-
 		for (uint32 y = 0; y < m_iHeight; ++y)
 		{
 			for (uint32 x = 0; x < m_iWidth; ++x)
 			{
-				m_oCellShape.setPosition(oGridContext.vOrigin.x + x * oGridContext.iCellSize, oGridContext.vOrigin.y + y * oGridContext.iCellSize);
+				m_oCellShape.setPosition(m_oGridContext.vOrigin.x + x * m_iCellSize, m_oGridContext.vOrigin.y + y * m_iCellSize);
 				oRenderWindow.draw(m_oCellShape);
 			}
 		}
-
-		for (const GridObject* pObject : m_oObjects)
-			pObject->Draw(oRenderWindow, oGridContext);
 	}
 
-	void	Grid::Adjust()
+	void	Grid::AdjustCellShape()
 	{
 		m_oCellShape.setSize(sf::Vector2f((float32)m_iCellSize, (float32)m_iCellSize));
-		m_oCellShape.setOrigin(m_oCellShape.getSize() / 2.f);
+		m_oCellShape.setOrigin(m_oCellShape.getSize() * 0.5f);
 	}
 }

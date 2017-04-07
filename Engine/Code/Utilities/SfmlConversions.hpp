@@ -9,7 +9,7 @@ namespace ft
 	template <typename T>
 	inline sf::Vector2<T>	ToSFML(const ft::Vector2& v)
 	{
-		return sf::Vector2f(static_cast<T>(v.x), static_cast<T>(v.y));
+		return sf::Vector2<T>(static_cast<T>(v.x), static_cast<T>(v.y));
 	}
 
 	template <typename T>

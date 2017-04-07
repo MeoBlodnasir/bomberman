@@ -31,7 +31,7 @@ namespace ft
 		}
 	}
 
-	void PlayerController::Update(float32 fDt)
+	void	PlayerController::Update(float32 fDt)
 	{
 		Vector2 vMovement(0.f, 0.f);
 
@@ -44,10 +44,10 @@ namespace ft
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 			vMovement.y += 1;
 
-		if (glm::dot(vMovement, vMovement) > 0.f)
-			vMovement = glm::normalize(vMovement);
-		vMovement *= fDt * m_fMoveSpeed;
-
-		m_oPawn.Move(vMovement);
+		if (vMovement.x > 0.f || vMovement.y > 0.f)
+		{
+			vMovement = glm::normalize(vMovement) * fDt * m_fMoveSpeed;
+			m_oPawn.Move(vMovement);
+		}
 	}
 }

@@ -11,14 +11,11 @@ namespace ft
 {
 	GridObject::GridObject(Grid& oGrid)
 		: m_oGrid(oGrid)
-		, m_vPosition(0.f, 0.f)
 	{
-		m_oGrid.RegisterGridObject(this);
 	}
 
 	GridObject::~GridObject()
 	{
-		m_oGrid.UnregisterGridObject(this);
 	}
 
 
@@ -52,6 +49,7 @@ namespace ft
 		pBomb->SetPosition(Vector2(::ceilf(m_vPosition.x - 0.5f), ::ceilf(m_vPosition.y - 0.5f))); // au centre d'une case, toujours
 		pBomb->SetLifeTime(2.f);
 	}
+
 
 	Bomb::Bomb(Grid& oGrid)
 		: GridObject(oGrid)

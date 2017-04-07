@@ -14,6 +14,6 @@ int		main()
 	//_CrtSetBreakAlloc(iBreakAlloc);
 #endif
 
-	//return TestsRender();
-	return TestsGameplay();
+	return TestsRender();
+	//return TestsGameplay();
 }
