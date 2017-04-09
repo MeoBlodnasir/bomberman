@@ -22,7 +22,7 @@ namespace ft
 		SceneNode();
 		virtual ~SceneNode();
 
-		virtual ErrorCode		Create(const SceneNode::Desc* pDesc) override;
+		virtual ErrorCode		Create(const Desc* pDesc) override;
 		virtual ErrorCode		Destroy() override;
 
 		virtual void			Update();

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/Core.hpp"
-#include "Core/IHierarchyNode.hpp"
 
 namespace ft
 {
@@ -28,7 +27,7 @@ namespace ft
 		inline	TNode*			operator -> () const				{ return (TNode*)m_pNode; }
 		inline	IteratorType&	operator ++ ()						{ Next(); return *this; }
 
-		inline	void			Restart()							{ Reset((TNode*)m_pStartingNode); }
+		inline	void			Restart()							{ Reset(m_pStartingNode); }
 		inline	bool			IsValid() const						{ return m_pNode == nullptr || m_pStartingNode != nullptr; }
 
 		inline	void			Reset(TNode* pNode);
@@ -37,11 +36,10 @@ namespace ft
 
 	protected:
 
-		const IHierarchyNode*	m_pStartingNode;
-		const IHierarchyNode*	m_pNode;
+		const TNode*	m_pStartingNode;
+		const TNode*	m_pNode;
 	};
 }
 
 // Implementation
 #include "HierarchyNodeIterator.tpp"
-

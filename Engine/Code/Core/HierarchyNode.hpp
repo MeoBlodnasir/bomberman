@@ -11,7 +11,7 @@ namespace ft
 	// Exemple: class SceneNode : public HierarchyNode<SceneNode> {};
 
 	template <typename TNode>
-	class HierarchyNode : public IHierarchyNode, public CountableSPtr
+	class HierarchyNode : public CountableSPtr
 	{
 	public:
 
@@ -29,28 +29,24 @@ namespace ft
 		HierarchyNode<TNode>();
 		virtual	~HierarchyNode<TNode>();
 
-		// Interface IHierarchyNode
-		virtual		  IHierarchyNode*	GetParent()			override		{ return m_pParent; }
-		virtual const IHierarchyNode*	GetParent() const	override		{ return m_pParent; }
-		virtual		  IHierarchyNode*	GetChild()			override		{ return m_xChild; }
-		virtual const IHierarchyNode*	GetChild() const	override		{ return m_xChild; }
-		virtual		  IHierarchyNode*	GetSibling()		override		{ return m_xSibling; }
-		virtual const IHierarchyNode*	GetSibling() const	override		{ return m_xSibling; }
+				TNode*		GetParent()	const								{ return m_pParent; }
+				TNode*		GetChild() const		 						{ return m_xChild; }
+				TNode*		GetSibling() const								{ return m_xSibling; }
 
-		virtual ErrorCode				Create(const Desc* pDesc);
-		virtual ErrorCode				Destroy();
+		virtual ErrorCode	Create(const Desc* pDesc);
+		virtual ErrorCode	Destroy();
 
-				TNode*					GetRootNode();
-				uint32					GetHierarchyCount() const;
+				TNode*		GetRootNode();
+				uint32		GetHierarchyCount() const;
 			
-		virtual	void					SetParent(TNode* pParent);
-		virtual	void					UnlinkFromParent();
+		virtual	void		SetParent(TNode* pParent);
+		virtual	void		UnlinkFromParent();
 
 	protected:
 
-		TNode*			m_pParent;
-		SPtr<TNode>		m_xChild;
-		SPtr<TNode>		m_xSibling;
+		TNode*				m_pParent;
+		SPtr<TNode>			m_xChild;
+		SPtr<TNode>			m_xSibling;
 
 	private:
 
@@ -59,4 +55,5 @@ namespace ft
 	};
 }
 
+// Implémentation
 #include "Core/HierarchyNode.tpp"

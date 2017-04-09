@@ -11,8 +11,8 @@ namespace ft
 
 	template <class TNode>
 	HierarchyNodeIterator<TNode>::HierarchyNodeIterator(TNode* pNode)
-		: m_pStartingNode(dynamic_cast<const IHierarchyNode*>(pNode))
-		, m_pNode(m_pStartingNode)
+		: m_pStartingNode(pNode)
+		, m_pNode(pNode)
 	{
 	}
 
@@ -61,7 +61,7 @@ namespace ft
 	void
 	HierarchyNodeIterator<TNode>::Reset(TNode* pNode)
 	{
-		m_pStartingNode	= dynamic_cast<const IHierarchyNode*>(pNode);
+		m_pStartingNode	= pNode;
 		m_pNode			= m_pStartingNode;
 	}
 
@@ -73,7 +73,7 @@ namespace ft
 		if (m_pNode != nullptr)
 		{
 			// Descente dans la hiérarchie
-			const IHierarchyNode* pNext = m_pNode->GetChild();
+			const TNode* pNext = m_pNode->GetChild();
 			if (pNext == nullptr)
 			{
 				// Parcours horizontal
@@ -85,7 +85,7 @@ namespace ft
 					if (pNext == nullptr)
 					{
 						// Remontée
-						const IHierarchyNode* pParent = m_pNode->GetParent();
+						const TNode* pParent = m_pNode->GetParent();
 						while (pParent != nullptr && pParent != m_pStartingNode)
 						{
 							if (pParent->GetSibling() != nullptr)
